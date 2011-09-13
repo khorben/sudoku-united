@@ -1,0 +1,15 @@
+Source: sudoku-united
+Section: user/games
+Priority: optional
+Maintainer: Philip Lorenz <sudokuunitedsd@bithub.de>
+Build-Depends: debhelper (>= 5), libqt4-dev
+Standards-Version: 3.7.3
+Homepage: https://gitorious.org/sudoku-united/sudoku-united
+
+Package: sudoku-united
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: A multiplayer Sudoku game.
+ Sudoku United is an implementation of the popular puzzle game. In difference to many other implementations Sudoku
+ United allows you to solve puzzles cooperatively with friends.
+XSBC-Maemo-Display-Name: sudoku-united
