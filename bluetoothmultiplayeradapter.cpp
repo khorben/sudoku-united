@@ -39,7 +39,7 @@ quint16 BluetoothGameInfo::playerCount() const {
     return info.attribute(BluetoothMultiplayerAdapter::PlayerCountServiceAttributeId).toUInt();
 }
 
-BluetoothMultiplayerAdapter::BluetoothMultiplayerAdapter(QObject *parent) :
+BluetoothMultiplayerAdapter::BluetoothMultiplayerAdapter(Sudoku *parent) :
     MultiplayerAdapter(parent), server(NULL)
 {
     server = new QRfcommServer(this);

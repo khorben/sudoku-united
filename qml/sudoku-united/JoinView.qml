@@ -34,19 +34,19 @@ Page {
             anchors.centerIn: parent
             enabled: list.currentItem != null
             onClicked: {
-                multiplayerAdapter.join(list.currentItem.myData.gameInfo)
+                gameInstance.join(list.currentItem.myData.gameInfo)
             }
         }
     }
 
     Connections {
-        target: multiplayerAdapter
+        target: gameInstance
         onGameChanged: {
-            if (!multiplayerAdapter.game)
+            if (!gameInstance.game)
                 return;
 
             var component = Qt.createComponent("GameView.qml")
-            pageStack.push(component, { "game": function () { return multiplayerAdapter.game } });
+            pageStack.push(component, { "game": function () { return gameInstance.game } });
         }
     }
 

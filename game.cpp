@@ -64,6 +64,8 @@ Player *Game::addPlayer(Player *player) {
         }
     }
 
+    connect(player, SIGNAL(stateChanged()), SLOT(onPlayerStateChanged()));
+
     player->m_colorIndex = m_currentColorIndex++;
 
     if (!player->parent())
@@ -72,6 +74,7 @@ Player *Game::addPlayer(Player *player) {
     m_players.append(player);
 
     emit playersChanged();
+    emit playerJoined(player);
 
     return player;
 }
@@ -104,6 +107,22 @@ void Game::onBoardGenerated() {
     m_boardGenerationThread = NULL;
     m_boardGeneratorWrapper->deleteLater();
     m_boardGeneratorWrapper = NULL;
+}
+
+void Game::onPlayerStateChanged() {
+    Player *player = qobject_cast<Player *>(sender());
+
+    if (!player)
+        return;
+
+    switch (player->state()) {
+    case Player::Connected:
+        emit playerJoined(player);
+        break;
+    case Player::Disconnected:
+        emit playerLeft(player);
+        break;
+    }
 }
 
 void Game::appendPlayersFunction(QDeclarativeListProperty<Player> *property, Player *value) {

@@ -20,7 +20,7 @@
 
 #include <QObject>
 #include <QtDeclarative>
-#include "boardgenerator.h"
+#include "sudoku.h"
 
 class Player;
 class GameInfo;
@@ -67,8 +67,6 @@ QML_DECLARE_TYPE(GameInfo)
 class MultiplayerAdapter : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(Game * game READ game NOTIFY gameChanged)
-
 public:
     const static quint16 ProtocolVersion = 1;
 
@@ -79,29 +77,23 @@ public:
     };
 
 public:
-    explicit MultiplayerAdapter(QObject *parent);
+    explicit MultiplayerAdapter(Sudoku *parent);
 
-    Q_INVOKABLE
     virtual void join(GameInfo *game) = 0;
-    Q_INVOKABLE
     virtual GameInfoModel *discoverGames() = 0;
-    Q_INVOKABLE
-    virtual Game *createGame(BoardGenerator::Difficulty difficulty = BoardGenerator::EASY);
-    Q_INVOKABLE
-    virtual void leave();
 
-    Game *game() const { return m_game; }
 protected slots:
     virtual void onCellValueChanged(Cell *cell);
     virtual void onConnectedToServer();
 protected:
-    virtual void setGame(Game *game);
+    inline Game *game() const { return m_sudoku->game(); }
     virtual void sendMessage(const PlayerInfo *info, Message *message, PlayerStateFilter stateFilter=Online);
     virtual void handleNewConnection(QIODevice *device);
 protected:
     PlayerInfo *m_local;
     QHash<QIODevice *, PlayerInfo *> m_remote;
 private slots:
+    void onGameChanged();
     void onBoardChanged();
     void onReadyRead();
     void onReadChannelFinished();
@@ -115,31 +107,16 @@ private:
     void handleSetValueMessage(PlayerInfo &playerInfo, SetValueMessage *message);
 signals:
     /**
-      * Indicates that a game has been set on this multiplayer adapter. This usually means that a game has started.
+      * Indicates that a join succeeded.
       */
-    void gameChanged();
+    void joinSucceeded(Game *game);
 
     /**
       * Indicates that joining a game has failed.
       */
     void joinFailed(const QString &reason);
-
-    /**
-      * Indicates that a new player has joined the game.
-      */
-    void playerJoined(Player *player);
-
-    /**
-      * Indicates that a player has disconnected from the game.
-      */
-    void playerLeft(Player *player);
-
-    /**
-      * Indicates that the game was left (e.g. due to disconnection from the server or due to call to leave()).
-      */
-    void gameLeft();
-private:
-    Game *m_game;
+protected:
+    Sudoku *m_sudoku;
 };
 
 QML_DECLARE_TYPE(MultiplayerAdapter)

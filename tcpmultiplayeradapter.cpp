@@ -35,7 +35,7 @@ TCPGameInfo::TCPGameInfo(QObject *parent) :
 
 }
 
-TCPMultiplayerAdapter::TCPMultiplayerAdapter(QObject *parent) :
+TCPMultiplayerAdapter::TCPMultiplayerAdapter(Sudoku *parent) :
     MultiplayerAdapter(parent), m_server(new QTcpServer(this))
 {
     connect(m_server, SIGNAL(newConnection()), SLOT(onNewConnection()));
@@ -47,7 +47,7 @@ TCPMultiplayerAdapter::TCPMultiplayerAdapter(QObject *parent) :
     connect(m_local->device, SIGNAL(readyRead()), SLOT(onReadyRead()));
     connect(m_local->device, SIGNAL(readChannelFinished()), SLOT(onReadChannelFinished()));
 
-    connect(this, SIGNAL(gameChanged()), SLOT(onGameChanged()));
+    connect(m_sudoku, SIGNAL(gameChanged()), SLOT(onGameChanged()));
 }
 
 GameInfoModel *TCPMultiplayerAdapter::discoverGames() {

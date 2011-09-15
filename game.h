@@ -64,8 +64,20 @@ signals:
       * Indicates that the list of players has been changed.
       */
     void playersChanged();
+
+    /**
+      * Convenience signal which is emitted when a new player joins the game.
+      */
+    void playerJoined(Player *player);
+
+    /**
+      * Convenience signal which is emitted when a player leaves the game.
+      */
+    void playerLeft(Player *player);
+
 private slots:
     void onBoardGenerated();
+    void onPlayerStateChanged();
 private:
     Board *m_board;
     QList<Player *> m_players;

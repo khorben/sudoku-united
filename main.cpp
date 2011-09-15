@@ -37,12 +37,10 @@ int main(int argc, char *argv[])
     qmlRegisterType<Board>("sudoku", 1, 0, "Board");
     qmlRegisterType<Game>("sudoku", 1, 0, "Game");
     qmlRegisterType<Player>("sudoku", 1, 0, "Player");
-    qmlRegisterUncreatableType<MultiplayerAdapter>("sudoku", 1, 0, "MultiplayerAdapter", "Provided via multiplayerAdapter variable");
     qmlRegisterUncreatableType<GameInfo>("sudoku", 1, 0, "GameInfo", "Use value returned by the adapters gameList() function.");
     qmlRegisterUncreatableType<GameInfoModel>("sudoku", 1, 0, "GameInfoModel", "Returned via discovery");
     qmlRegisterUncreatableType<Sudoku>("sudoku", 1, 0, "Sudoku", "Global instance provided via the gameInstance variable.");
 
-    viewer.rootContext()->setContextProperty("multiplayerAdapter", Sudoku::instance()->multiplayerAdapter());
     viewer.rootContext()->setContextProperty("gameInstance", Sudoku::instance());
     viewer.rootContext()->setContextProperty("localPlayer", Sudoku::instance()->player());
 

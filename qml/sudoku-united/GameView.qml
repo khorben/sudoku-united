@@ -43,13 +43,13 @@ Page {
         }
         onSelectedIndexChanged: {
             if (selectedIndex == 0){
-                multiplayerAdapter.leave()
+                gameInstance.leave()
             }
         }
     }
 
     Connections {
-        target: multiplayerAdapter
+        target: game
 
         onPlayerJoined: {
             infoBanner.text = player.name + " has joined the game"

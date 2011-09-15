@@ -27,7 +27,7 @@ Page {
 
     property real gameDifficulty : 0
 
-    property Game game : multiplayerAdapter.game
+    property Game game : gameInstance.game
 
     Connections {
         target: game
@@ -63,7 +63,7 @@ Page {
         }
 
         onClicked: {
-            multiplayerAdapter.createGame(1)
+            gameInstance.createGame(1)
         }
     }
 
@@ -83,7 +83,7 @@ Page {
         }
 
         onClicked: {
-            multiplayerAdapter.createGame(2)
+            gameInstance.createGame(2)
         }
     }
 
@@ -103,7 +103,7 @@ Page {
         }
 
         onClicked: {
-            multiplayerAdapter.createGame(3)
+            gameInstance.createGame(3)
         }
     }
 
@@ -123,7 +123,7 @@ Page {
         }
 
         onClicked: {
-            multiplayerAdapter.createGame(4)
+            gameInstance.createGame(4)
         }
     }
 }

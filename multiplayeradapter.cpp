@@ -27,54 +27,30 @@ PlayerInfo::PlayerInfo() :
 
 }
 
-MultiplayerAdapter::MultiplayerAdapter(QObject *parent) :
-    QObject(parent), m_game(NULL)
-{
-}
-
-void MultiplayerAdapter::setGame(Game *game) {
-    if (game == m_game)
-        return;
-
-    if (m_game != NULL)
-        m_game->deleteLater();
-
-    m_game = game;
-
-    if (m_game != NULL) {
-        m_game->setParent(this);
-
-        connect(m_game, SIGNAL(boardChanged()), SLOT(onBoardChanged()));
-        onBoardChanged();
-    }
-
-    emit gameChanged();
-}
-
-Game *MultiplayerAdapter::createGame(BoardGenerator::Difficulty difficulty) {
-    if (m_game)
-        m_game->deleteLater();
-
-    Game *game = new Game(this);
-    game->addPlayer(Sudoku::instance()->player());
-
-    setGame(game);
-
-    game->generateBoard(difficulty);
-
-    return m_game;
-}
-
-void MultiplayerAdapter::leave() {
-    if (m_local->device != NULL && m_local->device->isOpen())
-        m_local->device->close();
-
-    setGame(NULL);
-}
-
 GameInfo::GameInfo(QObject *parent) :
     QObject(parent) {
 
+}
+
+MultiplayerAdapter::MultiplayerAdapter(Sudoku *parent) :
+    QObject(parent), m_sudoku(parent)
+{
+    connect(parent, SIGNAL(gameChanged()), SLOT(onGameChanged()));
+}
+
+void MultiplayerAdapter::onGameChanged() {
+    Game *game = m_sudoku->game();
+
+    if (game != NULL) {
+        connect(game, SIGNAL(boardChanged()), SLOT(onBoardChanged()));
+        onBoardChanged();
+    } else {
+        if (m_local->device != NULL && m_local->device->isOpen())
+            m_local->device->close();
+
+        foreach (QIODevice *device, m_remote.keys())
+            device->deleteLater();
+    }
 }
 
 void MultiplayerAdapter::onCellValueChanged(Cell *cell) {
@@ -87,7 +63,7 @@ void MultiplayerAdapter::onCellValueChanged(Cell *cell) {
 }
 
 void MultiplayerAdapter::onBoardChanged() {
-    Board *board = m_game->board();
+    Board *board = m_sudoku->game()->board();
 
     if (board == NULL)
         return;
@@ -134,8 +110,6 @@ void MultiplayerAdapter::handleJoinMessage(PlayerInfo &playerInfo, JoinMessage *
         sendMessage(&playerInfo, &gameMessage);
 
         playerInfo.player = game()->addPlayer(message->uuid(), message->name());
-
-        emit playerJoined(playerInfo.player);
     }
 }
 
@@ -150,7 +124,7 @@ void MultiplayerAdapter::handleGameMessage(PlayerInfo &playerInfo, GameMessage *
     // We are also part of the game
     game->addPlayer(Sudoku::instance()->player());
 
-    setGame(message->game());
+    emit joinSucceeded(message->game());
 }
 
 void MultiplayerAdapter::handleSetValueMessage(PlayerInfo &playerInfo, SetValueMessage *message) {
@@ -275,8 +249,6 @@ void MultiplayerAdapter::onReadChannelFinished() {
 
     if (playerInfo->player != NULL) {
         playerInfo->player->setState(Player::Disconnected);
-
-        emit playerLeft(playerInfo->player);
     }
 }
 

@@ -46,7 +46,7 @@ Page {
             text: "Join"
             onClicked: {
                 var component = Qt.createComponent("JoinView.qml")
-                pageStack.push(component, { "gameInfoModel": multiplayerAdapter.discoverGames() });
+                pageStack.push(component, { "gameInfoModel": gameInstance.discoverGames() });
             }
         }
 

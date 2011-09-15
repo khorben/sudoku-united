@@ -21,30 +21,53 @@
 #include <QObject>
 #include <QtDeclarative>
 
+#include "boardgenerator.h"
+
 class MultiplayerAdapter;
 class Player;
+class Game;
+class GameInfo;
+class GameInfoModel;
 
 class Sudoku : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(MultiplayerAdapter * multiplayerAdapter READ multiplayerAdapter CONSTANT)
+    // Q_PROPERTY(MultiplayerAdapter * multiplayerAdapter READ multiplayerAdapter CONSTANT)
     Q_PROPERTY(Player * player READ player CONSTANT)
+    Q_PROPERTY(Game * game READ game NOTIFY gameChanged)
 public:
     explicit Sudoku(QObject *parent = 0);
 
-    MultiplayerAdapter *multiplayerAdapter() const { return m_multiplayerAdapter; }
-
     Player *player() const { return m_player; }
+
+    Game *game() const { return m_game; }
+
+    Q_INVOKABLE
+    virtual void join(GameInfo *game);
+
+    Q_INVOKABLE
+    virtual GameInfoModel *discoverGames();
+
+    Q_INVOKABLE
+    virtual Game *createGame(BoardGenerator::Difficulty difficulty = BoardGenerator::EASY);
+
+    Q_INVOKABLE
+    virtual void leave();
 
     static Sudoku *instance();
 signals:
-
+    void gameChanged();
 public slots:
 
+protected slots:
+    void setGame(Game *game);
 private:
-    MultiplayerAdapter *m_multiplayerAdapter;
-    Player *m_player;
+    void addMultiplayerAdapter(MultiplayerAdapter *adapter);
 
+private:
+    QList<MultiplayerAdapter *> m_multiplayerAdapters;
+    Player *m_player;
+    Game *m_game;
 private:
     static Sudoku *m_instance;
 

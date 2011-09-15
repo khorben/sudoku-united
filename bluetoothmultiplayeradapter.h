@@ -47,7 +47,7 @@ public:
       */
     static const quint16 PlayerCountServiceAttributeId = 0x10;
 public:
-    explicit BluetoothMultiplayerAdapter(QObject *parent = 0);
+    explicit BluetoothMultiplayerAdapter(Sudoku *parent);
     ~BluetoothMultiplayerAdapter();
 
     GameInfoModel *discoverGames();

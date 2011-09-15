@@ -62,7 +62,7 @@ class TCPMultiplayerAdapter : public MultiplayerAdapter
 {
     Q_OBJECT
 public:
-    explicit TCPMultiplayerAdapter(QObject *parent = 0);
+    explicit TCPMultiplayerAdapter(Sudoku *parent = 0);
 
     void join(GameInfo *game);
 
