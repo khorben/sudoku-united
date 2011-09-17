@@ -43,10 +43,10 @@ quint16 BluetoothGameInfo::playerCount() const {
 BluetoothMultiplayerAdapter::BluetoothMultiplayerAdapter(Sudoku *parent) :
     MultiplayerAdapter(parent), server(NULL)
 {
+    localDevice = new QBluetoothLocalDevice(this);
+
     server = new QRfcommServer(this);
     connect(server, SIGNAL(newConnection()), SLOT(onNewConnection()));
-
-    localDevice = new QBluetoothLocalDevice(this);
 
     discoveryAgent = new QBluetoothServiceDiscoveryAgent(this);
     discoveryAgent->setUuidFilter(BluetoothMultiplayerAdapter::ServiceUuid);
@@ -60,6 +60,10 @@ BluetoothMultiplayerAdapter::BluetoothMultiplayerAdapter(Sudoku *parent) :
 
 BluetoothMultiplayerAdapter::~BluetoothMultiplayerAdapter() {
     localDevice->setHostMode(previousHostMode);
+}
+
+bool BluetoothMultiplayerAdapter::hostSupportsBluetooth() {
+    return QBluetoothLocalDevice::allDevices().size() > 0;
 }
 
 GameInfoModel *BluetoothMultiplayerAdapter::discoverGames() {

@@ -32,7 +32,8 @@ Sudoku::Sudoku(QObject *parent) :
     m_player->setName("Foobar");
 
     addMultiplayerAdapter(new TCPMultiplayerAdapter(this));
-    addMultiplayerAdapter(new BluetoothMultiplayerAdapter(this));
+    if (BluetoothMultiplayerAdapter::hostSupportsBluetooth())
+        addMultiplayerAdapter(new BluetoothMultiplayerAdapter(this));
 }
 
 Sudoku *Sudoku::instance() {

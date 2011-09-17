@@ -47,6 +47,8 @@ public:
       */
     static const quint16 PlayerCountServiceAttributeId = 0x10;
 public:
+    static bool hostSupportsBluetooth();
+public:
     explicit BluetoothMultiplayerAdapter(Sudoku *parent);
     ~BluetoothMultiplayerAdapter();
 
