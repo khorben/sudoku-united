@@ -18,6 +18,8 @@
 #include "sudoku.h"
 #include "player.h"
 #include "tcpmultiplayeradapter.h"
+#include "bluetoothmultiplayeradapter.h"
+#include "multiplayeradapter.h"
 #include "game.h"
 
 Sudoku *Sudoku::m_instance = NULL;
@@ -30,6 +32,7 @@ Sudoku::Sudoku(QObject *parent) :
     m_player->setName("Foobar");
 
     addMultiplayerAdapter(new TCPMultiplayerAdapter(this));
+    addMultiplayerAdapter(new BluetoothMultiplayerAdapter(this));
 }
 
 Sudoku *Sudoku::instance() {
@@ -66,7 +69,7 @@ void Sudoku::join(GameInfo *game) {
 }
 
 GameInfoModel *Sudoku::discoverGames() {
-    return m_multiplayerAdapters.first()->discoverGames();
+    return new AggregateGameInfoModel(this);
 }
 
 Game *Sudoku::createGame(BoardGenerator::Difficulty difficulty) {
@@ -88,4 +91,38 @@ void Sudoku::leave() {
         return;
 
     setGame(NULL);
+}
+
+
+AggregateGameInfoModel::AggregateGameInfoModel(Sudoku *parent) :
+    GameInfoModel(parent) {
+
+    foreach(MultiplayerAdapter *adapter, parent->m_multiplayerAdapters) {
+        GameInfoModel *model = adapter->discoverGames();
+
+        m_gameInfoModels.append(model);
+
+        connect(model, SIGNAL(stateChanged()), SLOT(onStateChanged()));
+        connect(model, SIGNAL(rowsInserted(QModelIndex, int, int)), SLOT(onRowsInserted(QModelIndex,int,int)));
+    }
+}
+
+void AggregateGameInfoModel::onRowsInserted(const QModelIndex &parent, int start, int end) {
+    Q_UNUSED(parent)
+
+    GameInfoModel *model = (GameInfoModel *) sender();
+
+    for (int i = start; i <= end; i++) {
+        appendGameInfo(model->row(i));
+    }
+}
+
+void AggregateGameInfoModel::onStateChanged() {
+    foreach (GameInfoModel *model, m_gameInfoModels) {
+        if (model->state() == Discovering)
+            return;
+    }
+
+    m_state = Complete;
+    emit stateChanged();
 }

@@ -17,6 +17,7 @@
 
 #include "bluetoothmultiplayeradapter.h"
 #include "game.h"
+#include "sudoku.h"
 
 #include <QBluetoothDeviceInfo>
 #include <QBluetoothServiceInfo>
@@ -54,7 +55,7 @@ BluetoothMultiplayerAdapter::BluetoothMultiplayerAdapter(Sudoku *parent) :
     m_local->device = new QBluetoothSocket(QBluetoothSocket::RfcommSocket, this);
 
     // Listen for game changes as we need to subscribe to the players changed property
-    connect(this, SIGNAL(gameChanged()), SLOT(onGameChanged()));
+    connect(parent, SIGNAL(gameChanged()), SLOT(onGameChanged()));
 }
 
 BluetoothMultiplayerAdapter::~BluetoothMultiplayerAdapter() {
@@ -146,7 +147,7 @@ void BluetoothMultiplayerAdapter::startServer() {
     if (game() != NULL)
         playerCount = game()->players().size();
 
-    serviceInfo.setAttribute(BluetoothMultiplayerAdapter::PlayerCountServiceAttributeId, playerCount);
+    serviceInfo.setAttribute(BluetoothMultiplayerAdapter::PlayerCountServiceAttributeId, QVariant((uint) playerCount));
 
     // Register the service
     serviceInfo.registerService();
@@ -187,7 +188,7 @@ void BluetoothMultiplayerAdapter::onGameChanged() {
 void BluetoothMultiplayerAdapter::onPlayersChanged() {
     serviceInfo.unregisterService();
 
-    serviceInfo.setAttribute(BluetoothMultiplayerAdapter::PlayerCountServiceAttributeId, quint16(game()->players().size()));
+    serviceInfo.setAttribute(BluetoothMultiplayerAdapter::PlayerCountServiceAttributeId, QVariant((uint) game()->players().length()));
 
     serviceInfo.registerService();
 }

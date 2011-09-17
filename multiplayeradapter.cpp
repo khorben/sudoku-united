@@ -178,6 +178,10 @@ void MultiplayerAdapter::onConnectedToServer() {
     qDebug() << "Connected to server - waiting for Hello.";
 }
 
+Game *MultiplayerAdapter::game() const {
+    return m_sudoku->game();
+}
+
 void MultiplayerAdapter::onReadyRead() {
     QIODevice *device = qobject_cast<QIODevice *>(sender());
 
@@ -321,4 +325,8 @@ int GameInfoModel::rowCount(const QModelIndex &parent) const {
     Q_UNUSED(parent)
 
     return m_gameInfoList.size();
+}
+
+GameInfo *GameInfoModel::row(int index) const {
+    return m_gameInfoList[index];
 }

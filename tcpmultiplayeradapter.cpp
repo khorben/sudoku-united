@@ -20,6 +20,7 @@
 #include "player.h"
 #include "game.h"
 #include "board.h"
+#include "sudoku.h"
 
 #include <QTcpServer>
 #include <QTcpSocket>

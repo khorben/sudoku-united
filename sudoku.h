@@ -22,12 +22,10 @@
 #include <QtDeclarative>
 
 #include "boardgenerator.h"
+#include "multiplayeradapter.h"
 
-class MultiplayerAdapter;
 class Player;
 class Game;
-class GameInfo;
-class GameInfoModel;
 
 class Sudoku : public QObject
 {
@@ -65,6 +63,8 @@ private:
     void addMultiplayerAdapter(MultiplayerAdapter *adapter);
 
 private:
+    friend class AggregateGameInfoModel;
+
     QList<MultiplayerAdapter *> m_multiplayerAdapters;
     Player *m_player;
     Game *m_game;
@@ -74,5 +74,17 @@ private:
 };
 
 QML_DECLARE_TYPE(Sudoku)
+
+class AggregateGameInfoModel : public GameInfoModel {
+    Q_OBJECT
+public:
+    AggregateGameInfoModel(Sudoku *parent);
+
+private slots:
+    void onRowsInserted(const QModelIndex & parent, int start, int end);
+    void onStateChanged();
+private:
+    QList<GameInfoModel *> m_gameInfoModels;
+};
 
 #endif // SUDOKU_H

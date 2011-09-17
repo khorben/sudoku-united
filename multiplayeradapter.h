@@ -20,11 +20,11 @@
 
 #include <QObject>
 #include <QtDeclarative>
-#include "sudoku.h"
 
 class Player;
 class GameInfo;
 class Game;
+class Sudoku;
 
 class Cell;
 
@@ -86,7 +86,7 @@ protected slots:
     virtual void onCellValueChanged(Cell *cell);
     virtual void onConnectedToServer();
 protected:
-    inline Game *game() const { return m_sudoku->game(); }
+    Game *game() const;
     virtual void sendMessage(const PlayerInfo *info, Message *message, PlayerStateFilter stateFilter=Online);
     virtual void handleNewConnection(QIODevice *device);
 protected:
@@ -136,6 +136,9 @@ public:
     virtual QVariant data(const QModelIndex &index, int role) const;
 
     int rowCount(const QModelIndex &parent) const;
+
+    GameInfo *row(int index) const;
+
 signals:
     void stateChanged();
 protected:
