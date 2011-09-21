@@ -48,8 +48,12 @@ void MultiplayerAdapter::onGameChanged() {
         if (m_local->device != NULL && m_local->device->isOpen())
             m_local->device->close();
 
-        foreach (QIODevice *device, m_remote.keys())
+        foreach (QIODevice *device, m_remote.keys()) {
+            delete m_remote[device];
             device->deleteLater();
+        }
+
+        m_remote.clear();
     }
 }
 
@@ -70,20 +74,6 @@ void MultiplayerAdapter::onBoardChanged() {
     connect(board, SIGNAL(cellValueChanged(Cell*)), SLOT(onCellValueChanged(Cell*)));
 }
 
-void MultiplayerAdapter::onSocketDestroyed(QObject *socket) {
-    QIODevice *device = qobject_cast<QIODevice *>(socket);
-
-    if (device == NULL)
-        return;
-
-    if (m_remote.contains(device)) {
-        PlayerInfo *playerInfo = m_remote[device];
-        delete playerInfo;
-
-        m_remote.remove(device);
-    }
-}
-
 void MultiplayerAdapter::handleNewConnection(QIODevice *device) {
     PlayerInfo *playerInfo = new PlayerInfo();
 
@@ -94,7 +84,6 @@ void MultiplayerAdapter::handleNewConnection(QIODevice *device) {
 
     connect(device, SIGNAL(readyRead()), SLOT(onReadyRead()));
     connect(device, SIGNAL(readChannelFinished()), SLOT(onReadChannelFinished()));
-    connect(device, SIGNAL(destroyed(QObject*)), SLOT(onSocketDestroyed(QObject*)));
 
     HelloMessage message;
     sendMessage(playerInfo, &message);
@@ -238,6 +227,8 @@ void MultiplayerAdapter::parseMessages(PlayerInfo &playerInfo) {
 void MultiplayerAdapter::onReadChannelFinished() {
     QIODevice *device = qobject_cast<QIODevice *>(sender());
 
+    qDebug() << "Device has signalled EOF:" << device;
+
     if (device == m_local->device) {
         m_local->device->close();
         return;
@@ -254,6 +245,9 @@ void MultiplayerAdapter::onReadChannelFinished() {
     if (playerInfo->player != NULL) {
         playerInfo->player->setState(Player::Disconnected);
     }
+
+    delete playerInfo;
+    m_remote.remove(device);
 }
 
 void MultiplayerAdapter::sendMessage(const PlayerInfo *info, Message *message, PlayerStateFilter stateFilter) {
@@ -267,16 +261,19 @@ void MultiplayerAdapter::sendMessage(const PlayerInfo *info, Message *message, P
                 continue;
 
             QDataStream stream(device);
-            message->writeStream(stream);
+            if (!message->writeStream(stream))
+                qWarning() << "Failed to send message to " << stream.device() << "(" << stream.device()->errorString() << ")";
         }
 
         if (m_local->device != NULL && m_local->device->isWritable()) {
             QDataStream stream(m_local->device);
-            message->writeStream(stream);
+            if (!message->writeStream(stream))
+                qWarning() << "Failed to send message to " << stream.device() << "(" << stream.device()->errorString() << ")";
         }
     } else {
         QDataStream stream(info->device);
-        message->writeStream(stream);
+        if (!message->writeStream(stream))
+            qWarning() << "Failed to send message to " << stream.device() << "(" << stream.device()->errorString() << ")";
     }
 }
 
@@ -300,6 +297,15 @@ void GameInfoModel::appendGameInfo(GameInfo *gameInfo) {
     m_gameInfoList.append(gameInfo);
 
     endInsertRows();
+}
+
+void GameInfoModel::setState(State state) {
+    if (state == m_state)
+        return;
+
+    m_state = state;
+
+    emit stateChanged();
 }
 
 QVariant GameInfoModel::data(const QModelIndex &index, int role) const {

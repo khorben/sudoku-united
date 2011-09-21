@@ -55,6 +55,10 @@ GameInfoModel *TCPMultiplayerAdapter::discoverGames() {
     return new TCPGameInfoModel(this);
 }
 
+bool TCPMultiplayerAdapter::canJoinGameInfo(GameInfo *game) const {
+    return qobject_cast<TCPGameInfo *>(game) != NULL;
+}
+
 void TCPMultiplayerAdapter::join(GameInfo *game) {
     TCPGameInfo *gameInfo = qobject_cast<TCPGameInfo *>(game);
 

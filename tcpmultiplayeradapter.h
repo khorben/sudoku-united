@@ -67,6 +67,8 @@ public:
     void join(GameInfo *game);
 
     GameInfoModel *discoverGames();
+
+    bool canJoinGameInfo(GameInfo *game) const;
 private slots:
     void onNewConnection();
     void onGameChanged();

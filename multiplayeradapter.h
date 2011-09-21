@@ -81,6 +81,7 @@ public:
 
     virtual void join(GameInfo *game) = 0;
     virtual GameInfoModel *discoverGames() = 0;
+    virtual bool canJoinGameInfo(GameInfo *game) const = 0;
 
 protected slots:
     virtual void onCellValueChanged(Cell *cell);
@@ -97,7 +98,6 @@ private slots:
     void onBoardChanged();
     void onReadyRead();
     void onReadChannelFinished();
-    void onSocketDestroyed(QObject *socket);
 private:
     void parseMessages(PlayerInfo &playerInfo);
 
@@ -145,6 +145,8 @@ protected:
     GameInfoModel(QObject *parent = 0);
 
     void appendGameInfo(GameInfo *gameInfo);
+
+    void setState(State state);
 protected:
     QList<GameInfo *> m_gameInfoList;
     State m_state;

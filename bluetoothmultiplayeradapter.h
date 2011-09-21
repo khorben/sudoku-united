@@ -55,6 +55,8 @@ public:
     GameInfoModel *discoverGames();
 
     void join(GameInfo *game);
+
+    bool canJoinGameInfo(GameInfo *game) const;
 signals:
 
 public slots:

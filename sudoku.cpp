@@ -19,6 +19,7 @@
 #include "player.h"
 #include "tcpmultiplayeradapter.h"
 #include "bluetoothmultiplayeradapter.h"
+#include "telepathymultiplayeradapter.h"
 #include "multiplayeradapter.h"
 #include "game.h"
 
@@ -28,12 +29,14 @@ Sudoku::Sudoku(QObject *parent) :
     QObject(parent), m_player(NULL), m_game(NULL)
 {
 
-    m_player = new Player();
+    m_player = new Player(this);
     m_player->setName("Foobar");
 
     addMultiplayerAdapter(new TCPMultiplayerAdapter(this));
     if (BluetoothMultiplayerAdapter::hostSupportsBluetooth())
         addMultiplayerAdapter(new BluetoothMultiplayerAdapter(this));
+
+    addMultiplayerAdapter(new TelepathyMultiplayerAdapter(this));
 }
 
 Sudoku *Sudoku::instance() {
@@ -66,7 +69,13 @@ void Sudoku::setGame(Game *game) {
 }
 
 void Sudoku::join(GameInfo *game) {
-    m_multiplayerAdapters.first()->join(game);
+    foreach(MultiplayerAdapter *adapter, m_multiplayerAdapters) {
+        if (!adapter->canJoinGameInfo(game))
+            continue;
+
+        adapter->join(game);
+        break;
+    }
 }
 
 GameInfoModel *Sudoku::discoverGames() {
@@ -102,6 +111,10 @@ AggregateGameInfoModel::AggregateGameInfoModel(Sudoku *parent) :
         GameInfoModel *model = adapter->discoverGames();
 
         m_gameInfoModels.append(model);
+
+        for (int i = 0; i < model->rowCount(QModelIndex()); i++) {
+            appendGameInfo(model->row(i));
+        }
 
         connect(model, SIGNAL(stateChanged()), SLOT(onStateChanged()));
         connect(model, SIGNAL(rowsInserted(QModelIndex, int, int)), SLOT(onRowsInserted(QModelIndex,int,int)));

@@ -22,6 +22,9 @@ symbian:TARGET.CAPABILITY += NetworkServices
 # lines and add the respective components to the MOBILITY variable.
 CONFIG += mobility
 
+CONFIG += link_pkgconfig
+PKGCONFIG += TelepathyQt4
+
 # Add dependency to symbian components
 # CONFIG += qtquickcomponents
 
@@ -35,7 +38,8 @@ SOURCES += main.cpp \
     message.cpp \
     bluetoothmultiplayeradapter.cpp \
     boardgenerator.cpp \
-    sudoku.cpp
+    sudoku.cpp \
+    telepathymultiplayeradapter.cpp
 
 # Please do not modify the following two lines. Required for deployment.
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
@@ -66,7 +70,8 @@ HEADERS += \
     message.h \
     bluetoothmultiplayeradapter.h \
     boardgenerator.h \
-    sudoku.h
+    sudoku.h \
+    telepathymultiplayeradapter.h
 
 RESOURCES += resources.qrc
 
@@ -83,6 +88,8 @@ contains(MEEGO_EDITION,harmattan): {
 } else {
     MOBILITY += connectivity
 }
+
+
 
 
 

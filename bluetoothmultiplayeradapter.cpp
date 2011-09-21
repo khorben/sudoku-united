@@ -70,6 +70,10 @@ GameInfoModel *BluetoothMultiplayerAdapter::discoverGames() {
     return new BluetoothGameInfoModel(discoveryAgent, this);
 }
 
+bool BluetoothMultiplayerAdapter::canJoinGameInfo(GameInfo *game) const {
+    return qobject_cast<BluetoothMultiplayerAdapter *>(game) != NULL;
+}
+
 void BluetoothMultiplayerAdapter::join(GameInfo *game) {
     BluetoothGameInfo *gameInfo = qobject_cast<BluetoothGameInfo *>(game);
 
