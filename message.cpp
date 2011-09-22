@@ -201,6 +201,11 @@ bool GameMessage::parseStream(QDataStream &dataStream) {
                 }
             }
         }
+        for (quint8 y = 0; y < 9; y++) {
+            for (quint8 x = 0; x < 9; x++) {
+                dataStream >>board->m_solution[x][y];
+            }
+        }
 
         m_game->setBoard(board);
     }
@@ -240,6 +245,11 @@ bool GameMessage::writeStream(QDataStream &dataStream) {
                 if (cell->value() != 0 && !cell->isFixedCell()) {
                     tempStream << playerIndexMap[cell->valueOwner()];
                 }
+            }
+        }
+        for (quint8 y = 0; y < 9; y++) {
+            for (quint8 x = 0; x < 9; x++) {
+                tempStream << m_game->board()->solutionValue(x, y);
             }
         }
     } else {

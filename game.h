@@ -99,10 +99,10 @@ private:
     QList<Player *> m_players;
     QThread *m_boardGenerationThread;
     BoardGeneratorWrapper *m_boardGeneratorWrapper;
-    bool m_boardGenerationRunning;
     QThread *m_hintGenerationThread;
     HintGenerator *m_hintGenerator;
     quint8 m_currentColorIndex;
+    bool m_boardGenerationRunning;
 private:
     static int countPlayersFunction(QDeclarativeListProperty<Player> *property);
     static Player *atPlayersFunction(QDeclarativeListProperty<Player> *property, int index);
