@@ -75,18 +75,10 @@ HEADERS += \
 
 RESOURCES += resources.qrc
 
+MOBILITY += connectivity
 contains(MEEGO_EDITION,harmattan): {
-    QT += dbus network
-    # Due to issues with the Qt Mobility version shipped with the 2011.22 image we link against
-    # QtConnectivity statically.
-    LIBS += -Wl,-Bstatic -L$$QTCONNECTIVITYLIBPATH -lQtConnectivity -Wl,-Bdynamic
-
-    include(mobility)
-    INCLUDEPATH += $$QMAKE_INCDIR_QT/QtConnectivity
-
-    DEFINES += MEEGO_EDITION_HARMATTAN
 } else {
-    MOBILITY += connectivity
+
 }
 
 

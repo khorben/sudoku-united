@@ -79,7 +79,7 @@ public:
 public:
     explicit MultiplayerAdapter(Sudoku *parent);
 
-    virtual void join(GameInfo *game) = 0;
+    virtual void join(GameInfo *game);
     virtual GameInfoModel *discoverGames() = 0;
     virtual bool canJoinGameInfo(GameInfo *game) const = 0;
 
@@ -89,22 +89,36 @@ protected slots:
 protected:
     Game *game() const;
     virtual void sendMessage(const PlayerInfo *info, Message *message, PlayerStateFilter stateFilter=Online);
-    virtual void handleNewConnection(QIODevice *device);
+    virtual void handleNewRemoteConnection(QIODevice *device);
+
+    void disconnectRemoteClient(QIODevice *device);
+    void disconnectRemoteClient(PlayerInfo *info);
+
+    virtual void disconnectLocalDevice(const QString &reason = QString());
+
+    QIODevice *localDevice() const;
+    void setLocalDevice(QIODevice *device);
 protected:
-    PlayerInfo *m_local;
-    QHash<QIODevice *, PlayerInfo *> m_remote;
+    Sudoku *m_sudoku;
 private slots:
     void onGameChanged();
     void onBoardChanged();
-    void onReadyRead();
-    void onReadChannelFinished();
+    void onRemoteReadyRead();
+    void onRemoteReadChannelFinished();
+    void onLocalReadyRead();
+    void onLocalReadChannelFinished();
 private:
     void parseMessages(PlayerInfo &playerInfo);
+
+    void handleIncomingData(PlayerInfo &playerInfo);
 
     void handleHelloMessage(PlayerInfo &playerInfo, HelloMessage *message);
     void handleJoinMessage(PlayerInfo &playerInfo, JoinMessage *message);
     void handleGameMessage(PlayerInfo &playerInfo, GameMessage *message);
     void handleSetValueMessage(PlayerInfo &playerInfo, SetValueMessage *message);
+private:
+    PlayerInfo *m_local;
+    QHash<QIODevice *, PlayerInfo *> m_remote;
 signals:
     /**
       * Indicates that a join succeeded.
@@ -115,8 +129,6 @@ signals:
       * Indicates that joining a game has failed.
       */
     void joinFailed(const QString &reason);
-protected:
-    Sudoku *m_sudoku;
 };
 
 QML_DECLARE_TYPE(MultiplayerAdapter)

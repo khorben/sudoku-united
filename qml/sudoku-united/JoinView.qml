@@ -43,6 +43,7 @@ Page {
 
     InfoBanner {
         id: infoBanner
+        z: 10
     }
 
     Connections {

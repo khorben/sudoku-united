@@ -23,7 +23,7 @@
 #include "sudoku.h"
 
 PlayerInfo::PlayerInfo() :
-    device(NULL), state(Connecting), player(NULL) {
+    device(NULL), state(Disconnected), player(NULL) {
 
 }
 
@@ -33,9 +33,17 @@ GameInfo::GameInfo(QObject *parent) :
 }
 
 MultiplayerAdapter::MultiplayerAdapter(Sudoku *parent) :
-    QObject(parent), m_sudoku(parent)
+    QObject(parent), m_sudoku(parent), m_local(new PlayerInfo())
 {
     connect(parent, SIGNAL(gameChanged()), SLOT(onGameChanged()));
+}
+
+void MultiplayerAdapter::join(GameInfo *game) {
+    Q_UNUSED(game)
+
+    disconnectLocalDevice();
+
+    m_local->state = PlayerInfo::Connecting;
 }
 
 void MultiplayerAdapter::onGameChanged() {
@@ -45,8 +53,7 @@ void MultiplayerAdapter::onGameChanged() {
         connect(game, SIGNAL(boardChanged()), SLOT(onBoardChanged()));
         onBoardChanged();
     } else {
-        if (m_local->device != NULL && m_local->device->isOpen())
-            m_local->device->close();
+        disconnectLocalDevice();
 
         foreach (QIODevice *device, m_remote.keys()) {
             delete m_remote[device];
@@ -75,7 +82,7 @@ void MultiplayerAdapter::onBoardChanged() {
     connect(board, SIGNAL(cellValueChanged(Cell*)), SLOT(onCellValueChanged(Cell*)));
 }
 
-void MultiplayerAdapter::handleNewConnection(QIODevice *device) {
+void MultiplayerAdapter::handleNewRemoteConnection(QIODevice *device) {
     PlayerInfo *playerInfo = new PlayerInfo();
 
     playerInfo->device = device;
@@ -83,8 +90,8 @@ void MultiplayerAdapter::handleNewConnection(QIODevice *device) {
 
     m_remote.insert(device, playerInfo);
 
-    connect(device, SIGNAL(readyRead()), SLOT(onReadyRead()));
-    connect(device, SIGNAL(readChannelFinished()), SLOT(onReadChannelFinished()));
+    connect(device, SIGNAL(readyRead()), SLOT(onRemoteReadyRead()));
+    connect(device, SIGNAL(readChannelFinished()), SLOT(onRemoteReadChannelFinished()));
 
     HelloMessage message;
     sendMessage(playerInfo, &message);
@@ -179,22 +186,30 @@ Game *MultiplayerAdapter::game() const {
     return m_sudoku->game();
 }
 
-void MultiplayerAdapter::onReadyRead() {
+void MultiplayerAdapter::onLocalReadyRead() {
+    Q_ASSERT(m_local->device);
+    Q_ASSERT(m_local->device->isOpen());
+
+    handleIncomingData(*m_local);
+}
+
+void MultiplayerAdapter::onRemoteReadyRead() {
     QIODevice *device = qobject_cast<QIODevice *>(sender());
+    Q_ASSERT(device);
 
-    PlayerInfo *playerInfo;
+    PlayerInfo *playerInfo = m_remote[device];
+    Q_ASSERT(playerInfo);
 
-    if (device == m_local->device) {
-        playerInfo = m_local;
-    } else {
-        playerInfo = m_remote[device];
-    }
+    handleIncomingData(*playerInfo);
+}
 
+void MultiplayerAdapter::handleIncomingData(PlayerInfo &playerInfo) {
+    QIODevice *device = playerInfo.device;
     QByteArray buffer = device->read(device->bytesAvailable());
 
-    playerInfo->buffer.append(buffer);
+    playerInfo.buffer.append(buffer);
 
-    parseMessages(*playerInfo);
+    parseMessages(playerInfo);
 }
 
 void MultiplayerAdapter::parseMessages(PlayerInfo &playerInfo) {
@@ -232,30 +247,74 @@ void MultiplayerAdapter::parseMessages(PlayerInfo &playerInfo) {
     playerInfo.buffer.remove(0, dataStream.device()->pos());
 }
 
-void MultiplayerAdapter::onReadChannelFinished() {
+void MultiplayerAdapter::onLocalReadChannelFinished() {
+    disconnectLocalDevice();
+}
+
+void MultiplayerAdapter::onRemoteReadChannelFinished() {
     QIODevice *device = qobject_cast<QIODevice *>(sender());
+    Q_ASSERT(device);
 
-    qDebug() << "Device has signaled EOF:" << device;
+    disconnectRemoteClient(device);
+}
 
-    if (device == m_local->device) {
+
+void MultiplayerAdapter::disconnectRemoteClient(QIODevice *device) {
+    return disconnectRemoteClient(m_remote[device]);
+}
+
+void MultiplayerAdapter::disconnectRemoteClient(PlayerInfo *info) {
+    Q_ASSERT(info);
+
+    if (info->player != NULL)
+        info->player->setState(Player::Disconnected);
+
+    m_remote.remove(info->device);
+
+    info->device->deleteLater();
+    delete info;
+}
+
+void MultiplayerAdapter::setLocalDevice(QIODevice *device) {
+    if (device == m_local->device)
+        return;
+
+    if (m_local->device)
+        m_local->device->deleteLater();
+
+    m_local->device = device;
+
+    if (device) {
+        connect(device, SIGNAL(readChannelFinished()), SLOT(onLocalReadChannelFinished()));
+        connect(device, SIGNAL(readyRead()), SLOT(onLocalReadyRead()));
+
+        m_local->state = PlayerInfo::Connecting;
+    } else {
+        m_local->state = PlayerInfo::Disconnected;
+    }
+}
+
+QIODevice *MultiplayerAdapter::localDevice() const {
+    return m_local->device;
+}
+
+void MultiplayerAdapter::disconnectLocalDevice(const QString &reason) {
+    if (m_local->state == PlayerInfo::Connecting) {
+        QString joinErrorReason = reason;
+
+        if (joinErrorReason.isEmpty() && m_local->device)
+            joinErrorReason = m_local->device->errorString();
+
+        emit joinFailed(joinErrorReason);
+    }
+
+    m_local->state = PlayerInfo::Disconnected;
+
+    if (m_local->device == NULL)
+        return;
+
+    if (m_local->device->isOpen())
         m_local->device->close();
-        return;
-    }
-
-    device->deleteLater();
-
-    if (!m_remote.contains(device)) {
-        return;
-    }
-
-    PlayerInfo *playerInfo = m_remote[device];
-
-    if (playerInfo->player != NULL) {
-        playerInfo->player->setState(Player::Disconnected);
-    }
-
-    delete playerInfo;
-    m_remote.remove(device);
 }
 
 void MultiplayerAdapter::sendMessage(const PlayerInfo *info, Message *message, PlayerStateFilter stateFilter) {

@@ -37,29 +37,26 @@ QString BluetoothGameInfo::name() const {
 }
 
 quint16 BluetoothGameInfo::playerCount() const {
-    return info.attribute(BluetoothMultiplayerAdapter::PlayerCountServiceAttributeId).toUInt();
+    return 0;
 }
 
 BluetoothMultiplayerAdapter::BluetoothMultiplayerAdapter(Sudoku *parent) :
     MultiplayerAdapter(parent), server(NULL)
 {
-    localDevice = new QBluetoothLocalDevice(this);
+    localBluetoothDevice = new QBluetoothLocalDevice(this);
 
     server = new QRfcommServer(this);
-    connect(server, SIGNAL(newConnection()), SLOT(onNewConnection()));
+    connect(server, SIGNAL(newConnection()), SLOT(onNewRemoteConnection()));
 
     discoveryAgent = new QBluetoothServiceDiscoveryAgent(this);
     discoveryAgent->setUuidFilter(BluetoothMultiplayerAdapter::ServiceUuid);
-
-    m_local = new PlayerInfo();
-    m_local->device = new QBluetoothSocket(QBluetoothSocket::RfcommSocket, this);
 
     // Listen for game changes as we need to subscribe to the players changed property
     connect(parent, SIGNAL(gameChanged()), SLOT(onGameChanged()));
 }
 
 BluetoothMultiplayerAdapter::~BluetoothMultiplayerAdapter() {
-    localDevice->setHostMode(previousHostMode);
+    localBluetoothDevice->setHostMode(previousHostMode);
 }
 
 bool BluetoothMultiplayerAdapter::hostSupportsBluetooth() {
@@ -71,7 +68,7 @@ GameInfoModel *BluetoothMultiplayerAdapter::discoverGames() {
 }
 
 bool BluetoothMultiplayerAdapter::canJoinGameInfo(GameInfo *game) const {
-    return qobject_cast<BluetoothMultiplayerAdapter *>(game) != NULL;
+    return qobject_cast<BluetoothGameInfo *>(game) != NULL;
 }
 
 void BluetoothMultiplayerAdapter::join(GameInfo *game) {
@@ -80,34 +77,61 @@ void BluetoothMultiplayerAdapter::join(GameInfo *game) {
     if (gameInfo == NULL)
         return;
 
+    MultiplayerAdapter::join(game);
+
     if (discoveryAgent->isActive())
         discoveryAgent->stop();
 
+    setupLocalSocket();
+
     qDebug() << "Connecting to service" << gameInfo->info.device().address().toString() << gameInfo->info.serverChannel();
 
-    if (m_local->device->isOpen())
-        m_local->device->close();
+    ((QBluetoothSocket *) localDevice())->connectToService(gameInfo->info);
+}
 
-    QBluetoothSocket *socket = (QBluetoothSocket *) m_local->device;
+void BluetoothMultiplayerAdapter::setupLocalSocket() {
+    // Completely reset the Bluetooth socket as there have been segmentation faults when
+    // reusing the old one.
+    QBluetoothSocket *socket = (QBluetoothSocket *) localDevice();
 
-    socket->connectToService(gameInfo->info);
+    if (socket)
+        socket->deleteLater();
+
+    socket = new QBluetoothSocket(QBluetoothSocket::RfcommSocket, this);
 
     connect(socket, SIGNAL(connected()), SLOT(onConnectedToServer()));
-    connect(socket, SIGNAL(readyRead()), SLOT(onReadyRead()));
-    connect(socket, SIGNAL(readChannelFinished()), SLOT(onReadChannelFinished()));
-    connect(socket, SIGNAL(error(QBluetoothSocket::SocketError)), SLOT(onSocketError(QBluetoothSocket::SocketError)));
+    connect(socket, SIGNAL(error(QBluetoothSocket::SocketError)), SLOT(onLocalSocketError(QBluetoothSocket::SocketError)));
+
+    setLocalDevice(socket);
 }
 
-void BluetoothMultiplayerAdapter::onSocketError(QBluetoothSocket::SocketError error) {
-    qDebug() << "Bluetooth socket error:" << error;
+void BluetoothMultiplayerAdapter::onLocalSocketError(QBluetoothSocket::SocketError error) {
+    Q_UNUSED(error);
+
+    QBluetoothSocket *socket = qobject_cast<QBluetoothSocket *>(sender());
+    Q_ASSERT(socket);
+
+    disconnectLocalDevice();
 }
+
+void BluetoothMultiplayerAdapter::onRemoteSocketError(QBluetoothSocket::SocketError error) {
+    Q_UNUSED(error);
+
+    QBluetoothSocket *socket = qobject_cast<QBluetoothSocket *>(sender());
+    Q_ASSERT(socket);
+
+    qDebug() << "Socket error from " << socket << "(" << socket->errorString() << ")";
+
+    disconnectRemoteClient(socket);
+}
+
 
 void BluetoothMultiplayerAdapter::startServer() {
     if (server->isListening())
         return;
 
     if (!server->listen()) {
-        qDebug() << "Failed to listen on Bluetooth server socket.";
+        qWarning() << "Failed to listen on Bluetooth server socket.";
 
         return;
     }
@@ -150,31 +174,23 @@ void BluetoothMultiplayerAdapter::startServer() {
                              protocolDescriptorList);
     //! [Protocol descriptor list]
 
-    // Add player count
-    quint16 playerCount = 0;
-    if (game() != NULL)
-        playerCount = game()->players().size();
-
-    serviceInfo.setAttribute(BluetoothMultiplayerAdapter::PlayerCountServiceAttributeId, QVariant((uint) playerCount));
-
     // Register the service
     serviceInfo.registerService();
 
-
     // Save old Bluetooth hostmode - we restore it as soon this class is deleted.
-    previousHostMode = localDevice->hostMode();
+    previousHostMode = localBluetoothDevice->hostMode();
 
     // Set new host mode
-    localDevice->setHostMode(QBluetoothLocalDevice::HostDiscoverableLimitedInquiry);
+    localBluetoothDevice->setHostMode(QBluetoothLocalDevice::HostDiscoverableLimitedInquiry);
 }
 
-void BluetoothMultiplayerAdapter::onNewConnection() {
+void BluetoothMultiplayerAdapter::onNewRemoteConnection() {
     while (server->hasPendingConnections()) {
         QBluetoothSocket *socket = server->nextPendingConnection();
 
-        handleNewConnection(socket);
+        handleNewRemoteConnection(socket);
 
-        connect(socket, SIGNAL(error(QBluetoothSocket::SocketError)), this, SLOT(onSocketError(QBluetoothSocket::SocketError)));
+        connect(socket, SIGNAL(error(QBluetoothSocket::SocketError)), this, SLOT(onRemoteSocketError(QBluetoothSocket::SocketError)));
     }
 }
 
@@ -183,22 +199,12 @@ void BluetoothMultiplayerAdapter::onGameChanged() {
         if (server)
             server->close();
 
-        localDevice->setHostMode(previousHostMode);
+        localBluetoothDevice->setHostMode(previousHostMode);
 
         return;
     }
 
     startServer();
-
-    connect(game(), SIGNAL(playersChanged()), SLOT(onPlayersChanged()));
-}
-
-void BluetoothMultiplayerAdapter::onPlayersChanged() {
-    serviceInfo.unregisterService();
-
-    serviceInfo.setAttribute(BluetoothMultiplayerAdapter::PlayerCountServiceAttributeId, QVariant((uint) game()->players().length()));
-
-    serviceInfo.registerService();
 }
 
 BluetoothGameInfoModel::BluetoothGameInfoModel(QBluetoothServiceDiscoveryAgent *agent, QObject *parent) :

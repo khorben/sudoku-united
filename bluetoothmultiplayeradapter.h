@@ -42,10 +42,6 @@ public:
       * The UUID used to register the Sudoku United service.
       */
     static const QBluetoothUuid ServiceUuid;
-    /**
-      * The attribute id in which the total number of players is stored in SDP.
-      */
-    static const quint16 PlayerCountServiceAttributeId = 0x10;
 public:
     static bool hostSupportsBluetooth();
 public:
@@ -62,17 +58,18 @@ signals:
 public slots:
 
 private slots:
-    void onSocketError(QBluetoothSocket::SocketError error);
-    void onNewConnection();
+    void onLocalSocketError(QBluetoothSocket::SocketError error);
+    void onRemoteSocketError(QBluetoothSocket::SocketError error);
+    void onNewRemoteConnection();
     void onGameChanged();
-    void onPlayersChanged();
     void startServer();
 private:
     void setupService();
+    void setupLocalSocket();
 private:
     QBluetoothServiceInfo serviceInfo;
     QBluetoothServiceDiscoveryAgent *discoveryAgent;
-    QBluetoothLocalDevice *localDevice;
+    QBluetoothLocalDevice *localBluetoothDevice;
     QRfcommServer *server;
 
     QBluetoothLocalDevice::HostMode previousHostMode;

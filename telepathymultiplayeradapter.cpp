@@ -78,9 +78,6 @@ TelepathyMultiplayerAdapter::TelepathyMultiplayerAdapter(Sudoku *parent) :
 {
     Tp::registerTypes();
 
-    m_local = new PlayerInfo();
-    m_local->device = NULL;
-
     m_server = new QLocalServer(this);
     m_server->listen(QString(tempnam(QDir::tempPath().toUtf8().constData(), "sudokuunited")));
 
@@ -149,6 +146,8 @@ void TelepathyMultiplayerAdapter::join(GameInfo *game) {
         return;
     }
 
+    MultiplayerAdapter::join(game);
+
     Tp::PendingChannelRequest *request = gameInfo->account->createStreamTube(gameInfo->contact, "x-sudoku-united-game");
     connect(request, SIGNAL(finished(Tp::PendingOperation*)), SLOT(onChannelRequestFinished(Tp::PendingOperation*)));
 
@@ -211,7 +210,7 @@ void TelepathyMultiplayerAdapter::onClientConnected() {
     QLocalSocket *socket = qobject_cast<QLocalSocket *>(sender());
     Q_ASSERT(socket);
 
-    handleNewConnection(socket);
+    handleNewRemoteConnection(socket);
 }
 
 void TelepathyMultiplayerAdapter::onClientDisconnected() {
@@ -254,17 +253,15 @@ void TelepathyMultiplayerAdapter::onOfferUnixSocketFinished(Tp::PendingOperation
 }
 
 void TelepathyMultiplayerAdapter::onNewConnection() {
-    QLocalSocket *socket = (QLocalSocket *) m_local->device;
+    QLocalSocket *socket = (QLocalSocket *) localDevice();
 
-    if (socket != NULL)
+    if (socket)
         socket->deleteLater();
 
     socket = m_server->nextPendingConnection();
     socket->setParent(this);
 
-    m_local->device = socket;
-    connect(m_local->device, SIGNAL(readyRead()), SLOT(onReadyRead()));
-    connect(m_local->device, SIGNAL(readChannelFinished()), SLOT(onReadChannelFinished()));
+    setLocalDevice(socket);
 }
 
 
