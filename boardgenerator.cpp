@@ -81,7 +81,19 @@ Board *BoardGenerator::toBoard() const {
             cell->m_fixedCell = true;
     }
 
+    for (int i=0; i< 81; i++) {
+        board->m_solution[i % 9][i / 9] = solution[i];
+    }
+
     return board;
+}
+
+void BoardGenerator::setBoard(const Board &board){
+    Cell *cell;
+    for (int i=0; i<BOARD_SIZE; i++) {
+        cell = board.cellAt(i % 9, i / 9);
+        puzzle[i] = cell->value();
+    }
 }
 
 /**

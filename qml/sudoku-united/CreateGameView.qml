@@ -25,8 +25,6 @@ Page {
 
     tools: commonToolbar
 
-    property real gameDifficulty : 0
-
     property Game game : gameInstance.game
 
     Connections {

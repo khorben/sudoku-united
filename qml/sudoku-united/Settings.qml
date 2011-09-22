@@ -75,6 +75,39 @@ Page {
                 anchors.verticalCenter: parent.verticalCenter
             }
         }
+
+        Item {
+            width: parent.width
+            height: UIConstants.LIST_ITEM_HEIGHT_DEFAULT
+
+            Column {
+                anchors.verticalCenter: parent.verticalCenter
+                Label {
+                    text: "Feedback control"
+                    font.weight: Font.Bold
+
+                }
+
+                Label {
+                    wrapMode: Text.WordWrap
+                    platformStyle: LabelStyle {
+                        fontPixelSize: UIConstants.FONT_XSMALL
+                    }
+
+                    text: "Disable feedback on collisions"
+                }
+            }
+
+            Switch {
+                id: feedbackSwitch
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                checked: gameInstance.player.feedback
+                onCheckedChanged: {
+                    gameInstance.player.feedback = feedbackSwitch.checked
+                }
+            }
+        }
     }
 
 

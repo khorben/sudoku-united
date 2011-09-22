@@ -1,5 +1,6 @@
 #include "board.h"
 #include "player.h"
+#include "boardgenerator.h"
 
 Board::Board(const Board &other) :
     QObject(other.parent()) {
@@ -10,6 +11,7 @@ Board::Board(const Board &other) :
         for (quint8 y = 0; y < 9; y++) {
             m_cells[x][y] = other.m_cells[x][y];
             m_cells[x][y].setParent(this);
+            m_solution[x][y] = other.m_solution[x][y];
 
             connect(&m_cells[x][y], SIGNAL(valueChanged()), SLOT(onCellValueChanged()));
         }
@@ -137,6 +139,45 @@ quint8 Board::cellValue(quint8 x, quint8 y) const {
 
 void Board::setCellValue(quint8 x, quint8 y, quint8 value) {
     m_cellValues[x][y] = value;
+}
+
+QList<QObject *> Board::generateHint(){
+    QList<QObject *> list;
+    quint8 value = 0;
+    bool mistakesFound = false;
+
+    //check if there are some mistakes in the board
+    for (int i=0; i< 81; i++) {
+        value = m_cellValues[i % 9][i / 9];
+        //if a value is set, it has to be the same as its corresponding element of the solution
+        if (value != 0){
+            //found a mistake
+            if (value != m_solution[i % 9][i / 9]){
+                mistakesFound = true;
+                Cell *cell = cellAt(i % 9, i / 9);
+                list.append(cell);
+            }
+        }
+    }
+    // return if mistakes have been found
+    if (mistakesFound) return list;
+
+    //generate the next step of the solution
+    BoardGenerator boardGenerator = BoardGenerator();
+
+    boardGenerator.setBoard(*this);
+    boardGenerator.setRecordHistory(true);
+    boardGenerator.solve();
+    for (std::vector<LogItem *>::iterator it(boardGenerator.getSolveInstructions()->begin()); it != boardGenerator.getSolveInstructions()->end(); it++) {
+        LogItem *item = *it;
+        if (item->getType() == LogItem::GIVEN)
+            continue;
+        Cell *cell = cellAt(item->getPosition() % 9, item->getPosition() / 9);
+        qDebug() << "Setting to " << item->getPosition() % 9 << item->getPosition() / 9 << item->getValue();
+        cell->setValue(item->getValue());
+        break;
+    }
+    return list;
 }
 
 QDataStream &operator<<(QDataStream &s, const Board &board) {

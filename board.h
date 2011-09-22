@@ -113,6 +113,13 @@ public:
       * Creates a string representation of the current board.
       */
     QString toString() const;
+
+    /**
+      * Generate a hint for the current board
+      */
+    Q_INVOKABLE
+    QList<QObject *> generateHint();
+
 signals:
     /**
       * This signal is emitted if the value of a cell changes.
@@ -150,6 +157,7 @@ private:
     void setCellValue(quint8 x, quint8 y, quint8 value);
 
     void clearCell(quint8 x, quint8 y) { setCellValue(x, y, 0); }
+
 private:
     friend class Cell;
     friend QDataStream &operator>>(QDataStream &s, Board &board);
@@ -157,6 +165,8 @@ private:
 
     Cell m_cells[9][9];
     quint8 m_cellValues[9][9];
+
+    quint8 m_solution[9][9];
 };
 
 QML_DECLARE_TYPE(Board)

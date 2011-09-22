@@ -30,6 +30,25 @@ Page {
             iconId: "toolbar-back"
             onClicked: leaveGameDialog.open()
         }
+        ToolButton{
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: "Hint"
+            onClicked: {
+                var hints = game.board.generateHint()
+                if (hints.length > 0) {
+                    infoBanner.text = "There are mistakes in the puzzle.\nPlease fix them first."
+                    infoBanner.show()
+                    hints.forEach(function (cell) {
+                                      playBoard.cellItems.forEach(
+                                                  function (cellItem) {
+                                                      if (cellItem.cell.x == cell.x && cellItem.cell.y == cell.y) {
+                                                          cellItem.collision = true
+                                                      }
+                                                  })
+                                  })
+                }
+            }
+        }
     }
 
     SelectionDialog {

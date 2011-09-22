@@ -29,6 +29,7 @@ class Player : public QObject
     Q_PROPERTY(const QString& name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(State state READ state NOTIFY stateChanged)
     Q_PROPERTY(quint8 colorIndex READ colorIndex CONSTANT)
+    Q_PROPERTY(const bool feedback READ feedback WRITE setFeedback NOTIFY feedbackChanged)
 public:
     enum State {
         Connected,
@@ -48,10 +49,14 @@ public:
 
     quint8 colorIndex() const { return m_colorIndex; }
 
+    bool feedback() const { return m_feedback; }
+    void setFeedback(const bool feedback) { m_feedback = feedback; }
+
     bool operator ==(const Player &other) const;
 signals:
     void nameChanged();
     void stateChanged();
+    void feedbackChanged();
 public slots:
 
 private:
@@ -62,6 +67,7 @@ private:
     QUuid m_uuid;
     State m_state;
     quint8 m_colorIndex;
+    bool m_feedback;
 };
 
 QML_DECLARE_TYPE(Player)

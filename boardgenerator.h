@@ -45,6 +45,7 @@ public:
     bool isSolved();
     void setRecordHistory(bool recHistory);
     void setLogHistory(bool logHist);
+    void setBoard(const Board &board);
     bool generatePuzzle();
     int getGivenCount();
     int getSingleCount();
@@ -55,6 +56,7 @@ public:
     int getPointingPairTripleCount();
     int getGuessCount();
     int getBacktrackCount();
+    vector<LogItem*>* getSolveInstructions() { return solveInstructions; };
     Board *toBoard() const;
     BoardGenerator::Difficulty getDifficulty();
     ~BoardGenerator();
@@ -197,6 +199,8 @@ public:
     LogItem(int round, LogType type, int value, int position);
     int getRound();
     LogType getType();
+    int getValue() { return value; }
+    int getPosition() { return position; }
     ~LogItem();
 private:
     void init(int round, LogType type, int value, int position);
@@ -244,6 +248,7 @@ public:
     ~BoardGeneratorWrapper();
 
     Board *board() const { return m_board; }
+
 public slots:
     void startGeneration();
 private:
