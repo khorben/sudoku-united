@@ -20,12 +20,13 @@
 #include "player.h"
 
 Game::Game(QObject *parent) :
-    QObject(parent), m_board(NULL), m_boardGenerationThread(NULL), m_boardGeneratorWrapper(NULL), m_currentColorIndex(0)
-{
+    QObject(parent), m_board(NULL), m_boardGenerationThread(NULL), m_boardGeneratorWrapper(NULL),
+    m_hintGenerationThread(NULL), m_hintGenerator(NULL), m_currentColorIndex(0), m_boardGenerationRunning(false) {
 }
 
 Game::Game(Board *board, QObject *parent) :
-    QObject(parent), m_board(NULL), m_boardGenerationThread(NULL), m_boardGeneratorWrapper(NULL), m_currentColorIndex(0) {
+    QObject(parent), m_board(NULL), m_boardGenerationThread(NULL), m_boardGeneratorWrapper(NULL),
+    m_hintGenerationThread(NULL), m_hintGenerator(NULL), m_currentColorIndex(0), m_boardGenerationRunning(false) {
     setBoard(board);
 }
 
@@ -107,6 +108,67 @@ void Game::onBoardGenerated() {
     m_boardGenerationThread = NULL;
     m_boardGeneratorWrapper->deleteLater();
     m_boardGeneratorWrapper = NULL;
+}
+
+QList<QObject *> Game::generateHint(){
+    QList<QObject *> hint_list;
+    quint8 value = 0;
+    bool mistakesFound = false;
+
+    //check if there are some mistakes in the board
+    for (int i=0; i< 81; i++) {
+        value = m_board->cellValue(i % 9, i / 9);
+        //if a value is set, it has to be the same as its corresponding element of the solution
+        if (value != 0){
+            //found a mistake
+            if (value != m_board->solutionValue(i % 9, i / 9)){
+                mistakesFound = true;
+                Cell *cell = m_board->cellAt(i % 9, i / 9);
+                hint_list.append(cell);
+            }
+        }
+    }
+    // return if mistakes have been found
+    if (mistakesFound) {
+        return hint_list;
+    }
+
+    m_boardGenerationRunning = true;
+    emit hintGenerationRunningChanged();
+
+    if (m_hintGenerationThread != NULL) {
+        m_hintGenerationThread->deleteLater();
+        m_hintGenerator->deleteLater();
+    }
+
+    m_hintGenerationThread = new QThread(this);
+    m_hintGenerator = new HintGenerator(m_board);
+
+    connect(m_hintGenerationThread, SIGNAL(started()), m_hintGenerator, SLOT(startHintGeneration()));
+    connect(m_hintGenerationThread, SIGNAL(finished()), SLOT(onHintGenerated()));
+
+    m_hintGenerator->moveToThread(m_hintGenerationThread);
+
+    m_hintGenerationThread->start();
+    return hint_list;
+}
+
+void Game::onHintGenerated() {
+    BoardGenerator boardGenerator = m_hintGenerator->boardGenerator();
+    for (std::vector<LogItem *>::iterator it(boardGenerator.getSolveInstructions()->begin()); it != boardGenerator.getSolveInstructions()->end(); it++) {
+        LogItem *item = *it;
+        if (item->getType() == LogItem::GIVEN)
+            continue;
+        Cell *cell = m_board->cellAt(item->getPosition() % 9, item->getPosition() / 9);
+        cell->setValue(item->getValue());
+        break;
+    }
+    m_boardGenerationRunning = false;
+    emit hintGenerationRunningChanged();
+    m_hintGenerationThread->deleteLater();
+    m_hintGenerationThread = NULL;
+    m_hintGenerator->deleteLater();
+    m_hintGenerator = NULL;
 }
 
 void Game::onPlayerStateChanged() {

@@ -22,8 +22,8 @@
 #include <QDeclarativeListProperty>
 
 #include "boardgenerator.h"
+#include "board.h"
 
-class Board;
 class Player;
 class QUuid;
 
@@ -32,6 +32,7 @@ class Game : public QObject
     Q_OBJECT
     Q_PROPERTY(Board *board READ board NOTIFY boardChanged)
     Q_PROPERTY(QDeclarativeListProperty<Player> players READ playerList NOTIFY playersChanged)
+    Q_PROPERTY(bool generationRunning READ hintGenerationRunning NOTIFY hintGenerationRunningChanged)
 public:
     explicit Game(QObject *parent = 0);
     explicit Game(Board *board, QObject *parent = 0);
@@ -40,6 +41,8 @@ public:
     void setBoard(Board *board);
 
     const QList<Player *> &players() const { return m_players; }
+
+    bool hintGenerationRunning() const { return m_boardGenerationRunning; }
 
     QDeclarativeListProperty<Player> playerList();
 
@@ -54,6 +57,13 @@ public:
       * Generates a new playing board asynchronously.
       */
     void generateBoard(BoardGenerator::Difficulty difficulty = BoardGenerator::EASY);
+
+    /**
+      * Generate a hint for the current board
+      */
+    Q_INVOKABLE
+    QList<QObject *> generateHint();
+
 signals:
     /**
       * Indicates that a new playing board has been set.
@@ -75,14 +85,23 @@ signals:
       */
     void playerLeft(Player *player);
 
+    /**
+      * Indicates that the state of the hint generation has changed.
+      */
+    void hintGenerationRunningChanged();
+
 private slots:
     void onBoardGenerated();
+    void onHintGenerated();
     void onPlayerStateChanged();
 private:
     Board *m_board;
     QList<Player *> m_players;
     QThread *m_boardGenerationThread;
     BoardGeneratorWrapper *m_boardGeneratorWrapper;
+    bool m_boardGenerationRunning;
+    QThread *m_hintGenerationThread;
+    HintGenerator *m_hintGenerator;
     quint8 m_currentColorIndex;
 private:
     static int countPlayersFunction(QDeclarativeListProperty<Player> *property);

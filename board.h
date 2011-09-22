@@ -115,10 +115,18 @@ public:
     QString toString() const;
 
     /**
-      * Generate a hint for the current board
+      * Gets the value of the cell at coordinates x, y.
+      *
+      * \returns The value of the cell or 0 if it is not set.
       */
-    Q_INVOKABLE
-    QList<QObject *> generateHint();
+    quint8 cellValue(quint8 x, quint8 y) const;
+
+    /**
+      * Gets the value of the cell at coordinates x, y.
+      *
+      * \returns The value of the cell or 0 if it is not set.
+      */
+    quint8 solutionValue(quint8 x, quint8 y) const;
 
 signals:
     /**
@@ -138,13 +146,6 @@ private:
 
 private:
     friend class BoardGenerator;
-
-    /**
-      * Gets the value of the cell at coordinates x, y.
-      *
-      * \returns The value of the cell or 0 if it is not set.
-      */
-    quint8 cellValue(quint8 x, quint8 y) const;
 
     /**
       * Sets the value of the cell at coordinates x, y to the given value.

@@ -21,6 +21,7 @@ import Qt.labs.particles 1.0
 import sudoku 1.0
 
 MouseArea {
+    property variant playBoard
     anchors.fill: parent
 
     Rectangle {

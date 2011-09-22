@@ -31,10 +31,12 @@ Page {
             onClicked: leaveGameDialog.open()
         }
         ToolButton{
+            id: hintButton
+            enabled: !game ? false : !game.generationRunning
             anchors.horizontalCenter: parent.horizontalCenter
             text: "Hint"
             onClicked: {
-                var hints = game.board.generateHint()
+                var hints = game.generateHint()
                 if (hints.length > 0) {
                     infoBanner.text = "There are mistakes in the puzzle.\nPlease fix them first."
                     infoBanner.show()
@@ -140,9 +142,10 @@ Page {
     }
 
     WinningScreen {
-        visible: !game || !game.board ? false : game.board.full
+        playBoard: playBoard
+        visible: (!game || !game.board) ? false : game.board.full
 
-        onClicked: multiplayerAdapter.leave()
+        onClicked: gameInstance.leave()
     }
 
     InfoBanner {

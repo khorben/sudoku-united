@@ -1343,3 +1343,16 @@ void BoardGeneratorWrapper::startGeneration() {
 
     QThread::currentThread()->exit(0);
 }
+
+
+HintGenerator::HintGenerator(Board* board) {
+    m_boardGenerator.setBoard(*board);
+}
+
+void HintGenerator::startHintGeneration(){
+    //generate the next step of the solution
+    m_boardGenerator.setRecordHistory(true);
+    m_boardGenerator.solve();
+
+    QThread::currentThread()->exit(0);
+}

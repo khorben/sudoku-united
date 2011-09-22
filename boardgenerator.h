@@ -256,4 +256,18 @@ private:
     BoardGenerator::Difficulty m_difficulty;
 };
 
+class HintGenerator : public QObject {
+    Q_OBJECT
+public:
+    HintGenerator(Board* board);
+
+    const BoardGenerator boardGenerator() const { return m_boardGenerator; }
+
+public slots:
+    void startHintGeneration();
+
+private:
+    BoardGenerator m_boardGenerator;
+};
+
 #endif // BOARDGENERATOR_H
