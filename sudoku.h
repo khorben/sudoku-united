@@ -54,6 +54,7 @@ public:
 
     static Sudoku *instance();
 signals:
+    void joinFailed(QString reason);
     void gameChanged();
 public slots:
 

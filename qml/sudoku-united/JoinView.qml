@@ -17,6 +17,7 @@
 
 import QtQuick 1.1
 import com.nokia.meego 1.0
+import com.nokia.extras 1.0
 import sudoku 1.0
 import "UIConstants.js" as UIConstants
 
@@ -34,20 +35,41 @@ Page {
             anchors.centerIn: parent
             enabled: list.currentItem != null
             onClicked: {
+                loadingOverlay.open()
                 gameInstance.join(list.currentItem.myData.gameInfo)
             }
         }
     }
 
+    InfoBanner {
+        id: infoBanner
+    }
+
     Connections {
         target: gameInstance
+
+        onJoinFailed: {
+            console.log("Failed")
+            loadingOverlay.close()
+            infoBanner.text = "Connection to player failed."
+            infoBanner.show()
+        }
+
         onGameChanged: {
             if (!gameInstance.game)
                 return;
 
-            var component = Qt.createComponent("GameView.qml")
-            pageStack.push(component, { "game": function () { return gameInstance.game } });
+            if (gameInstance.game.board) {
+                loadingOverlay.close()
+                var component = Qt.createComponent("GameView.qml")
+                pageStack.push(component, { "game": function () { return gameInstance.game } });
+            }
         }
+    }
+
+    LoadingOverlay {
+        id: loadingOverlay
+        text: "Joining game"
     }
 
     property string gameNameProperty: ""

@@ -50,6 +50,7 @@ void Sudoku::addMultiplayerAdapter(MultiplayerAdapter *adapter) {
 
     m_multiplayerAdapters.append(adapter);
 
+    connect(adapter, SIGNAL(joinFailed(QString)), SIGNAL(joinFailed(QString)));
     connect(adapter, SIGNAL(joinSucceeded(Game*)), SLOT(setGame(Game*)));
 }
 

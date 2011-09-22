@@ -41,14 +41,37 @@ TCPMultiplayerAdapter::TCPMultiplayerAdapter(Sudoku *parent) :
 {
     connect(m_server, SIGNAL(newConnection()), SLOT(onNewConnection()));
 
+    QTcpSocket *socket = new QTcpSocket(this);
+
     m_local = new PlayerInfo();
-    m_local->device = new QTcpSocket(this);
+    m_local->device = socket;
 
     connect(m_local->device, SIGNAL(connected()), SLOT(onConnectedToServer()));
     connect(m_local->device, SIGNAL(readyRead()), SLOT(onReadyRead()));
     connect(m_local->device, SIGNAL(readChannelFinished()), SLOT(onReadChannelFinished()));
+    connect(socket, SIGNAL(disconnected()), SLOT(onLocalDisconnected()));
+    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(onLocalError(QAbstractSocket::SocketError)));
 
     connect(m_sudoku, SIGNAL(gameChanged()), SLOT(onGameChanged()));
+}
+
+void TCPMultiplayerAdapter::onLocalDisconnected() {
+    if (m_local->state == PlayerInfo::Connecting) {
+        m_local->device->close();
+        m_local->state = PlayerInfo::Disconnected;
+
+        emit joinFailed("Remote host closed the connection.");
+    }
+}
+
+void TCPMultiplayerAdapter::onLocalError(QAbstractSocket::SocketError error) {
+    if (m_local->state == PlayerInfo::Connecting) {
+        QString errorMessage = m_local->device->errorString();
+        m_local->device->close();
+        m_local->state = PlayerInfo::Disconnected;
+
+        emit joinFailed(errorMessage);
+    }
 }
 
 GameInfoModel *TCPMultiplayerAdapter::discoverGames() {
@@ -70,6 +93,7 @@ void TCPMultiplayerAdapter::join(GameInfo *game) {
     if (m_local->device->isOpen())
         m_local->device->close();
 
+    m_local->state = PlayerInfo::Connecting;
     ((QTcpSocket *) m_local->device)->connectToHost(gameInfo->address, gameInfo->port);
 
     qDebug() << "Connecting to " << gameInfo->address.toString() << ":" << gameInfo->port << "...";

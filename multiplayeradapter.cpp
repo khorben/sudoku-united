@@ -71,6 +71,7 @@ void MultiplayerAdapter::onBoardChanged() {
 
     if (board == NULL)
         return;
+
     connect(board, SIGNAL(cellValueChanged(Cell*)), SLOT(onCellValueChanged(Cell*)));
 }
 
@@ -103,13 +104,17 @@ void MultiplayerAdapter::handleJoinMessage(PlayerInfo &playerInfo, JoinMessage *
 }
 
 void MultiplayerAdapter::handleGameMessage(PlayerInfo &playerInfo, GameMessage *message) {
-    Q_UNUSED(playerInfo)
+    if (playerInfo.device != m_local->device) {
+        qWarning() << "Received game message from non-server.";
+        return;
+    }
+
+    playerInfo.state = PlayerInfo::Connected;
 
     if (message->game() == NULL)
         return;
 
     Game *game = message->game();
-
     // We are also part of the game
     game->addPlayer(Sudoku::instance()->player());
 
@@ -155,7 +160,10 @@ void MultiplayerAdapter::handleHelloMessage(PlayerInfo &playerInfo, HelloMessage
     }
 
     if (message->protocolVersion() != MultiplayerAdapter::ProtocolVersion) {
+        emit joinFailed("Unsupported protocol version.");
         m_local->device->close();
+
+        return;
     }
 
     // Reply with join message
@@ -164,7 +172,7 @@ void MultiplayerAdapter::handleHelloMessage(PlayerInfo &playerInfo, HelloMessage
 }
 
 void MultiplayerAdapter::onConnectedToServer() {
-    qDebug() << "Connected to server - waiting for Hello.";
+    qDebug() << "Successfully established connection to server.";
 }
 
 Game *MultiplayerAdapter::game() const {
@@ -227,7 +235,7 @@ void MultiplayerAdapter::parseMessages(PlayerInfo &playerInfo) {
 void MultiplayerAdapter::onReadChannelFinished() {
     QIODevice *device = qobject_cast<QIODevice *>(sender());
 
-    qDebug() << "Device has signalled EOF:" << device;
+    qDebug() << "Device has signaled EOF:" << device;
 
     if (device == m_local->device) {
         m_local->device->close();

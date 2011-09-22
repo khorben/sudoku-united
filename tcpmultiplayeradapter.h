@@ -72,6 +72,8 @@ public:
 private slots:
     void onNewConnection();
     void onGameChanged();
+    void onLocalDisconnected();
+    void onLocalError(QAbstractSocket::SocketError error);
 private:
 private:
     QTcpServer *m_server;

@@ -27,12 +27,22 @@ Page {
 
     property Game game : gameInstance.game
 
+    onGameChanged: {
+        loadingOverlay.open()
+    }
+
     Connections {
         target: game
         onBoardChanged: {
-            var component = Qt.createComponent("GameView.qml")
-            pageStack.push(component, { "game": function () { return game; } });
+            loadingOverlay.forceClose()
+            var component = Qt.resolvedUrl("GameView.qml")
+            pageStack.replace(component)
         }
+    }
+
+    LoadingOverlay {
+        id: loadingOverlay
+        text: "Generating board"
     }
 
     Text {

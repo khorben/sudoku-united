@@ -22,7 +22,7 @@ import sudoku 1.0
 
 Page {
     id: gameView
-    property Game game
+    property Game game : gameInstance.game
 
     tools: ToolBarLayout {
         visible: true
@@ -84,8 +84,9 @@ Page {
     }
 
     onGameChanged: {
-        if (!game)
+        if (!game) {
             pageStack.pop();
+        }
     }
 
     Grid {
