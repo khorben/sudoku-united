@@ -41,7 +41,7 @@ public:
     /**
       * The UUID used to register the Sudoku United service.
       */
-    static const QBluetoothUuid ServiceUuid;
+    static const QLatin1String ServiceUuid;
 public:
     static bool hostSupportsBluetooth();
 public:

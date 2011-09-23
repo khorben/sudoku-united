@@ -25,7 +25,7 @@
 #include <QBluetoothServiceDiscoveryAgent>
 #include <QBluetoothLocalDevice>
 
-const QBluetoothUuid BluetoothMultiplayerAdapter::ServiceUuid(QLatin1String("614b8c48-c0af-4d20-b4d7-a24dfcd9900e"));
+const QLatin1String BluetoothMultiplayerAdapter::ServiceUuid = QLatin1String("614b8c48-c0af-4d20-b4d7-a24dfcd9900e");
 
 BluetoothGameInfo::BluetoothGameInfo(QObject *parent) :
     GameInfo(parent) {
@@ -49,7 +49,7 @@ BluetoothMultiplayerAdapter::BluetoothMultiplayerAdapter(Sudoku *parent) :
     connect(server, SIGNAL(newConnection()), SLOT(onNewRemoteConnection()));
 
     discoveryAgent = new QBluetoothServiceDiscoveryAgent(this);
-    discoveryAgent->setUuidFilter(BluetoothMultiplayerAdapter::ServiceUuid);
+    discoveryAgent->setUuidFilter(QBluetoothUuid(BluetoothMultiplayerAdapter::ServiceUuid));
 
     // Listen for game changes as we need to subscribe to the players changed property
     connect(parent, SIGNAL(gameChanged()), SLOT(onGameChanged()));
@@ -130,11 +130,11 @@ void BluetoothMultiplayerAdapter::startServer() {
     if (server->isListening())
         return;
 
-    if (!server->listen()) {
-        qWarning() << "Failed to listen on Bluetooth server socket.";
-
-        return;
-    }
+    // Manually specify port as there were problems when Qt Mobility
+    // chose the port (the server never detected a new connection).
+    quint16 port = 3;
+    while (!server->listen(QBluetoothAddress(), port) && port < 24)
+        port++;
 
     // Heavily based on Qt Mobility's Bluetooth chat sample
     serviceInfo.setAttribute(QBluetoothServiceInfo::ServiceRecordHandle, (uint)0x00010010);
@@ -188,6 +188,8 @@ void BluetoothMultiplayerAdapter::onNewRemoteConnection() {
     while (server->hasPendingConnections()) {
         QBluetoothSocket *socket = server->nextPendingConnection();
 
+        qDebug() << "New remote connection from " << socket->peerAddress().toString();
+
         handleNewRemoteConnection(socket);
 
         connect(socket, SIGNAL(error(QBluetoothSocket::SocketError)), this, SLOT(onRemoteSocketError(QBluetoothSocket::SocketError)));
@@ -213,7 +215,7 @@ BluetoothGameInfoModel::BluetoothGameInfoModel(QBluetoothServiceDiscoveryAgent *
     if (agent->isActive())
         agent->stop();
 
-    agent->start(QBluetoothServiceDiscoveryAgent::FullDiscovery);
+    agent->start();
 
     connect(agent, SIGNAL(serviceDiscovered(QBluetoothServiceInfo)), SLOT(onServiceDiscovered(QBluetoothServiceInfo)));
     connect(agent, SIGNAL(finished()), SLOT(onFinished()));
