@@ -51,7 +51,6 @@ exists($$QMAKE_INCDIR_QT"/../qmsystem2/qmkeys.h"):!contains(MEEGO_EDITION,harmat
   MEEGO_VERSION_MINOR     = 2
   MEEGO_VERSION_PATCH     = 0
   MEEGO_EDITION           = harmattan
-  DEFINES += MEEGO_EDITION_HARMATTAN
 }
 
 OTHER_FILES += \
@@ -75,15 +74,12 @@ HEADERS += \
 
 RESOURCES += resources.qrc
 
+QT += dbus
 MOBILITY += connectivity
+
 contains(MEEGO_EDITION,harmattan): {
-} else {
-
+    DEFINES += MEEGO_EDITION_HARMATTAN
 }
-
-
-
-
 
 
 
