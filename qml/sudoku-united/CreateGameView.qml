@@ -40,98 +40,61 @@ Page {
         }
     }
 
+    BackgroundItem{}
+
     LoadingOverlay {
         id: loadingOverlay
         text: "Generating board"
     }
 
-    Text {
-        id: difficultyText
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.topMargin: 20
-        text: "Choose the difficulty:"
-        font.pixelSize: 30
-        font.family: UIConstants.FONT_FAMILY
-    }
+    Rectangle{
+        id: buttonGroup
+        radius: 7
+        color: "#99FFFFFF"
+        width: 400; height: 680
+        anchors.centerIn: parent
 
-    Button {
-        id: simpleButton
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: difficultyText.bottom
-        anchors.topMargin: 20
-        height: 50
-        width: 200
+        Item{
+            id: placeholder
+            anchors.top: parent.top
+            anchors.topMargin: 50
+        }
 
-        Text{
+        CreateButton {
+            id: simpleButton
             text: "Simple"
-            anchors.centerIn: parent
-            font.pixelSize: 20
-            font.family: UIConstants.FONT_FAMILY
+            checked : true
+            parentItem: placeholder
+            onClicked: {
+                gameInstance.createGame(1)
+            }
         }
 
-        onClicked: {
-            gameInstance.createGame(1)
-        }
-    }
-
-    Button {
-        id: easyButton
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: simpleButton.bottom
-        anchors.topMargin: 20
-        height: 50
-        width: 200
-
-        Text{
+        CreateButton {
+            id: easyButton
             text: "Easy"
-            anchors.centerIn: parent
-            font.pixelSize: 20
-            font.family: UIConstants.FONT_FAMILY
+            parentItem: simpleButton
+            onClicked: {
+                gameInstance.createGame(2)
+            }
         }
 
-        onClicked: {
-            gameInstance.createGame(2)
-        }
-    }
-
-    Button {
-        id: intermediateButton
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: easyButton.bottom
-        anchors.topMargin: 20
-        height: 50
-        width: 200
-
-        Text{
+        CreateButton {
+            id: intermediateButton
+            parentItem: easyButton
             text: "Intermediate"
-            anchors.centerIn: parent
-            font.pixelSize: 20
-            font.family: UIConstants.FONT_FAMILY
+            onClicked: {
+                gameInstance.createGame(3)
+            }
         }
 
-        onClicked: {
-            gameInstance.createGame(3)
-        }
-    }
-
-    Button {
-        id: expertButton
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: intermediateButton.bottom
-        anchors.topMargin: 20
-        height: 50
-        width: 200
-
-        Text{
+        CreateButton {
+            id: expertButton
             text: "Expert"
-            anchors.centerIn: parent
-            font.pixelSize: 20
-            font.family: UIConstants.FONT_FAMILY
-        }
-
-        onClicked: {
-            gameInstance.createGame(4)
+            parentItem: intermediateButton
+            onClicked: {
+                gameInstance.createGame(4)
+            }
         }
     }
 }

@@ -18,6 +18,7 @@
 import QtQuick 1.1
 import com.nokia.meego 1.0
 import com.nokia.extras 1.0
+import Qt.labs.shaders 1.0
 import sudoku 1.0
 
 Page {
@@ -88,6 +89,8 @@ Page {
             pageStack.pop();
         }
     }
+
+    BackgroundItem{}
 
     Grid {
         columns: 3

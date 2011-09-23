@@ -28,3 +28,10 @@ var FONT_FAMILY_BOLD = "Nokia Pure Text Bold";
 var FONT_FAMILY_LIGHT = "Nokia Pure Text Light";
 
 var PLAYER_COLORS = [ "blue", "orange" ];
+
+var BACKGROUND_COLOR_TOP = "#f4952f"
+var BACKGROUND_COLOR_BOTTOM = "#de3812"
+
+var CREATE_BUTTON_SPACING = 30
+var CREATE_BUTTON_WIDTH = 300
+var CREATE_BUTTON_HEIGTH = 120

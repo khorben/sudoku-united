@@ -17,21 +17,67 @@
 
 import QtQuick 1.0
 import com.nokia.meego 1.0
+import "UIConstants.js" as UIConstants
+
 
 Page {
     id: mainPage
-    tools: commonToolbar
     anchors.fill: parent
 
-    Header {
-        id: topStatusBar
-        text: "Sudoku"
+    tools: ToolBarLayout {
+        id: commonTools
+        visible: true
+        ToolIcon { platformIconId: "toolbar-view-menu";
+             anchors.right: parent===undefined ? undefined : parent.right
+             onClicked: (myMenu.status == DialogStatus.Closed) ? myMenu.open() : myMenu.close()
+        }
+    }
+
+    Menu {
+        id: myMenu
+        visualParent: pageStack
+        MenuLayout {
+            MenuItem {
+                text: "Settings"
+                onClicked:{
+                    var component = Qt.createComponent("Settings.qml")
+                    pageStack.push(component, {});
+                }
+            }
+        }
+    }
+
+
+    BackgroundItem{}
+
+    Item{
+        width: 300; height: 350
+        anchors.centerIn: parent
+        Image{
+            id: logo_grid
+            anchors.top: parent.top
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: 300; height: 300
+            source: "qrc:/logo_grid.png"
+            smooth: true
+        }
+        Text{
+            id: logo_text
+            anchors.top: logo_grid.bottom
+            anchors.topMargin: 5
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: "Sudoku United"
+            font.family: UIConstants.FONT_FAMILY_BOLD
+            font.pixelSize: 30
+            font.bold: true
+            color: "white"
+        }
     }
 
     ButtonRow {
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: topStatusBar.bottom
-        anchors.topMargin: 30
+        anchors.bottom: mainPage.bottom
+        anchors.bottomMargin: 30
 
         Button {
             id: createButton
@@ -47,14 +93,6 @@ Page {
             onClicked: {
                 var component = Qt.createComponent("JoinView.qml")
                 pageStack.push(component, { "gameInfoModel": gameInstance.discoverGames() });
-            }
-        }
-
-        Button {
-            text: "Settings"
-            onClicked: {
-                var component = Qt.createComponent("Settings.qml")
-                pageStack.push(component, {});
             }
         }
     }
