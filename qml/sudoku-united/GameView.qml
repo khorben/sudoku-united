@@ -92,6 +92,12 @@ Page {
 
     BackgroundItem{}
 
+    Image{
+        source: "qrc:/backgroundImage.png"
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+    }
+
     Grid {
         columns: 3
         rows:  3

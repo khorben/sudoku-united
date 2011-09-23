@@ -63,7 +63,6 @@ Page {
         CreateButton {
             id: simpleButton
             text: "Simple"
-            checked : true
             parentItem: placeholder
             onClicked: {
                 gameInstance.createGame(1)

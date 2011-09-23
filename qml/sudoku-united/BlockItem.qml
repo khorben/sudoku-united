@@ -25,10 +25,8 @@ Rectangle{
     width: 150
     border.width: 6
     border.color: "black"
-    clip: true
 
     Grid {
-        clip: true
         id: grid
         columns: 3
         rows:  3

@@ -3,5 +3,6 @@
         <file alias="star.png">resources/star.png</file>
         <file alias="trophy.png">resources/trophy.png</file>
         <file alias="logo_grid.png">resources/logo_grid.png</file>
+        <file alias="backgroundImage.png">resources/backgroundImage.png</file>
     </qresource>
 </RCC>
