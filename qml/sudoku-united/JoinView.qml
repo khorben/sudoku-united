@@ -71,6 +71,11 @@ Page {
     LoadingOverlay {
         id: loadingOverlay
         text: "Joining game"
+        showCancelButton: true
+
+        onRejected: {
+            gameInstance.cancelJoin()
+        }
     }
 
     property string gameNameProperty: ""

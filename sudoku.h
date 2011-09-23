@@ -52,6 +52,9 @@ public:
     Q_INVOKABLE
     virtual void leave();
 
+    Q_INVOKABLE
+    virtual void cancelJoin();
+
     static Sudoku *instance();
 signals:
     void joinFailed(QString reason);
@@ -60,6 +63,8 @@ public slots:
 
 protected slots:
     void setGame(Game *game);
+private slots:
+    void onJoinFailed(const QString &reason);
 private:
     void addMultiplayerAdapter(MultiplayerAdapter *adapter);
 
@@ -69,6 +74,7 @@ private:
     QList<MultiplayerAdapter *> m_multiplayerAdapters;
     Player *m_player;
     Game *m_game;
+    MultiplayerAdapter *joinAdapter;
 private:
     static Sudoku *m_instance;
 

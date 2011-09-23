@@ -9,6 +9,11 @@ Dialog {
       */
     property string text: "Loading"
 
+    /**
+      * Shows a cancel button enabling the user to cancel the action.
+      */
+    property bool showCancelButton: false
+
     content: Column {
         anchors.horizontalCenter: parent.horizontalCenter
         spacing: 16
@@ -28,6 +33,18 @@ Dialog {
             style: LabelStyle {
                 inverted: true
             }
+            anchors.horizontalCenter: parent.horizontalCenter
+        }
+
+        Button {
+            visible: loadingDialog.showCancelButton
+            text: "Cancel"
+            style: ButtonStyle {
+                inverted: true
+            }
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            onClicked: rejected()
         }
     }
 

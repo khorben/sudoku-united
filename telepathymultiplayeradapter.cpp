@@ -38,6 +38,10 @@ bool TelepathyStreamHandler::bypassApproval() const
 void TelepathyStreamHandler::onChannelReady(Tp::PendingOperation *operation) {
     Tp::ChannelPtr channel = Tp::ChannelPtr::dynamicCast(operation->object());
 
+    if (operation->isError()) {
+        channel->requestClose();
+        return;
+    }
     if (channel->isRequested()) {
         Tp::OutgoingStreamTubeChannelPtr outgoingChannel =
                 Tp::OutgoingStreamTubeChannelPtr::qObjectCast(channel);
@@ -67,21 +71,17 @@ void TelepathyStreamHandler::handleChannels(const Tp::MethodInvocationContextPtr
         QVariantMap properties = channel->immutableProperties();
         if (properties[TELEPATHY_INTERFACE_CHANNEL ".ChannelType"] ==
                 TELEPATHY_INTERFACE_CHANNEL_TYPE_STREAM_TUBE) {
-            connect(channel->becomeReady(), SIGNAL(finished(Tp::PendingOperation*)), SLOT(onChannelReady(Tp::PendingOperation*)));
+            qDebug() << "Got stream tube...";
+            connect(channel->becomeReady(Tp::StreamTubeChannel::FeatureCore | Tp::StreamTubeChannel::FeatureConnectionMonitoring), SIGNAL(finished(Tp::PendingOperation*)), SLOT(onChannelReady(Tp::PendingOperation*)));
         }
     }
     context->setFinished();
 }
 
 TelepathyMultiplayerAdapter::TelepathyMultiplayerAdapter(Sudoku *parent) :
-    MultiplayerAdapter(parent)
+    MultiplayerAdapter(parent), m_server(NULL)
 {
     Tp::registerTypes();
-
-    m_server = new QLocalServer(this);
-    m_server->listen(QString(tempnam(QDir::tempPath().toUtf8().constData(), "sudokuunited")));
-
-    connect(m_server, SIGNAL(newConnection()), SLOT(onNewConnection()));
 
     registrar = Tp::ClientRegistrar::create();
 
@@ -92,35 +92,28 @@ TelepathyMultiplayerAdapter::TelepathyMultiplayerAdapter(Sudoku *parent) :
                                                 Tp::ConnectionFactory::create(QDBusConnection::sessionBus(),
                                                                               Tp::Connection::FeatureRoster),
                                                 Tp::ChannelFactory::create(QDBusConnection::sessionBus()),
-                                                Tp::ContactFactory::create(Tp::Contact::FeatureCapabilities | Tp::Contact::FeatureAlias));
+                                                Tp::ContactFactory::create(Tp::Contact::FeatureCapabilities | Tp::Contact::FeatureAlias | Tp::Contact::FeatureSimplePresence));
 
     connect(m_sudoku, SIGNAL(gameChanged()), SLOT(onGamesChanged()));
+    connect(this, SIGNAL(joinFailed(QString)), SLOT(onJoinFailed()));
 }
 
 void TelepathyMultiplayerAdapter::onGamesChanged() {
     registerChannels();
-
-    if (!game())
-
-        if (!outgoingStream.isNull()) {
-            outgoingStream->requestClose();
-            outgoingStream = Tp::OutgoingStreamTubeChannelPtr();
-        }
 }
 
 void TelepathyMultiplayerAdapter::registerChannels() {
     Tp::ChannelClassSpecList channelClassSpecList;
 
     channelClassSpecList << Tp::ChannelClassSpec::incomingStreamTube("x-sudoku-united")
-                         << Tp::ChannelClassSpec::outgoingStreamTube("x-sudoku-united")
-                         << Tp::ChannelClassSpec::outgoingStreamTube("x-sudoku-united-game");
+                         << Tp::ChannelClassSpec::outgoingStreamTube("x-sudoku-united");
 
-    if (game() != NULL)
+    if (game())
         channelClassSpecList << Tp::ChannelClassSpec::incomingStreamTube("x-sudoku-united-game");
 
-    Tp::AbstractClientPtr newHandler = Tp::AbstractClientPtr::dynamicCast(
-                Tp::SharedPtr<TelepathyStreamHandler>(new TelepathyStreamHandler(this,
-                                                                                 channelClassSpecList)));
+    Tp::SharedPtr<TelepathyStreamHandler> newHandler = Tp::SharedPtr<TelepathyStreamHandler>(
+                new TelepathyStreamHandler(this,
+                                           channelClassSpecList));
 
     if (!handler.isNull())
         registrar->unregisterClient(handler);
@@ -132,6 +125,14 @@ void TelepathyMultiplayerAdapter::registerChannels() {
         target = target + "1";
         qWarning() << "Failed to register Telepathy stream handler.";
     }
+}
+
+/**
+  * Callback handler to unregister the x-sudoku-united-game capability if
+  * a join fails.
+  */
+void TelepathyMultiplayerAdapter::onJoinFailed() {
+    registerChannels();
 }
 
 GameInfoModel *TelepathyMultiplayerAdapter::discoverGames() {
@@ -148,7 +149,11 @@ void TelepathyMultiplayerAdapter::join(GameInfo *game) {
 
     MultiplayerAdapter::join(game);
 
-    Tp::PendingChannelRequest *request = gameInfo->account->createStreamTube(gameInfo->contact, "x-sudoku-united-game");
+    // Subscribe to presence changes of the remote contact - we need to disconnect if its state changes to offline
+    remoteContact = gameInfo->contact;
+    connect(remoteContact.data(), SIGNAL(presenceChanged(Tp::Presence)), SLOT(onLocalContactPresenceChanged(Tp::Presence)));
+
+    Tp::PendingChannelRequest *request = gameInfo->account->createStreamTube(gameInfo->contact, "x-sudoku-united");
     connect(request, SIGNAL(finished(Tp::PendingOperation*)), SLOT(onChannelRequestFinished(Tp::PendingOperation*)));
 
     qDebug() << "Connecting...";
@@ -161,7 +166,7 @@ bool TelepathyMultiplayerAdapter::canJoinGameInfo(GameInfo *game) const {
 void TelepathyMultiplayerAdapter::handleIncomingChannel(Tp::IncomingStreamTubeChannelPtr incomingStream) {
     qDebug() << "Incoming connection...";
 
-    if (game() == NULL) {
+    if (game() == NULL || incomingStream->tubeState() != Tp::TubeChannelStateLocalPending) {
         incomingStream->requestClose();
         return;
     }
@@ -171,9 +176,10 @@ void TelepathyMultiplayerAdapter::handleIncomingChannel(Tp::IncomingStreamTubeCh
 }
 
 void TelepathyMultiplayerAdapter::onChannelRequestFinished(Tp::PendingOperation *operation) {
+    qDebug() << "Stream tube create request finished.";
+
     if (operation->isError()) {
-        qWarning() << "Failed to join:" << operation->errorMessage();
-        emit joinFailed(operation->errorMessage());
+        disconnectLocalDevice(operation->errorMessage());
     }
 }
 
@@ -198,61 +204,127 @@ void TelepathyMultiplayerAdapter::onClientConnectionEstablished(Tp::PendingOpera
     // Attach to all signals manually as using the stateChanged signal to detect socket state changes causes problems
     // when a new connection is established (for some reason the data written by the server process never arrives at
     // the client.
-    connect(socket, SIGNAL(connected()), SLOT(onClientConnected()));
-    connect(socket, SIGNAL(error(QLocalSocket::LocalSocketError)), SLOT(onClientSocketError(QLocalSocket::LocalSocketError)));
-    connect(socket, SIGNAL(disconnected()), SLOT(onClientDisconnected()));
+    connect(socket, SIGNAL(connected()), SLOT(onRemoteClientConnected()));
+    connect(socket, SIGNAL(error(QLocalSocket::LocalSocketError)), SLOT(onRemoteClientSocketError(QLocalSocket::LocalSocketError)));
+    connect(socket, SIGNAL(disconnected()), SLOT(onRemoteClientDisconnected()));
 
     qDebug() << "Connecting to local socket at: " << address;
     socket->connectToServer(address);
 }
 
-void TelepathyMultiplayerAdapter::onClientConnected() {
+void TelepathyMultiplayerAdapter::onRemoteClientConnected() {
     QLocalSocket *socket = qobject_cast<QLocalSocket *>(sender());
     Q_ASSERT(socket);
+
+    disconnect(socket, SIGNAL(disconnected()));
 
     handleNewRemoteConnection(socket);
 }
 
-void TelepathyMultiplayerAdapter::onClientDisconnected() {
+void TelepathyMultiplayerAdapter::onRemoteClientDisconnected() {
     QLocalSocket *socket = qobject_cast<QLocalSocket *>(sender());
     Q_ASSERT(socket);
 
-    Tp::IncomingStreamTubeChannelPtr incomingStream = incomingStreamMap.take(socket);
-    if (!incomingStream.isNull())
-        incomingStream->requestClose();
+    qDebug() << "Remote client disconnected";
+    disconnectRemoteClient(socket);
 }
 
-void TelepathyMultiplayerAdapter::onClientSocketError(QLocalSocket::LocalSocketError error) {
+void TelepathyMultiplayerAdapter::onRemoteClientSocketError(QLocalSocket::LocalSocketError error) {
+    Q_UNUSED(error);
+
     QLocalSocket *socket = qobject_cast<QLocalSocket *>(sender());
     Q_ASSERT(socket);
 
-    qWarning() << "Socket error on " << socket << socket->errorString();
-
-    Tp::IncomingStreamTubeChannelPtr incomingStream = incomingStreamMap.take(socket);
-    if (!incomingStream.isNull())
-        incomingStream->requestClose();
+    disconnectRemoteClient(socket);
 }
 
 void TelepathyMultiplayerAdapter::handleOutgoingChannel(Tp::OutgoingStreamTubeChannelPtr outgoingStream) {
+    qDebug() << "Outgoing channel requested";
+
+    m_server = new QLocalServer(this);
+
+    if (!m_server->listen(QString(tempnam(QDir::tempPath().toUtf8().constData(), "sudokuunited")))) {
+        emit joinFailed("Failed to create local listen socket.");
+
+        delete m_server;
+        m_server = NULL;
+        return;
+    }
+
+    connect(m_server, SIGNAL(newConnection()), SLOT(onNewConnection()));
+
     Tp::PendingOperation *op = outgoingStream->offerUnixSocket(m_server, QVariantMap());
+
+    this->outgoingStream = outgoingStream;
+
+    // Listen if the local connection is closed
+    connect(outgoingStream.data(), SIGNAL(connectionClosed(uint,QString,QString)), SLOT(onLocalConnectionClosed(uint,QString,QString)));
 
     connect(op, SIGNAL(finished(Tp::PendingOperation*)), SLOT(onOfferUnixSocketFinished(Tp::PendingOperation*)));
 }
 
+void TelepathyMultiplayerAdapter::onLocalContactPresenceChanged(const Tp::Presence &presence) {
+    if (presence.type() == Tp::ConnectionPresenceTypeOffline)
+        disconnectLocalDevice();
+}
+
+void TelepathyMultiplayerAdapter::onLocalConnectionClosed(uint connectionId, const QString &errorName, const QString &errorMessage) {
+    Q_UNUSED(connectionId);
+    Q_UNUSED(errorName);
+    Q_UNUSED(errorMessage);
+
+    qDebug() << "Connection to remote host was closed: " << errorName << errorMessage;
+
+    disconnectLocalDevice(errorMessage);
+}
+
+void TelepathyMultiplayerAdapter::disconnectLocalDevice(const QString &reason) {
+    if (outgoingStream) {
+        outgoingStream->requestClose();
+        outgoingStream.reset();
+    }
+
+    if (remoteContact) {
+        disconnect(remoteContact.data(), SIGNAL(presenceChanged(Tp::Presence)));
+        remoteContact.reset();
+    }
+
+    if (m_server) {
+        m_server->deleteLater();
+        m_server = NULL;
+    }
+
+    MultiplayerAdapter::disconnectLocalDevice(reason);
+}
+
+void TelepathyMultiplayerAdapter::disconnectRemoteClient(QIODevice *device) {
+    QLocalSocket *socket = qobject_cast<QLocalSocket *>(device);
+    Q_ASSERT(socket);
+
+    Tp::IncomingStreamTubeChannelPtr incomingStream = incomingStreamMap.take(socket);
+
+    if (incomingStream)
+        incomingStream->requestClose();
+
+    MultiplayerAdapter::disconnectRemoteClient(device);
+}
+
 void TelepathyMultiplayerAdapter::onOfferUnixSocketFinished(Tp::PendingOperation *op) {
+    qDebug() << "Offering socket has finished";
+
     Tp::OutgoingStreamTubeChannelPtr outgoingStream = Tp::OutgoingStreamTubeChannelPtr::dynamicCast(op->object());
+    Q_ASSERT(outgoingStream == this->outgoingStream);
 
     if (op->isError()) {
-        outgoingStream->requestClose();
+        disconnectLocalDevice(op->errorMessage());
 
-        qWarning() << "Failed to establish connection:" << op->errorMessage();
-
-        emit joinFailed(op->errorMessage());
         return;
     }
 }
 
 void TelepathyMultiplayerAdapter::onNewConnection() {
+    qDebug() << "Received connection on socket...";
+
     QLocalSocket *socket = (QLocalSocket *) localDevice();
 
     if (socket)

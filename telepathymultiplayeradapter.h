@@ -45,58 +45,7 @@ public:
     Tp::ContactPtr contact;
 };
 
-class TelepathyMultiplayerAdapter : public MultiplayerAdapter
-{
-    Q_OBJECT
-public:
-    explicit TelepathyMultiplayerAdapter(Sudoku *parent);
-
-    GameInfoModel *discoverGames();
-
-    void join(GameInfo *game);
-
-    bool canJoinGameInfo(GameInfo *game) const;
-signals:
-
-public slots:
-private:
-    friend class TelepathyStreamHandler;
-
-    void handleIncomingChannel(Tp::IncomingStreamTubeChannelPtr incomingStream);
-    void handleOutgoingChannel(Tp::OutgoingStreamTubeChannelPtr outgoingStream);
-    void registerChannels();
-private slots:
-    void onGamesChanged();
-    void onClientConnectionEstablished(Tp::PendingOperation *operation);
-    void onChannelRequestFinished(Tp::PendingOperation *operation);
-    void onNewConnection();
-    void onOfferUnixSocketFinished(Tp::PendingOperation *op);
-    void onClientConnected();
-    void onClientDisconnected();
-    void onClientSocketError(QLocalSocket::LocalSocketError error);
-private:
-    friend class TelepathyGameInfoModel;
-
-    Tp::ClientRegistrarPtr registrar;
-    Tp::AbstractClientPtr handler;
-    Tp::AccountManagerPtr accountManager;
-    Tp::OutgoingStreamTubeChannelPtr outgoingStream;
-    QMap<QLocalSocket *, Tp::IncomingStreamTubeChannelPtr> incomingStreamMap;
-    QLocalServer *m_server;
-};
-
-class TelepathyGameInfoModel : public GameInfoModel {
-    Q_OBJECT
-public:
-    TelepathyGameInfoModel(Tp::AccountManagerPtr accountManager, TelepathyMultiplayerAdapter *parent);
-
-private:
-    void buildGameInfoList();
-private slots:
-    void onAccountManagerReady(Tp::PendingOperation *operation);
-private:
-    Tp::AccountManagerPtr accountManager;
-};
+class TelepathyMultiplayerAdapter;
 
 class TelepathyStreamHandler : public QObject, public Tp::AbstractClientHandler
 {
@@ -120,5 +69,64 @@ private slots:
 private:
     TelepathyMultiplayerAdapter *multiplayerAdapter;
 };
+
+class TelepathyMultiplayerAdapter : public MultiplayerAdapter
+{
+    Q_OBJECT
+public:
+    explicit TelepathyMultiplayerAdapter(Sudoku *parent);
+
+    GameInfoModel *discoverGames();
+
+    void join(GameInfo *game);
+
+    bool canJoinGameInfo(GameInfo *game) const;
+protected:
+    void disconnectLocalDevice(const QString &reason = QString());
+    void disconnectRemoteClient(QIODevice *device);
+private:
+    friend class TelepathyStreamHandler;
+
+    void handleIncomingChannel(Tp::IncomingStreamTubeChannelPtr incomingStream);
+    void handleOutgoingChannel(Tp::OutgoingStreamTubeChannelPtr outgoingStream);
+    void registerChannels();
+private slots:
+    void onGamesChanged();
+    void onClientConnectionEstablished(Tp::PendingOperation *operation);
+    void onChannelRequestFinished(Tp::PendingOperation *operation);
+    void onNewConnection();
+    void onOfferUnixSocketFinished(Tp::PendingOperation *op);
+    void onRemoteClientConnected();
+    void onRemoteClientDisconnected();
+    void onRemoteClientSocketError(QLocalSocket::LocalSocketError error);
+    void onLocalConnectionClosed(uint connectionId, const QString &errorName, const QString &errorMessage);
+    void onLocalContactPresenceChanged(const Tp::Presence &presence);
+    void onJoinFailed();
+private:
+    friend class TelepathyGameInfoModel;
+
+    Tp::ContactPtr remoteContact;
+    Tp::ClientRegistrarPtr registrar;
+    Tp::SharedPtr<TelepathyStreamHandler> handler;
+    Tp::AccountManagerPtr accountManager;
+    Tp::OutgoingStreamTubeChannelPtr outgoingStream;
+    QMap<QLocalSocket *, Tp::IncomingStreamTubeChannelPtr> incomingStreamMap;
+    QLocalServer *m_server;
+};
+
+class TelepathyGameInfoModel : public GameInfoModel {
+    Q_OBJECT
+public:
+    TelepathyGameInfoModel(Tp::AccountManagerPtr accountManager, TelepathyMultiplayerAdapter *parent);
+
+private:
+    void buildGameInfoList();
+private slots:
+    void onAccountManagerReady(Tp::PendingOperation *operation);
+private:
+    Tp::AccountManagerPtr accountManager;
+};
+
+
 
 #endif // TELEPATHYMULTIPLAYERADAPTER_H

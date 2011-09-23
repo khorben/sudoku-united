@@ -82,6 +82,7 @@ public:
     virtual void join(GameInfo *game);
     virtual GameInfoModel *discoverGames() = 0;
     virtual bool canJoinGameInfo(GameInfo *game) const = 0;
+    void cancelJoin();
 
 protected slots:
     virtual void onCellValueChanged(Cell *cell);
@@ -91,8 +92,7 @@ protected:
     virtual void sendMessage(const PlayerInfo *info, Message *message, PlayerStateFilter stateFilter=Online);
     virtual void handleNewRemoteConnection(QIODevice *device);
 
-    void disconnectRemoteClient(QIODevice *device);
-    void disconnectRemoteClient(PlayerInfo *info);
+    virtual void disconnectRemoteClient(QIODevice *device);
 
     virtual void disconnectLocalDevice(const QString &reason = QString());
 

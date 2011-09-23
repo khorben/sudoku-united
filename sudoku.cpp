@@ -50,21 +50,29 @@ void Sudoku::addMultiplayerAdapter(MultiplayerAdapter *adapter) {
 
     m_multiplayerAdapters.append(adapter);
 
-    connect(adapter, SIGNAL(joinFailed(QString)), SIGNAL(joinFailed(QString)));
+    connect(adapter, SIGNAL(joinFailed(QString)), SLOT(onJoinFailed(QString)));
     connect(adapter, SIGNAL(joinSucceeded(Game*)), SLOT(setGame(Game*)));
+}
+
+void Sudoku::onJoinFailed(const QString &reason) {
+    joinAdapter = NULL;
+
+    emit joinFailed(reason);
 }
 
 void Sudoku::setGame(Game *game) {
     if (game == m_game)
         return;
 
-    if (m_game != NULL)
+    if (m_game)
         m_game->deleteLater();
 
     m_game = game;
 
-    if (m_game != NULL)
+    if (m_game)
         m_game->setParent(this);
+    else
+        joinAdapter = NULL;
 
     emit gameChanged();
 }
@@ -74,9 +82,16 @@ void Sudoku::join(GameInfo *game) {
         if (!adapter->canJoinGameInfo(game))
             continue;
 
-        adapter->join(game);
-        break;
+        joinAdapter = adapter;
+        joinAdapter->join(game);
+
+        return;
     }
+}
+
+void Sudoku::cancelJoin() {
+    if (joinAdapter)
+        joinAdapter->cancelJoin();
 }
 
 GameInfoModel *Sudoku::discoverGames() {

@@ -46,6 +46,10 @@ void MultiplayerAdapter::join(GameInfo *game) {
     m_local->state = PlayerInfo::Connecting;
 }
 
+void MultiplayerAdapter::cancelJoin() {
+    disconnectLocalDevice("Canceled");
+}
+
 void MultiplayerAdapter::onGameChanged() {
     Game *game = m_sudoku->game();
 
@@ -83,6 +87,8 @@ void MultiplayerAdapter::onBoardChanged() {
 }
 
 void MultiplayerAdapter::handleNewRemoteConnection(QIODevice *device) {
+    qDebug() << "Handling new remote connection: " << device;
+
     PlayerInfo *playerInfo = new PlayerInfo();
 
     playerInfo->device = device;
@@ -116,6 +122,7 @@ void MultiplayerAdapter::handleGameMessage(PlayerInfo &playerInfo, GameMessage *
         return;
     }
 
+    qDebug() << "Setting state to connected";
     playerInfo.state = PlayerInfo::Connected;
 
     if (message->game() == NULL)
@@ -260,19 +267,20 @@ void MultiplayerAdapter::onRemoteReadChannelFinished() {
 
 
 void MultiplayerAdapter::disconnectRemoteClient(QIODevice *device) {
-    return disconnectRemoteClient(m_remote[device]);
-}
+    device->deleteLater();
 
-void MultiplayerAdapter::disconnectRemoteClient(PlayerInfo *info) {
-    Q_ASSERT(info);
+    PlayerInfo *info = m_remote.take(device);
+
+    if (!info) {
+        return;
+    }
 
     if (info->player != NULL)
         info->player->setState(Player::Disconnected);
 
-    m_remote.remove(info->device);
-
-    info->device->deleteLater();
     delete info;
+
+    qDebug() << "Removed remote client " << device;
 }
 
 void MultiplayerAdapter::setLocalDevice(QIODevice *device) {
@@ -287,8 +295,6 @@ void MultiplayerAdapter::setLocalDevice(QIODevice *device) {
     if (device) {
         connect(device, SIGNAL(readChannelFinished()), SLOT(onLocalReadChannelFinished()));
         connect(device, SIGNAL(readyRead()), SLOT(onLocalReadyRead()));
-
-        m_local->state = PlayerInfo::Connecting;
     } else {
         m_local->state = PlayerInfo::Disconnected;
     }
@@ -299,6 +305,8 @@ QIODevice *MultiplayerAdapter::localDevice() const {
 }
 
 void MultiplayerAdapter::disconnectLocalDevice(const QString &reason) {
+    qDebug() << "Disconnecting local device: " << reason << m_local->state;
+
     if (m_local->state == PlayerInfo::Connecting) {
         QString joinErrorReason = reason;
 

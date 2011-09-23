@@ -45,9 +45,6 @@ BluetoothMultiplayerAdapter::BluetoothMultiplayerAdapter(Sudoku *parent) :
 {
     localBluetoothDevice = new QBluetoothLocalDevice(this);
 
-    server = new QRfcommServer(this);
-    connect(server, SIGNAL(newConnection()), SLOT(onNewRemoteConnection()));
-
     discoveryAgent = new QBluetoothServiceDiscoveryAgent(this);
     discoveryAgent->setUuidFilter(QBluetoothUuid(BluetoothMultiplayerAdapter::ServiceUuid));
 
@@ -127,14 +124,21 @@ void BluetoothMultiplayerAdapter::onRemoteSocketError(QBluetoothSocket::SocketEr
 
 
 void BluetoothMultiplayerAdapter::startServer() {
-    if (server->isListening())
-        return;
+    Q_ASSERT(!server);
 
-    // Manually specify port as there were problems when Qt Mobility
-    // chose the port (the server never detected a new connection).
-    quint16 port = 3;
+    server = new QRfcommServer(this);
+    connect(server, SIGNAL(newConnection()), SLOT(onNewRemoteConnection()));
+
+    // There seems to be a problem if channel id 1 is used so we
+    // force a port >= 2.
+    quint16 port = 2;
     while (!server->listen(QBluetoothAddress(), port) && port < 24)
         port++;
+
+    if (!server->isListening()) {
+        qWarning() << "Failed to start Bluetooth server.";
+        return;
+    }
 
     // Heavily based on Qt Mobility's Bluetooth chat sample
     serviceInfo.setAttribute(QBluetoothServiceInfo::ServiceRecordHandle, (uint)0x00010010);
@@ -198,8 +202,13 @@ void BluetoothMultiplayerAdapter::onNewRemoteConnection() {
 
 void BluetoothMultiplayerAdapter::onGameChanged() {
     if (game() == NULL) {
-        if (server)
+        if (server) {
+            serviceInfo.unregisterService();
+
             server->close();
+            server->deleteLater();
+            server = NULL;
+        }
 
         localBluetoothDevice->setHostMode(previousHostMode);
 
