@@ -22,10 +22,14 @@
 #include <QtDeclarative>
 
 #include "boardgenerator.h"
-#include "multiplayeradapter.h"
+#include "adapters/abstractclient.h"
+#include "adapters/gameinfo.h"
 
 class Player;
 class Game;
+
+class ServerAdapter;
+class GameInfoModel;
 
 class Sudoku : public QObject
 {
@@ -62,19 +66,15 @@ signals:
 public slots:
 
 protected slots:
+    void onClientStateChanged(AbstractClient::State state);
     void setGame(Game *game);
-private slots:
-    void onJoinFailed(const QString &reason);
-private:
-    void addMultiplayerAdapter(MultiplayerAdapter *adapter);
-
 private:
     friend class AggregateGameInfoModel;
 
-    QList<MultiplayerAdapter *> m_multiplayerAdapters;
     Player *m_player;
     Game *m_game;
-    MultiplayerAdapter *joinAdapter;
+    ServerAdapter *serverAdapter;
+    AbstractClient *client;
 private:
     static Sudoku *m_instance;
 
@@ -89,9 +89,13 @@ public:
 
 private slots:
     void onRowsInserted(const QModelIndex & parent, int start, int end);
+    void onRowsRemoved(const QModelIndex &parent, int start, int end);
+    void onDataChanged(const QModelIndex &topLeft,
+                       const QModelIndex &bottomRight);
     void onStateChanged();
 private:
     QList<GameInfoModel *> m_gameInfoModels;
+    QHash<GameInfoModel *, QHash<quint16, quint16> > rowMap;
 };
 
 #endif // SUDOKU_H

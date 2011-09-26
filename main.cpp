@@ -22,7 +22,7 @@
 #include "board.h"
 #include "game.h"
 #include "player.h"
-#include "multiplayeradapter.h"
+#include "adapters/abstractserver.h"
 #include "sudoku.h"
 
 int main(int argc, char *argv[])

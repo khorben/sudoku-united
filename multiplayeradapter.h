@@ -52,18 +52,6 @@ public:
     Player *player;
 };
 
-class GameInfo : public QObject {
-    Q_OBJECT
-    Q_PROPERTY(QString name READ name)
-public:
-    GameInfo(QObject *parent = 0);
-
-    virtual QString name() const = 0;
-    virtual quint16 playerCount() const = 0;
-};
-
-QML_DECLARE_TYPE(GameInfo)
-
 class MultiplayerAdapter : public QObject
 {
     Q_OBJECT

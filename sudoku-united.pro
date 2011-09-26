@@ -33,13 +33,23 @@ SOURCES += main.cpp \
     board.cpp \
     player.cpp \
     game.cpp \
-    multiplayeradapter.cpp \
-    tcpmultiplayeradapter.cpp \
     message.cpp \
-    bluetoothmultiplayeradapter.cpp \
     boardgenerator.cpp \
     sudoku.cpp \
-    telepathymultiplayeradapter.cpp
+    adapters/serveradapter.cpp \
+    adapters/abstractserver.cpp \
+    adapters/tcp/tcpserver.cpp \
+    adapters/abstractclient.cpp \
+    adapters/tcp/tcpclient.cpp \
+    adapters/tcp/tcpgameinfo.cpp \
+    adapters/gameinfo.cpp \
+    adapters/telepathy/telepathyclient.cpp \
+    adapters/telepathy/telepathyserver.cpp \
+    adapters/telepathy/telepathygameinfo.cpp \
+    adapters/telepathy/telepathyhandler.cpp \
+    adapters/bluetooth/bluetoothclient.cpp \
+    adapters/bluetooth/bluetoothserver.cpp \
+    adapters/bluetooth/bluetoothgameinfo.cpp
 
 # Please do not modify the following two lines. Required for deployment.
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
@@ -64,13 +74,23 @@ HEADERS += \
     board.h \
     player.h \
     game.h \
-    multiplayeradapter.h \
-    tcpmultiplayeradapter.h \
     message.h \
-    bluetoothmultiplayeradapter.h \
     boardgenerator.h \
     sudoku.h \
-    telepathymultiplayeradapter.h
+    adapters/serveradapter.h \
+    adapters/abstractserver.h \
+    adapters/tcp/tcpserver.h \
+    adapters/abstractclient.h \
+    adapters/tcp/tcpclient.h \
+    adapters/tcp/tcpgameinfo.h \
+    adapters/gameinfo.h \
+    adapters/telepathy/telepathyclient.h \
+    adapters/telepathy/telepathyserver.h \
+    adapters/telepathy/telepathygameinfo.h \
+    adapters/telepathy/telepathyhandler.h \
+    adapters/bluetooth/bluetoothclient.h \
+    adapters/bluetooth/bluetoothserver.h \
+    adapters/bluetooth/bluetoothgameinfo.h
 
 RESOURCES += resources.qrc
 
@@ -80,6 +100,52 @@ MOBILITY += connectivity
 contains(MEEGO_EDITION,harmattan): {
     DEFINES += MEEGO_EDITION_HARMATTAN
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

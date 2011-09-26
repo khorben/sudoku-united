@@ -17,26 +17,27 @@
 
 #include "sudoku.h"
 #include "player.h"
-#include "tcpmultiplayeradapter.h"
-#include "bluetoothmultiplayeradapter.h"
-#include "telepathymultiplayeradapter.h"
-#include "multiplayeradapter.h"
+#include "adapters/serveradapter.h"
+#include "adapters/abstractserver.h"
+#include "adapters/abstractclient.h"
+#include "adapters/tcp/tcpserver.h"
+#include "adapters/bluetooth/bluetoothserver.h"
+#include "adapters/telepathy/telepathyserver.h"
 #include "game.h"
 
 Sudoku *Sudoku::m_instance = NULL;
 
 Sudoku::Sudoku(QObject *parent) :
-    QObject(parent), m_player(NULL), m_game(NULL)
+    QObject(parent), m_player(NULL), m_game(NULL),
+    serverAdapter(new ServerAdapter(this)), client(NULL)
 {
 
     m_player = new Player(this);
     m_player->setName("Foobar");
 
-    addMultiplayerAdapter(new TCPMultiplayerAdapter(this));
-    if (BluetoothMultiplayerAdapter::hostSupportsBluetooth())
-        addMultiplayerAdapter(new BluetoothMultiplayerAdapter(this));
-
-    addMultiplayerAdapter(new TelepathyMultiplayerAdapter(this));
+    serverAdapter->addServerImplementation(new TCPServer());
+    serverAdapter->addServerImplementation(new TelepathyServer());
+    serverAdapter->addServerImplementation(new BluetoothServer());
 }
 
 Sudoku *Sudoku::instance() {
@@ -44,20 +45,6 @@ Sudoku *Sudoku::instance() {
         m_instance = new Sudoku();
 
     return m_instance;
-}
-
-void Sudoku::addMultiplayerAdapter(MultiplayerAdapter *adapter) {
-
-    m_multiplayerAdapters.append(adapter);
-
-    connect(adapter, SIGNAL(joinFailed(QString)), SLOT(onJoinFailed(QString)));
-    connect(adapter, SIGNAL(joinSucceeded(Game*)), SLOT(setGame(Game*)));
-}
-
-void Sudoku::onJoinFailed(const QString &reason) {
-    joinAdapter = NULL;
-
-    emit joinFailed(reason);
 }
 
 void Sudoku::setGame(Game *game) {
@@ -69,29 +56,46 @@ void Sudoku::setGame(Game *game) {
 
     m_game = game;
 
-    if (m_game)
+    if (m_game) {
         m_game->setParent(this);
-    else
-        joinAdapter = NULL;
+    } else if (client) {
+        client->leave();
+        client->deleteLater();
+        client = NULL;
+    }
+
+    serverAdapter->setGame(m_game);
 
     emit gameChanged();
 }
 
 void Sudoku::join(GameInfo *game) {
-    foreach(MultiplayerAdapter *adapter, m_multiplayerAdapters) {
-        if (!adapter->canJoinGameInfo(game))
-            continue;
+    setGame(NULL);
 
-        joinAdapter = adapter;
-        joinAdapter->join(game);
+    client = game->client();
+    connect(client,
+            SIGNAL(stateChanged(AbstractClient::State)),
+            SLOT(onClientStateChanged(AbstractClient::State)));
+    client->join(game);
+}
 
-        return;
+void Sudoku::onClientStateChanged(AbstractClient::State state) {
+    switch (state) {
+    case AbstractClient::Disconnected:
+        if (m_game == NULL)
+            emit joinFailed(client->error());
+        break;
+    case AbstractClient::Connected:
+        setGame(client->game());
+        break;
+    case AbstractClient::Connecting:
+        break;
     }
 }
 
 void Sudoku::cancelJoin() {
-    if (joinAdapter)
-        joinAdapter->cancelJoin();
+    if (client)
+        client->leave();
 }
 
 GameInfoModel *Sudoku::discoverGames() {
@@ -123,27 +127,76 @@ void Sudoku::leave() {
 AggregateGameInfoModel::AggregateGameInfoModel(Sudoku *parent) :
     GameInfoModel(parent) {
 
-    foreach(MultiplayerAdapter *adapter, parent->m_multiplayerAdapters) {
+    foreach (AbstractServer *adapter,
+             parent->serverAdapter->serverImplementations()) {
         GameInfoModel *model = adapter->discoverGames();
+        rowMap[model] = QHash<quint16, quint16>();
 
         m_gameInfoModels.append(model);
 
+        QHash<quint16, quint16> &rowInfo = rowMap[model];
         for (int i = 0; i < model->rowCount(QModelIndex()); i++) {
-            appendGameInfo(model->row(i));
+            insertGameInfo(model->row(i));
+            rowInfo[i] = m_gameInfoList.size() - 1;
+
         }
 
         connect(model, SIGNAL(stateChanged()), SLOT(onStateChanged()));
-        connect(model, SIGNAL(rowsInserted(QModelIndex, int, int)), SLOT(onRowsInserted(QModelIndex,int,int)));
+        connect(model,
+                SIGNAL(rowsInserted(QModelIndex, int, int)),
+                SLOT(onRowsInserted(QModelIndex,int,int)));
+        connect(model, SIGNAL(rowsRemoved(QModelIndex, int, int)),
+                SLOT(onRowsRemoved(QModelIndex, int, int)));
+        connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                SLOT(onDataChanged(QModelIndex, QModelIndex)));
     }
 }
 
-void AggregateGameInfoModel::onRowsInserted(const QModelIndex &parent, int start, int end) {
+void AggregateGameInfoModel::onRowsInserted(const QModelIndex &parent,
+                                            int start, int end) {
     Q_UNUSED(parent)
 
     GameInfoModel *model = (GameInfoModel *) sender();
+    QHash<quint16, quint16> &rowInfo = rowMap[model];
 
     for (int i = start; i <= end; i++) {
-        appendGameInfo(model->row(i));
+        rowInfo[i] = insertGameInfo(model->row(i));
+    }
+}
+
+void AggregateGameInfoModel::onRowsRemoved(const QModelIndex &parent, int start,
+                                           int end) {
+    Q_UNUSED(parent)
+
+    GameInfoModel *model = (GameInfoModel *) sender();
+    QHash<quint16, quint16> &rowInfo = rowMap[model];
+
+    for (int i = start; i <= end; i++) {
+        beginRemoveRows(QModelIndex(), rowInfo[i], rowInfo[i]);
+        m_gameInfoList.removeAt(rowInfo[i]);
+        endRemoveRows();
+    }
+
+    // Rebuild row mapping
+    rowInfo.clear();
+    for (int i = 0; i < model->rowCount(QModelIndex()); i++) {
+        for (int z = 0; z < m_gameInfoList.size(); z++) {
+            if (*(model->row(i)) == *(m_gameInfoList[z])) {
+                rowInfo[i] = z;
+                break;
+            }
+        }
+    }
+}
+
+void AggregateGameInfoModel::onDataChanged(const QModelIndex &topLeft,
+                                           const QModelIndex &bottomRight) {
+    GameInfoModel *model = (GameInfoModel *) sender();
+    QHash<quint16, quint16> &rowInfo = rowMap[model];
+
+    for (int row = topLeft.row(); row <= bottomRight.row(); row++) {
+        QModelIndex index = createIndex(rowInfo[row], 0);
+        emit dataChanged(index, index);
     }
 }
 
