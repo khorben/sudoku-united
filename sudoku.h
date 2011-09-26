@@ -82,6 +82,7 @@ private:
     ServerAdapter *serverAdapter;
     AbstractClient *client;
     Settings *m_settings;
+    bool notConnected;
 private:
     static Sudoku *m_instance;
 

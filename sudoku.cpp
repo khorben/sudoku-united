@@ -84,6 +84,8 @@ void Sudoku::setGame(Game *game) {
 void Sudoku::join(GameInfo *game) {
     setGame(NULL);
 
+    // Variable to store whether we have reached the connected state
+    notConnected = true;
     client = game->client();
     connect(client,
             SIGNAL(stateChanged(AbstractClient::State)),
@@ -94,11 +96,12 @@ void Sudoku::join(GameInfo *game) {
 void Sudoku::onClientStateChanged(AbstractClient::State state) {
     switch (state) {
     case AbstractClient::Disconnected:
-        if (m_game == NULL)
+        if (m_game == NULL && notConnected)
             emit joinFailed(client->error());
         break;
     case AbstractClient::Connected:
         setGame(client->game());
+        notConnected = false;
         break;
     case AbstractClient::Connecting:
         break;
