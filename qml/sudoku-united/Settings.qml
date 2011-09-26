@@ -22,6 +22,8 @@ import "UIConstants.js" as UIConstants
 Page {
     tools: commonToolbar
 
+    orientationLock: PageOrientation.LockPortrait
+
     Header {
         id: header
         text: "Settings"

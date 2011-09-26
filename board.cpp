@@ -33,6 +33,8 @@ Board::Board(const Board &other) :
             connect(&m_cells[x][y], SIGNAL(valueChanged()), SLOT(onCellValueChanged()));
         }
     }
+
+    m_startTime = other.m_startTime;
 }
 
 Board::Board(QObject *parent) :
@@ -48,6 +50,8 @@ Board::Board(QObject *parent) :
             connect(&m_cells[x][y], SIGNAL(valueChanged()), SLOT(onCellValueChanged()));
         }
     }
+
+    m_startTime = QDateTime::currentDateTimeUtc();
 }
 
 Cell *Board::cellAt(quint8 x, quint8 y) const {
@@ -160,6 +164,9 @@ quint8 Board::solutionValue(quint8 x, quint8 y) const {
 
 void Board::setCellValue(quint8 x, quint8 y, quint8 value) {
     m_cellValues[x][y] = value;
+}
+QDateTime Board::startTime() const {
+    return m_startTime;
 }
 
 QDataStream &operator<<(QDataStream &s, const Board &board) {

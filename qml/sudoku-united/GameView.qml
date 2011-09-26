@@ -54,6 +54,8 @@ Page {
         }
     }
 
+    orientationLock: PageOrientation.LockPortrait
+
     SelectionDialog {
         id: leaveGameDialog
         titleText: "Leave the game?"
@@ -151,6 +153,46 @@ Page {
         }
     }
 
+    Rectangle {
+        anchors { right: parent.right; bottom: parent.bottom; margins: 8 }
+        id: gameTime
+        color: "#ffffffff";
+        radius: 10
+        width: 96
+        height: 32
+
+        Label {
+            anchors.centerIn: parent
+            id: gameTimeLabel
+            text: "00:00"
+        }
+
+        Timer {
+            id: gameTimeTimer
+            interval: 1000
+            repeat: true
+            triggeredOnStart: true
+            running: true
+            onTriggered: {
+                if (!game || !game.board) {
+                    gameTimeLabel.text = "00:00"
+                    return;
+                }
+
+                var elapsed = (new Date() - game.board.startTime) / 1000;
+                var minutes = parseInt(elapsed / 60)
+                var seconds = parseInt(elapsed % 60)
+
+                if (minutes < 10)
+                    minutes = "0" + minutes;
+                if (seconds < 10)
+                    seconds = "0" + seconds;
+
+                gameTimeLabel.text = minutes + ":" + seconds
+            }
+        }
+    }
+
     WinningScreen {
         playBoard: playBoard
         visible: (!game || !game.board) ? false : game.board.full
@@ -186,4 +228,6 @@ Page {
             }
         }
     }
+
+
 }

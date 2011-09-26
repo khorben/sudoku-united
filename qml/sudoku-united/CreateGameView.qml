@@ -25,6 +25,8 @@ Page {
 
     tools: commonToolbar
 
+    orientationLock: PageOrientation.LockPortrait
+
     property Game game : gameInstance.game
 
     onGameChanged: {

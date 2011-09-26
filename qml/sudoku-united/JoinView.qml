@@ -42,6 +42,8 @@ Page {
         }
     }
 
+    orientationLock: PageOrientation.LockPortrait
+
     InfoBanner {
         id: infoBanner
         z: 10

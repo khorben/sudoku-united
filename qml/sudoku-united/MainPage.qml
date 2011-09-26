@@ -33,6 +33,8 @@ Page {
         }
     }
 
+    orientationLock: PageOrientation.LockPortrait
+
     Menu {
         id: myMenu
         visualParent: pageStack

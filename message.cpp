@@ -201,11 +201,18 @@ bool GameMessage::parseStream(QDataStream &dataStream) {
                 }
             }
         }
+
         for (quint8 y = 0; y < 9; y++) {
             for (quint8 x = 0; x < 9; x++) {
-                dataStream >>board->m_solution[x][y];
+                dataStream >> board->m_solution[x][y];
             }
         }
+
+        // Read start time
+        quint64 elapsedTime = 0;
+        dataStream >> elapsedTime;
+        board->m_startTime =
+                QDateTime::fromMSecsSinceEpoch(QDateTime::currentMSecsSinceEpoch() - elapsedTime);
 
         m_game->setBoard(board);
     }
@@ -252,6 +259,12 @@ bool GameMessage::writeStream(QDataStream &dataStream) {
                 tempStream << m_game->board()->solutionValue(x, y);
             }
         }
+
+        // Elapsed time in seconds
+        quint64 elapsedTime =
+                QDateTime::currentMSecsSinceEpoch()
+                - m_game->board()->m_startTime.toMSecsSinceEpoch();
+        tempStream << elapsedTime;
     } else {
         tempStream << false;
     }
