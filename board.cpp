@@ -51,7 +51,7 @@ Board::Board(QObject *parent) :
         }
     }
 
-    m_startTime = QDateTime::currentDateTimeUtc();
+    m_startTime = QDateTime::currentMSecsSinceEpoch();
 }
 
 Cell *Board::cellAt(quint8 x, quint8 y) const {
@@ -165,7 +165,7 @@ quint8 Board::solutionValue(quint8 x, quint8 y) const {
 void Board::setCellValue(quint8 x, quint8 y, quint8 value) {
     m_cellValues[x][y] = value;
 }
-QDateTime Board::startTime() const {
+quint64 Board::startTime() const {
     return m_startTime;
 }
 

@@ -212,7 +212,7 @@ bool GameMessage::parseStream(QDataStream &dataStream) {
         quint64 elapsedTime = 0;
         dataStream >> elapsedTime;
         board->m_startTime =
-                QDateTime::fromMSecsSinceEpoch(QDateTime::currentMSecsSinceEpoch() - elapsedTime);
+                (QDateTime::currentMSecsSinceEpoch() - elapsedTime);
 
         m_game->setBoard(board);
     }
@@ -263,7 +263,7 @@ bool GameMessage::writeStream(QDataStream &dataStream) {
         // Elapsed time in seconds
         quint64 elapsedTime =
                 QDateTime::currentMSecsSinceEpoch()
-                - m_game->board()->m_startTime.toMSecsSinceEpoch();
+                - m_game->board()->m_startTime;
         tempStream << elapsedTime;
     } else {
         tempStream << false;
