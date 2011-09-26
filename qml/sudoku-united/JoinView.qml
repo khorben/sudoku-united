@@ -163,15 +163,6 @@ Page {
                 font.pixelSize: UIConstants.FONT_SLARGE;
             }
 
-            Text {
-                id: gameDescription
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.right: parent.right
-                anchors.rightMargin: 16
-                text: '<b>Players:</b> ' + playerCount
-                font.pixelSize: 14
-            }
-
             Rectangle{
                 anchors.bottom: parent.bottom
                 width: parent.width - 10
