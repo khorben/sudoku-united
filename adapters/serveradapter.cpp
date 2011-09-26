@@ -304,6 +304,7 @@ void ServerAdapter::handleJoinMessage(PlayerInfo &playerInfo,
         sendMessage(playerInfo, gameMessage);
 
         playerInfo.player = m_game->addPlayer(message->uuid(), message->name());
+        playerInfo.player->setState(Player::Connected);
         playerInfo.state = PlayerInfo::Connected;
     }
 }
