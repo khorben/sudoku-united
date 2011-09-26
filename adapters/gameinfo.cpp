@@ -23,7 +23,7 @@ GameInfo::GameInfo(QObject *parent) :
 }
 
 GameInfoModel::GameInfoModel(QObject *parent) :
-    QAbstractListModel(parent), m_state(Discovering) {
+    QAbstractListModel(parent), m_state(Discovering), m_autoRefresh(true) {
 
     QHash<int, QByteArray> roles;
 
@@ -96,4 +96,21 @@ int GameInfoModel::rowCount(const QModelIndex &parent) const {
 
 GameInfo *GameInfoModel::row(int index) const {
     return m_gameInfoList[index];
+}
+
+/**
+  * Enables or disables auto refresh mode. In auto refresh mode the underlying
+  * model will update itself automatically if new games are found during its
+  * lifetime.
+  */
+void GameInfoModel::setAutoRefresh(bool enabled) {
+    if (enabled == m_autoRefresh)
+        return;
+
+    m_autoRefresh = enabled;
+    emit autoRefreshChanged();
+}
+
+bool GameInfoModel::autoRefresh() const {
+    return m_autoRefresh;
 }

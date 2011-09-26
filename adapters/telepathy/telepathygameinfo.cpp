@@ -77,6 +77,10 @@ void TelepathyGameInfoModel::onAccountManagerReady(Tp::PendingOperation *operati
 }
 
 void TelepathyGameInfoModel::buildGameInfoList() {
+    beginRemoveRows(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
+    m_gameInfoList.clear();
+    endRemoveRows();
+
     foreach (Tp::AccountPtr account, accountManager->allAccounts()) {
         if (!account->isValid() || account->connection().isNull())
             continue;
@@ -215,5 +219,17 @@ void TelepathyGameInfoModel::onAllKnownContactsChanged(const Tp::Contacts &conta
 
             i++;
         }
+    }
+}
+
+void TelepathyGameInfoModel::setAutoRefresh(bool enabled) {
+    GameInfoModel::setAutoRefresh(enabled);
+
+    if (!enabled) {
+        disconnect(this, SLOT(onCapabilitiesChanged(Tp::ContactCapabilities)));
+        disconnect(this,
+                   SLOT(onAllKnownContactsChanged(Tp::Contacts,Tp::Contacts,Tp::Channel::GroupMemberChangeDetails)));
+    } else {
+        buildGameInfoList();
     }
 }

@@ -36,6 +36,7 @@ Page {
             enabled: list.currentItem != null
             onClicked: {
                 loadingOverlay.open()
+                gameInfoModel.autoRefresh = false
                 gameInstance.join(list.currentItem.myData.gameInfo)
             }
         }
@@ -52,13 +53,19 @@ Page {
         onJoinFailed: {
             console.log("Failed")
             loadingOverlay.close()
-            infoBanner.text = "Connection to player failed."
+            gameInfoModel.autoRefresh = true
+            if (reason.length > 0)
+                infoBanner.text = "Connection to player failed: " + reason
+            else
+                infoBanner.text = "Connection to player failed."
             infoBanner.show()
         }
 
         onGameChanged: {
-            if (!gameInstance.game)
+            if (!gameInstance.game) {
+                gameInfoModel.autoRefresh = true
                 return;
+            }
 
             if (gameInstance.game.board) {
                 loadingOverlay.close()

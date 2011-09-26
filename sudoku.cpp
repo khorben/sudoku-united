@@ -202,10 +202,22 @@ void AggregateGameInfoModel::onDataChanged(const QModelIndex &topLeft,
 
 void AggregateGameInfoModel::onStateChanged() {
     foreach (GameInfoModel *model, m_gameInfoModels) {
-        if (model->state() == Discovering)
+        if (model->state() == Discovering) {
+            if (m_state != model->state()) {
+                m_state = model->state();
+                emit stateChanged();
+            }
             return;
+        }
     }
 
     m_state = Complete;
     emit stateChanged();
+}
+
+void AggregateGameInfoModel::setAutoRefresh(bool enabled) {
+    GameInfoModel::setAutoRefresh(enabled);
+
+    foreach (GameInfoModel *model, m_gameInfoModels)
+        model->setAutoRefresh(enabled);
 }

@@ -54,6 +54,8 @@ class GameInfoModel : public QAbstractListModel {
     Q_OBJECT
     Q_ENUMS(State)
     Q_PROPERTY(State state READ state NOTIFY stateChanged)
+    Q_PROPERTY(bool autoRefresh READ autoRefresh WRITE setAutoRefresh NOTIFY
+               autoRefreshChanged)
 public:
     enum State {
         Discovering,
@@ -68,8 +70,11 @@ public:
 
     GameInfo *row(int index) const;
 
+    virtual void setAutoRefresh(bool enabled);
+    bool autoRefresh() const;
 signals:
     void stateChanged();
+    void autoRefreshChanged();
 protected:
     GameInfoModel(QObject *parent = 0);
 
@@ -79,6 +84,8 @@ protected:
 protected:
     QList<GameInfo *> m_gameInfoList;
     State m_state;
+private:
+    bool m_autoRefresh;
 private:
     enum Roles {
         NameRole = Qt::UserRole + 1,

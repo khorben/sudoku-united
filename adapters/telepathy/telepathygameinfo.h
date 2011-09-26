@@ -48,6 +48,8 @@ public:
 private:
     void buildGameInfoList();
     Tp::AccountPtr findAccount(Tp::ContactManagerPtr cm);
+
+    void setAutoRefresh(bool enabled);
 private slots:
     void onAccountManagerReady(Tp::PendingOperation *operation);
     void onCapabilitiesChanged(const Tp::ContactCapabilities &caps);

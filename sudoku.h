@@ -87,6 +87,7 @@ class AggregateGameInfoModel : public GameInfoModel {
 public:
     AggregateGameInfoModel(Sudoku *parent);
 
+    void setAutoRefresh(bool enabled);
 private slots:
     void onRowsInserted(const QModelIndex & parent, int start, int end);
     void onRowsRemoved(const QModelIndex &parent, int start, int end);
