@@ -43,7 +43,7 @@ Page {
                 width: parent.width
 
                 onTextChanged: {
-                    gameInstance.player.name = text
+                    gameInstance.settings.playerName = text
                 }
             }
         }
@@ -66,13 +66,17 @@ Page {
                         fontPixelSize: UIConstants.FONT_XSMALL
                     }
 
-                    text: "Disable Bluetooth when it is not required"
+                    text: "Enable playing via Bluetooth"
                 }
             }
 
             Switch {
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
+                checked: gameInstance.settings.bluetoothEnabled
+                onCheckedChanged: {
+                    gameInstance.settings.bluetoothEnabled = checked
+                }
             }
         }
 
@@ -83,7 +87,7 @@ Page {
             Column {
                 anchors.verticalCenter: parent.verticalCenter
                 Label {
-                    text: "Feedback control"
+                    text: "Haptic feedback"
                     font.weight: Font.Bold
 
                 }
@@ -94,7 +98,7 @@ Page {
                         fontPixelSize: UIConstants.FONT_XSMALL
                     }
 
-                    text: "Disable feedback on collisions"
+                    text: "Give haptic feedback on special events"
                 }
             }
 
@@ -102,13 +106,17 @@ Page {
                 id: feedbackSwitch
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
-                checked: gameInstance.player.feedback
+                checked: gameInstance.settings.hapticFeedbackEnabled
                 onCheckedChanged: {
-                    gameInstance.player.feedback = feedbackSwitch.checked
+                    gameInstance.settings.hapticFeedbackEnabled = checked
                 }
             }
         }
     }
 
 
+    onStatusChanged: {
+        if (state == PageStatus.Inactive)
+            gameInstance.settings.saveSettings()
+    }
 }

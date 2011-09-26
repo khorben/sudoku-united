@@ -49,7 +49,8 @@ SOURCES += main.cpp \
     adapters/telepathy/telepathyhandler.cpp \
     adapters/bluetooth/bluetoothclient.cpp \
     adapters/bluetooth/bluetoothserver.cpp \
-    adapters/bluetooth/bluetoothgameinfo.cpp
+    adapters/bluetooth/bluetoothgameinfo.cpp \
+    settings.cpp
 
 # Please do not modify the following two lines. Required for deployment.
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
@@ -90,7 +91,8 @@ HEADERS += \
     adapters/telepathy/telepathyhandler.h \
     adapters/bluetooth/bluetoothclient.h \
     adapters/bluetooth/bluetoothserver.h \
-    adapters/bluetooth/bluetoothgameinfo.h
+    adapters/bluetooth/bluetoothgameinfo.h \
+    settings.h
 
 RESOURCES += resources.qrc
 
@@ -100,6 +102,8 @@ MOBILITY += connectivity
 contains(MEEGO_EDITION,harmattan): {
     DEFINES += MEEGO_EDITION_HARMATTAN
 }
+
+
 
 
 

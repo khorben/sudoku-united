@@ -22,6 +22,7 @@
 #include <QtDeclarative>
 
 #include "boardgenerator.h"
+#include "settings.h"
 #include "adapters/abstractclient.h"
 #include "adapters/gameinfo.h"
 
@@ -37,6 +38,7 @@ class Sudoku : public QObject
     // Q_PROPERTY(MultiplayerAdapter * multiplayerAdapter READ multiplayerAdapter CONSTANT)
     Q_PROPERTY(Player * player READ player CONSTANT)
     Q_PROPERTY(Game * game READ game NOTIFY gameChanged)
+    Q_PROPERTY(Settings *settings READ settings CONSTANT)
 public:
     explicit Sudoku(QObject *parent = 0);
 
@@ -59,6 +61,8 @@ public:
     Q_INVOKABLE
     virtual void cancelJoin();
 
+    Settings *settings() const;
+
     static Sudoku *instance();
 signals:
     void joinFailed(QString reason);
@@ -68,6 +72,8 @@ public slots:
 protected slots:
     void onClientStateChanged(AbstractClient::State state);
     void setGame(Game *game);
+private slots:
+    void onPlayerNameChanged();
 private:
     friend class AggregateGameInfoModel;
 
@@ -75,6 +81,7 @@ private:
     Game *m_game;
     ServerAdapter *serverAdapter;
     AbstractClient *client;
+    Settings *m_settings;
 private:
     static Sudoku *m_instance;
 

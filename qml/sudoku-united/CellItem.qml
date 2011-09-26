@@ -117,6 +117,6 @@ Rectangle {
         duration: 500
         fadeTime: 250
         fadeIntensity: 0.0
-        running: collision && gameInstance.player.feedback
+        running: collision && gameInstance.settings.hapticFeedbackEnabled
     }
 }

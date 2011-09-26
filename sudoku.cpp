@@ -31,13 +31,25 @@ Sudoku::Sudoku(QObject *parent) :
     QObject(parent), m_player(NULL), m_game(NULL),
     serverAdapter(new ServerAdapter(this)), client(NULL)
 {
+    m_settings = new Settings(this);
+    connect(m_settings, SIGNAL(playerNameChanged()),
+            SLOT(onPlayerNameChanged()));
 
     m_player = new Player(this);
-    m_player->setName("Foobar");
+    m_player->setName(m_settings->playerName());
 
     serverAdapter->addServerImplementation(new TCPServer());
     serverAdapter->addServerImplementation(new TelepathyServer());
-    serverAdapter->addServerImplementation(new BluetoothServer());
+    if (m_settings->bluetoothEnabled())
+        serverAdapter->addServerImplementation(new BluetoothServer());
+}
+
+Settings *Sudoku::settings() const {
+    return m_settings;
+}
+
+void Sudoku::onPlayerNameChanged() {
+    m_player->setName(m_settings->playerName());
 }
 
 Sudoku *Sudoku::instance() {

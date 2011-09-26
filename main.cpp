@@ -40,6 +40,7 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableType<GameInfo>("sudoku", 1, 0, "GameInfo", "Use value returned by the adapters gameList() function.");
     qmlRegisterUncreatableType<GameInfoModel>("sudoku", 1, 0, "GameInfoModel", "Returned via discovery");
     qmlRegisterUncreatableType<Sudoku>("sudoku", 1, 0, "Sudoku", "Global instance provided via the gameInstance variable.");
+    qmlRegisterUncreatableType<Settings>("sudoku", 1, 0, "Settings", "Retrieve via gameInstance.settings");
 
     viewer.rootContext()->setContextProperty("gameInstance", Sudoku::instance());
     viewer.rootContext()->setContextProperty("localPlayer", Sudoku::instance()->player());
