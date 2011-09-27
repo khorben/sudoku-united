@@ -23,6 +23,9 @@ import "UIConstants.js" as UIConstants
 
 Page {
     id: joinView
+
+    orientationLock: PageOrientation.LockPortrait
+
     tools: ToolBarLayout {
         id: joinToolbar
         ToolIcon {

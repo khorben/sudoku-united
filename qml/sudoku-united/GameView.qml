@@ -25,6 +25,8 @@ Page {
     id: gameView
     property Game game : gameInstance.game
 
+    orientationLock: PageOrientation.LockPortrait
+
     tools: ToolBarLayout {
         visible: true
         ToolIcon {

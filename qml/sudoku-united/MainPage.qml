@@ -24,6 +24,8 @@ Page {
     id: mainPage
     anchors.fill: parent
 
+    orientationLock: PageOrientation.LockPortrait
+
     tools: ToolBarLayout {
         id: commonTools
         visible: true
@@ -46,9 +48,15 @@ Page {
                     pageStack.push(component, {});
                 }
             }
+            MenuItem {
+                text: "About"
+                onClicked:{
+                    var component = Qt.createComponent("About.qml")
+                    pageStack.push(component, {});
+                }
+            }
         }
     }
-
 
     BackgroundItem{}
 
