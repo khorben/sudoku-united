@@ -255,65 +255,122 @@ void BoardGenerator::clearPuzzle(){
     reset();
 }
 
-bool BoardGenerator::generatePuzzle(){
+bool BoardGenerator::generatePuzzle(Sudoku::Difficulty difficulty){
+    BoardGenerator::Difficulty boardGeneratorDifficulty;
+    switch (difficulty) {
+    case Sudoku::SIMPLE:
+    case Sudoku::EASY:
+        boardGeneratorDifficulty = BoardGenerator::SIMPLE;
+        break;
+    case Sudoku::INTERMEDIATE:
+        boardGeneratorDifficulty = BoardGenerator::EASY;
+        break;
+    case Sudoku::HARD:
+        boardGeneratorDifficulty = BoardGenerator::INTERMEDIATE;
+        break;
+    case Sudoku::EXPERT:
+        boardGeneratorDifficulty = BoardGenerator::EXPERT;
+        break;
+    }
 
-    // Don't record history while generating.
-    bool recHistory = recordHistory;
-    setRecordHistory(false);
+    while (true) {
+        // Don't record history while generating.
+        setRecordHistory(false);
 
-    clearPuzzle();
+        clearPuzzle();
 
-    // Start by getting the randomness in order so that
-    // each puzzle will be different from the last.
-    shuffleRandomArrays();
+        // Start by getting the randomness in order so that
+        // each puzzle will be different from the last.
+        shuffleRandomArrays();
 
-    // Now solve the puzzle the whole way.  The solve
-    // uses random algorithms, so we should have a
-    // really randomly totally filled sudoku
-    // Even when starting from an empty grid
-    solve();
+        // Now solve the puzzle the whole way.  The solve
+        // uses random algorithms, so we should have a
+        // really randomly totally filled sudoku
+        // Even when starting from an empty grid
+        solve();
 
-    // Rollback any square for which it is obvious that
-    // the square doesn't contribute to a unique solution
-    // (ie, squares that were filled by logic rather
-    // than by guess)
-    rollbackNonGuesses();
+        // Rollback any square for which it is obvious that
+        // the square doesn't contribute to a unique solution
+        // (ie, squares that were filled by logic rather
+        // than by guess)
+        rollbackNonGuesses();
 
-    // Record all marked squares as the puzzle so
-    // that we can call countSolutions without losing it.
-    {for (int i=0; i<BOARD_SIZE; i++){
-            puzzle[i] = solution[i];
-        }}
+        // Record all marked squares as the puzzle so
+        // that we can call countSolutions without losing it.
+        {for (int i=0; i<BOARD_SIZE; i++){
+                puzzle[i] = solution[i];
+            }}
 
-    // Rerandomize everything so that we test squares
-    // in a different order than they were added.
-    shuffleRandomArrays();
+        // Rerandomize everything so that we test squares
+        // in a different order than they were added.
+        shuffleRandomArrays();
 
-    // Remove one value at a time and see if
-    // the puzzle still has only one solution.
-    // If it does, leave it0 out the point because
-    // it is not needed.
-    {for (int i=0; i<BOARD_SIZE; i++){
-            // check all the positions, but in shuffled order
-            int position = randomBoardArray[i];
-            if (puzzle[position] > 0){
-                // try backing out the value and
-                // counting solutions to the puzzle
-                int savedValue = puzzle[position];
-                puzzle[position] = 0;
-                reset();
-                if (countSolutions(2, true) > 1){
-                    // Put it back in, it is needed
-                    puzzle[position] = savedValue;
+        // Remove one value at a time and see if
+        // the puzzle still has only one solution.
+        // If it does, leave it0 out the point because
+        // it is not needed.
+        {for (int i=0; i<BOARD_SIZE; i++){
+                // check all the positions, but in shuffled order
+                int position = randomBoardArray[i];
+                if (puzzle[position] > 0){
+                    // try backing out the value and
+                    // counting solutions to the puzzle
+                    int savedValue = puzzle[position];
+                    puzzle[position] = 0;
+                    reset();
+                    if (countSolutions(2, true) > 1){
+                        // Put it back in, it is needed
+                        puzzle[position] = savedValue;
+                    }
                 }
+            }}
+
+        // Clear all solution info, leaving just the puzzle.
+        reset();
+
+        setRecordHistory(true);
+
+        solve();
+
+        if (boardGeneratorDifficulty != getDifficulty())
+            continue;
+
+        // Make some further adjustments to the board depending on difficulty
+        // level
+        if (difficulty == Sudoku::SIMPLE) {
+            qint8 missingFixedCells = 30 - getGivenCount();
+            quint8 blockCellCount[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            for (quint8 i = 0; i < BOARD_SIZE; i++) {
+                if (puzzle[i])
+                    blockCellCount[(i % 9) / 3 + ((i / 9) / 3) * 3]++;
             }
-        }}
 
-    // Clear all solution info, leaving just the puzzle.
-    reset();
+            while (missingFixedCells > 0) {
+                // Find block with the least entries
+                quint8 blockWithLeast = 0;
+                for (quint8 block = 0; block < 9; block++) {
+                    if (blockCellCount[block] < blockCellCount[blockWithLeast])
+                        blockWithLeast = block;
+                }
 
-    // Restore recording history.
-    setRecordHistory(recHistory);
+                // Determine cell in block we want to fill
+                quint8 cellIndex;
+                do {
+                    cellIndex = quint8(qrand() * 9.0 / RAND_MAX);
+                } while (puzzle[cellIndex]);
+
+                quint8 yStart = (blockWithLeast / 3) * 3;
+                quint8 xStart = (blockWithLeast % 3) * 3;
+
+                cellIndex = xStart + cellIndex % 3 + 9 * ((cellIndex / 3) + yStart);
+                puzzle[cellIndex] = solution[cellIndex];
+                blockCellCount[blockWithLeast]++;
+                missingFixedCells--;
+            }
+        }
+
+        break;
+    }
 
     return true;
 
@@ -1314,7 +1371,7 @@ static inline int sectionToCell(int section, int offset){
             + (offset%GRID_SIZE);
 }
 
-BoardGeneratorWrapper::BoardGeneratorWrapper(BoardGenerator::Difficulty difficulty, QObject *parent) :
+BoardGeneratorWrapper::BoardGeneratorWrapper(Sudoku::Difficulty difficulty, QObject *parent) :
     QObject(parent), m_board(NULL), m_difficulty(difficulty) {
 
 }
@@ -1329,13 +1386,7 @@ void BoardGeneratorWrapper::startGeneration() {
 
     generator.setRecordHistory(true);
     while (m_board == NULL) {
-        if (!generator.generatePuzzle())
-            continue;
-
-        // Solve after generating to determine difficulty level
-        generator.solve();
-
-        if (generator.getDifficulty() != m_difficulty)
+        if (!generator.generatePuzzle(m_difficulty))
             continue;
 
         m_board = generator.toBoard();

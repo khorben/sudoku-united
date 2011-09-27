@@ -17,8 +17,6 @@
 
 #include "message.h"
 #include "board.h"
-#include "player.h"
-#include "multiplayeradapter.h"
 #include "game.h"
 
 #include <QDataStream>
@@ -326,7 +324,7 @@ bool HelloMessage::writeStream(QDataStream &dataStream) {
     quint16 messageType = Message::HelloMessage;
 
     tempStream << messageType;
-    tempStream << MultiplayerAdapter::ProtocolVersion;
+    tempStream << quint16(PROTOCOL_VERSION);
 
     quint16 length = buffer.size() + 2;
 
@@ -338,6 +336,53 @@ bool HelloMessage::writeStream(QDataStream &dataStream) {
 
 bool HelloMessage::parseStream(QDataStream &dataStream) {
     dataStream >> m_protocolVersion;
+
+    return dataStream.status() == QDataStream::Ok;
+}
+
+
+PlayerMessage::PlayerMessage(const QUuid &uuid, const QString &name, Player::State state) :
+    Message(), m_uuid(uuid), m_state(state), m_name(name) {
+
+}
+
+const QUuid &PlayerMessage::uuid() const {
+    return m_uuid;
+}
+
+Player::State PlayerMessage::state() const {
+    return m_state;
+}
+
+const QString &PlayerMessage::name() const {
+    return m_name;
+}
+
+bool PlayerMessage::writeStream(QDataStream &dataStream) {
+    QByteArray buffer;
+    QDataStream tempStream(&buffer, QIODevice::WriteOnly);
+
+    quint16 messageType = Message::PlayerMessage;
+
+    tempStream << messageType;
+    tempStream << m_uuid;
+    writeString(tempStream, m_name);
+    tempStream << quint8(m_state);
+
+    quint16 length = buffer.size() + 2;
+
+    dataStream << length;
+    dataStream.writeRawData(buffer.constData(), buffer.size());
+
+    return dataStream.status() == QDataStream::Ok;
+}
+
+bool PlayerMessage::parseStream(QDataStream &dataStream) {
+    dataStream >> m_uuid;
+    m_name = readString(dataStream);
+    quint8 state;
+    dataStream >> state;
+    m_state = (Player::State) state;
 
     return dataStream.status() == QDataStream::Ok;
 }

@@ -12,7 +12,7 @@ Button {
     anchors.topMargin: 20
 
     width: UIConstants.CREATE_BUTTON_WIDTH
-    height: UIConstants.CREATE_BUTTON_HEIGTH
+    height: UIConstants.CREATE_BUTTON_HEIGHT
 
     Text{
         text: parent.text

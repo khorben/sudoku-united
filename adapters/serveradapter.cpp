@@ -74,6 +74,10 @@ void ServerAdapter::setGame(Game *game) {
     if (m_game) {
         disconnect(m_game, SIGNAL(boardChanged()),
                    this, SLOT(onBoardChanged()));
+        disconnect(m_game, SIGNAL(playerJoined(Player*)),
+                   this, SLOT(onPlayerChanged(Player*)));
+        disconnect(m_game, SIGNAL(playerLeft(Player*)),
+                   this, SLOT(onPlayerChanged(Player*)));
         onBoardChanged();
     }
 
@@ -92,6 +96,10 @@ void ServerAdapter::setGame(Game *game) {
         m_board = NULL;
     } else {
         connect(m_game, SIGNAL(boardChanged()), SLOT(onBoardChanged()));
+        connect(m_game, SIGNAL(playerJoined(Player*)),
+                this, SLOT(onPlayerChanged(Player*)));
+        connect(m_game, SIGNAL(playerLeft(Player*)),
+                this, SLOT(onPlayerChanged(Player*)));
         onBoardChanged();
 
         foreach (AbstractServer *server, m_attachedServers)
@@ -132,6 +140,11 @@ void ServerAdapter::onCellValueChanged(Cell *cell) {
         uuid = cell->valueOwner()->uuid();
 
     SetValueMessage message(cell->x(), cell->y(), cell->value(), uuid);
+    sendMessage(message);
+}
+
+void ServerAdapter::onPlayerChanged(Player *player) {
+    PlayerMessage message(player->uuid(), player->name(), player->state());
     sendMessage(message);
 }
 
@@ -279,6 +292,8 @@ void ServerAdapter::parseMessages(PlayerInfo &playerInfo) {
         case Message::SetValueMessage:
             handleSetValueMessage(playerInfo, (SetValueMessage *) message);
             break;
+        case Message::PlayerMessage:
+            handlePlayerMessage(playerInfo, (PlayerMessage *) message);
         default:
             break;
         }
@@ -349,4 +364,16 @@ void ServerAdapter::handleSetValueMessage(PlayerInfo &playerInfo, SetValueMessag
     }
 
     cell->setValue(message->value());
+}
+
+void ServerAdapter::handlePlayerMessage(PlayerInfo &playerInfo,
+                                         PlayerMessage *message) {
+    Q_UNUSED(playerInfo);
+
+    if (!m_game)
+        return;
+
+    Player *player =
+            m_game->addPlayer(new Player(message->uuid(), message->name()));
+    player->setState(message->state());
 }

@@ -161,6 +161,10 @@ void AbstractClient::parseMessages() {
             break;
         case Message::GameMessage:
             handleGameMessage((GameMessage *) message);
+            break;
+        case Message::PlayerMessage:
+            handlePlayerMessage((PlayerMessage *) message);
+            break;
         default:
             break;
         }
@@ -218,7 +222,7 @@ void AbstractClient::handleSetValueMessage(SetValueMessage *message) {
   * Handle a Hello message sent by the server.
   */
 void AbstractClient::handleHelloMessage(HelloMessage *message) {
-    if (message->protocolVersion() != 0x1) {
+    if (message->protocolVersion() != PROTOCOL_VERSION) {
         setError("Protocol version mismatch.");
         setState(Disconnected);
 
@@ -242,6 +246,10 @@ void AbstractClient::handleGameMessage(GameMessage *message) {
     m_game = message->game();
     m_game->setParent(this);
 
+    connect(m_game, SIGNAL(playerJoined(Player*)),
+            this, SLOT(onPlayerChanged(Player*)));
+    connect(m_game, SIGNAL(playerLeft(Player*)),
+            this, SLOT(onPlayerChanged(Player*)));
     connect(m_game, SIGNAL(boardChanged()), SLOT(onBoardChanged()));
     onBoardChanged();
 
@@ -249,6 +257,15 @@ void AbstractClient::handleGameMessage(GameMessage *message) {
     m_game->addPlayer(Sudoku::instance()->player());
 
     setState(Connected);
+}
+
+void AbstractClient::handlePlayerMessage(PlayerMessage *message) {
+    if (!m_game)
+        return;
+
+    Player *player =
+            m_game->addPlayer(new Player(message->uuid(), message->name()));
+    player->setState(message->state());
 }
 
 /**
@@ -288,6 +305,12 @@ void AbstractClient::onCellValueChanged(Cell *cell) {
     SetValueMessage message(cell->x(), cell->y(), cell->value(), uuid);
     sendMessage(message);
 }
+
+void AbstractClient::onPlayerChanged(Player *player) {
+    PlayerMessage message(player->uuid(), player->name(), player->state());
+    sendMessage(message);
+}
+
 
 /**
   * Starts or restarts the timeout timer. This timer can be used to cancel a

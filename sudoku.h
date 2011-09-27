@@ -21,7 +21,6 @@
 #include <QObject>
 #include <QtDeclarative>
 
-#include "boardgenerator.h"
 #include "settings.h"
 #include "adapters/abstractclient.h"
 #include "adapters/gameinfo.h"
@@ -35,10 +34,19 @@ class GameInfoModel;
 class Sudoku : public QObject
 {
     Q_OBJECT
-    // Q_PROPERTY(MultiplayerAdapter * multiplayerAdapter READ multiplayerAdapter CONSTANT)
+    Q_ENUMS(Difficulty)
     Q_PROPERTY(Player * player READ player CONSTANT)
     Q_PROPERTY(Game * game READ game NOTIFY gameChanged)
     Q_PROPERTY(Settings *settings READ settings CONSTANT)
+public:
+    enum Difficulty {
+        SIMPLE,
+        EASY,
+        INTERMEDIATE,
+        HARD,
+        EXPERT
+    };
+
 public:
     explicit Sudoku(QObject *parent = 0);
 
@@ -53,7 +61,7 @@ public:
     virtual GameInfoModel *discoverGames();
 
     Q_INVOKABLE
-    virtual Game *createGame(BoardGenerator::Difficulty difficulty = BoardGenerator::EASY);
+    virtual Game *createGame(Difficulty difficulty);
 
     Q_INVOKABLE
     virtual void leave();

@@ -33,6 +33,7 @@ class Cell;
 class Message;
 class SetValueMessage;
 class JoinMessage;
+class PlayerMessage;
 
 class ClientInfo : public QObject {
     Q_OBJECT
@@ -80,6 +81,8 @@ private slots:
     void onBoardChanged();
 
     void onCellValueChanged(Cell *cell);
+
+    void onPlayerChanged(Player *player);
 private:
     void sendMessage(Message &message);
     void sendMessage(const PlayerInfo &playerInfo, Message &message);
@@ -87,6 +90,7 @@ private:
     void parseMessages(PlayerInfo &playerInfo);
     void handleJoinMessage(PlayerInfo &playerInfo, JoinMessage *message);
     void handleSetValueMessage(PlayerInfo &playerInfo, SetValueMessage *message);
+    void handlePlayerMessage(PlayerInfo &playerInfo, PlayerMessage *message);
 private:
     Game *m_game;
     Board *m_board;

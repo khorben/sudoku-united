@@ -24,7 +24,8 @@ Rectangle{
     height: 150
     width: 150
     border.width: 6
-    border.color: "black"
+    border.color: "#00000000"
+    color: "#00000000"
 
     Grid {
         id: grid

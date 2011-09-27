@@ -19,6 +19,9 @@
 #define MESSAGE_H
 
 #include <QUuid>
+#include "player.h"
+
+#define PROTOCOL_VERSION 0x1
 
 class QDataStream;
 class Board;
@@ -32,7 +35,8 @@ public:
         JoinMessage,
         SetValueMessage,
         GameMessage,
-        HelloMessage
+        HelloMessage,
+        PlayerMessage
     };
     static Message *parse(QDataStream &dataStream);
 
@@ -123,6 +127,25 @@ protected:
 
 private:
     quint16 m_protocolVersion;
+};
+
+class PlayerMessage : public Message {
+public:
+    PlayerMessage(const QUuid &uuid, const QString &name, Player::State state);
+
+    bool writeStream(QDataStream &dataStream);
+
+    Message::MessageTypeId type() const { return Message::PlayerMessage; }
+
+    const QString &name() const;
+    const QUuid &uuid() const;
+    Player::State state() const;
+protected:
+    bool parseStream(QDataStream &dataStream);
+private:
+    QUuid m_uuid;
+    Player::State m_state;
+    QString m_name;
 };
 
 #endif // MESSAGE_H

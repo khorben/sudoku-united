@@ -21,6 +21,7 @@
 #include <QObject>
 #include <QDeclarativeListProperty>
 
+#include "sudoku.h"
 #include "boardgenerator.h"
 #include "board.h"
 
@@ -56,7 +57,7 @@ public:
     /**
       * Generates a new playing board asynchronously.
       */
-    void generateBoard(BoardGenerator::Difficulty difficulty = BoardGenerator::EASY);
+    void generateBoard(Sudoku::Difficulty difficulty = Sudoku::SIMPLE);
 
     /**
       * Generate a hint for the current board

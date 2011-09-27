@@ -84,7 +84,7 @@ QDeclarativeListProperty<Player> Game::playerList() {
     return QDeclarativeListProperty<Player>(this, NULL, &appendPlayersFunction, &countPlayersFunction, &atPlayersFunction);
 }
 
-void Game::generateBoard(BoardGenerator::Difficulty difficulty) {
+void Game::generateBoard(Sudoku::Difficulty difficulty) {
     if (m_boardGenerationThread != NULL) {
         m_boardGenerationThread->deleteLater();
         m_boardGeneratorWrapper->deleteLater();

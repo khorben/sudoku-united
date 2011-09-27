@@ -25,6 +25,7 @@ class Game;
 class Board;
 class Cell;
 class GameInfo;
+class Player;
 
 class QIODevice;
 
@@ -32,6 +33,7 @@ class Message;
 class SetValueMessage;
 class HelloMessage;
 class GameMessage;
+class PlayerMessage;
 
 class AbstractClient : public QObject
 {
@@ -72,6 +74,7 @@ private slots:
 
     void onBoardChanged();
     void onCellValueChanged(Cell *cell);
+    void onPlayerChanged(Player *player);
 
     void onTimeout();
 private:
@@ -81,6 +84,7 @@ private:
     void handleSetValueMessage(SetValueMessage *message);
     void handleHelloMessage(HelloMessage *message);
     void handleGameMessage(GameMessage *message);
+    void handlePlayerMessage(PlayerMessage *message);
 private:
     State m_state;
     QString m_error;

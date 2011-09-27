@@ -59,7 +59,7 @@ Page {
         Item{
             id: placeholder
             anchors.top: parent.top
-            anchors.topMargin: 50
+            anchors.topMargin: 30
         }
 
         CreateButton {
@@ -67,7 +67,7 @@ Page {
             text: "Simple"
             parentItem: placeholder
             onClicked: {
-                gameInstance.createGame(1)
+                gameInstance.createGame(Sudoku.Simple)
             }
         }
 
@@ -76,7 +76,7 @@ Page {
             text: "Easy"
             parentItem: simpleButton
             onClicked: {
-                gameInstance.createGame(2)
+                gameInstance.createGame(Sudoku.Easy)
             }
         }
 
@@ -85,16 +85,25 @@ Page {
             parentItem: easyButton
             text: "Intermediate"
             onClicked: {
-                gameInstance.createGame(3)
+                gameInstance.createGame(Sudoku.Intermediate)
+            }
+        }
+
+        CreateButton {
+            id: hardButton
+            text: "Hard"
+            parentItem: intermediateButton
+            onClicked: {
+                gameInstance.createGame(Sudoku.Hard)
             }
         }
 
         CreateButton {
             id: expertButton
             text: "Expert"
-            parentItem: intermediateButton
+            parentItem: hardButton
             onClicked: {
-                gameInstance.createGame(4)
+                gameInstance.createGame(Sudoku.Expert)
             }
         }
     }

@@ -117,7 +117,7 @@ GameInfoModel *Sudoku::discoverGames() {
     return new AggregateGameInfoModel(this);
 }
 
-Game *Sudoku::createGame(BoardGenerator::Difficulty difficulty) {
+Game *Sudoku::createGame(Difficulty difficulty) {
     if (m_game)
         m_game->deleteLater();
 

@@ -20,6 +20,7 @@
 
 #include <vector>
 #include <QObject>
+#include "sudoku.h"
 
 class LogItem;
 class Board;
@@ -46,7 +47,7 @@ public:
     void setRecordHistory(bool recHistory);
     void setLogHistory(bool logHist);
     void setBoard(const Board &board);
-    bool generatePuzzle();
+    bool generatePuzzle(Sudoku::Difficulty difficulty);
     int getGivenCount();
     int getSingleCount();
     int getHiddenSingleCount();
@@ -244,7 +245,7 @@ int getLogCount(vector<LogItem*>* v, LogItem::LogType type);
 class BoardGeneratorWrapper : public QObject {
     Q_OBJECT
 public:
-    BoardGeneratorWrapper(BoardGenerator::Difficulty difficulty = BoardGenerator::EASY, QObject *parent = 0);
+    BoardGeneratorWrapper(Sudoku::Difficulty difficulty = Sudoku::EASY, QObject *parent = 0);
     ~BoardGeneratorWrapper();
 
     Board *board() const { return m_board; }
@@ -253,7 +254,7 @@ public slots:
     void startGeneration();
 private:
     Board *m_board;
-    BoardGenerator::Difficulty m_difficulty;
+    Sudoku::Difficulty m_difficulty;
 };
 
 class HintGenerator : public QObject {

@@ -26,8 +26,8 @@ Rectangle {
     property string fontColor: "black"
     property variant cell
     property variant board
-    property bool selected: board.selectedCell != undefined && board.selectedCell.x == cell.x && board.selectedCell.y == cell.y
-    property bool highlighted: board.selectedCell != undefined && (board.selectedCell.x == cell.x || board.selectedCell.y == cell.y)
+    property bool selected: board.selectedCell != undefined && cell != undefined && board.selectedCell.x == cell.x && board.selectedCell.y == cell.y
+    property bool highlighted: board.selectedCell != undefined && cell != undefined && (board.selectedCell.x == cell.x || board.selectedCell.y == cell.y)
     property bool collision: false
 
     width: 50
