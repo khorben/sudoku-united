@@ -179,7 +179,7 @@ Page {
                     return;
                 }
 
-                var elapsed = game.board.elapsedTime
+                var elapsed = game.board.elapsedTime / 1000
                 var minutes = parseInt(elapsed / 60)
                 var seconds = parseInt(elapsed % 60)
 

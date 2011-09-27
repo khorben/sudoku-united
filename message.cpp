@@ -57,6 +57,9 @@ Message *Message::parse(QDataStream &dataStream) {
     case Message::HelloMessage:
         message = new ::HelloMessage();
         break;
+    case Message::PlayerMessage:
+        message = new ::PlayerMessage();
+        break;
     }
 
     if (message == NULL || !message->parseStream(dataStream)) {

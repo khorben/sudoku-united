@@ -132,7 +132,7 @@ public:
 
     quint64 startTime() const;
 
-    quint32 elapsedTime() const;
+    quint64 elapsedTime() const;
 
     void pause();
 

@@ -54,6 +54,8 @@ void BluetoothServer::enable() {
         return;
     }
 
+    qDebug() << "Enabling Bluetooth server";
+
     if (server) {
         disable();
     }
@@ -155,7 +157,7 @@ void BluetoothServer::unregisterService() {
 void BluetoothServer::onCurrentProfileChanged(QSystemDeviceInfo::Profile profile) {
     if (profile == QSystemDeviceInfo::OfflineProfile)
         disable();
-    else if (serverAdapter()->inGame())
+    else if (serverAdapter()->inGame() && !server)
         enable();
 }
 

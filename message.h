@@ -131,6 +131,7 @@ private:
 
 class PlayerMessage : public Message {
 public:
+    PlayerMessage() {}
     PlayerMessage(const QUuid &uuid, const QString &name, Player::State state);
 
     bool writeStream(QDataStream &dataStream);

@@ -173,14 +173,14 @@ quint64 Board::startTime() const {
     return m_startTime;
 }
 
-quint32 Board::elapsedTime() const {
+quint64 Board::elapsedTime() const {
     // If we are paused return the elapsed time. The WindowActived event
     // is delivered after the elapsed time is requested which leads to
     // an incorrect display of the elapsed time.
     if (m_paused)
-        return m_elapsedTime / 1000;
+        return m_elapsedTime;
 
-    return ((QDateTime::currentMSecsSinceEpoch() - m_startTime) + m_elapsedTime) / 1000;
+    return ((QDateTime::currentMSecsSinceEpoch() - m_startTime) + m_elapsedTime);
 }
 
 void Board::pause() {
