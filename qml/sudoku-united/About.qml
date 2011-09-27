@@ -46,6 +46,7 @@ Page {
     }
 
     Flickable{
+        id: flick
         anchors.fill: parent
         anchors.margins: 20
 
@@ -79,5 +80,9 @@ Page {
                 onLinkActivated: Qt.openUrlExternally(link)
             }
         }
+    }
+    ScrollDecorator {
+        flickableItem: flick
+        anchors.rightMargin: -UIConstants.DEFAULT_MARGIN
     }
 }
