@@ -150,12 +150,6 @@ bool Sudoku::eventFilter(QObject *filterObj, QEvent *event) {
         if (!m_game || !m_game->board())
             return true;
 
-        if (client && client->state() != AbstractClient::Disconnected)
-            return true;
-
-        if (serverAdapter->hasConnectedClients())
-            return true;
-
         m_game->board()->unpause();
 
         return true;
@@ -163,6 +157,12 @@ bool Sudoku::eventFilter(QObject *filterObj, QEvent *event) {
 
     if (event->type() == QEvent::WindowDeactivate) {
         if (!m_game || !m_game->board())
+            return true;
+
+        if (client && client->state() != AbstractClient::Disconnected)
+            return true;
+
+        if (serverAdapter->hasConnectedClients())
             return true;
 
         m_game->board()->pause();
