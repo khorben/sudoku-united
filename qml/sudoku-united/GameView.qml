@@ -156,6 +156,7 @@ Page {
         }
     }
 
+
     Rectangle {
         anchors { right: parent.right; bottom: parent.bottom; margins: 8 }
         id: gameTime
@@ -166,6 +167,8 @@ Page {
 
         Label {
             anchors.centerIn: parent
+            smooth: false
+            textFormat: Text.PlainText
             id: gameTimeLabel
             text: "00:00"
         }
@@ -195,6 +198,7 @@ Page {
             }
         }
     }
+
 
     WinningScreen {
         playBoard: playBoard
