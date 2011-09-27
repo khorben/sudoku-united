@@ -55,7 +55,9 @@ MouseArea {
             height: 1
             source: "qrc:/star.png"
             lifeSpan: 2000
-            count: 200
+            // The particles effect seems to be rendered even if the parent is
+            // not visible => force particle count to 0 if not visible
+            count: parent.parent.visible ? 200 : 0
             angle: 270
             angleDeviation: 45
             velocity: 80
