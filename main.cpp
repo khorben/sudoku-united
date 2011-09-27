@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableType<Sudoku>("sudoku", 1, 0, "Sudoku", "Global instance provided via the gameInstance variable.");
     qmlRegisterUncreatableType<Settings>("sudoku", 1, 0, "Settings", "Retrieve via gameInstance.settings");
 
+    viewer.installEventFilter(Sudoku::instance());
     viewer.rootContext()->setContextProperty("gameInstance", Sudoku::instance());
     viewer.rootContext()->setContextProperty("localPlayer", Sudoku::instance()->player());
 

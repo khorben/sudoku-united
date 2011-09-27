@@ -64,7 +64,6 @@ public:
       */
     Q_INVOKABLE
     QList<QObject *> generateHint();
-
 signals:
     /**
       * Indicates that a new playing board has been set.

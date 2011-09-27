@@ -77,6 +77,7 @@ class Board : public QObject
     Q_OBJECT
     Q_PROPERTY(bool full READ isFull NOTIFY boardIsFull)
     Q_PROPERTY(quint64 startTime READ startTime CONSTANT)
+    Q_PROPERTY(quint32 elapsedTime READ elapsedTime)
 public:
     explicit Board(QObject *parent = 0);
     Board(const Board &other);
@@ -130,6 +131,12 @@ public:
     quint8 solutionValue(quint8 x, quint8 y) const;
 
     quint64 startTime() const;
+
+    quint32 elapsedTime() const;
+
+    void pause();
+
+    void unpause();
 signals:
     /**
       * This signal is emitted if the value of a cell changes.
@@ -172,6 +179,8 @@ private:
     quint8 m_solution[9][9];
 
     quint64 m_startTime;
+    quint64 m_elapsedTime;
+    bool m_paused;
 };
 
 QML_DECLARE_TYPE(Board)

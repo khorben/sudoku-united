@@ -97,7 +97,7 @@ HEADERS += \
 RESOURCES += resources.qrc
 
 QT += dbus
-MOBILITY += connectivity
+MOBILITY += connectivity systeminfo
 
 contains(MEEGO_EDITION,harmattan): {
     DEFINES += MEEGO_EDITION_HARMATTAN

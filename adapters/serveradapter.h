@@ -67,9 +67,14 @@ public:
     bool hasClient(QIODevice *device) const;
 
     void addServerImplementation(AbstractServer *serverImpl);
+    void removeServerImplementation(AbstractServer *serverImpl);
     const QList<AbstractServer *> &serverImplementations() const;
 
     void setGame(Game *game);
+
+    bool hasConnectedClients() const;
+
+    bool inGame() const;
 signals:
 
 public slots:

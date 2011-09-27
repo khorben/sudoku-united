@@ -80,6 +80,8 @@ public slots:
 protected slots:
     void onClientStateChanged(AbstractClient::State state);
     void setGame(Game *game);
+protected:
+    bool eventFilter(QObject *filterObj, QEvent *evt);
 private slots:
     void onPlayerNameChanged();
 private:

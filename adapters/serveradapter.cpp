@@ -108,6 +108,26 @@ void ServerAdapter::setGame(Game *game) {
 }
 
 /**
+  * Returns whether there are any connected clients.
+  */
+bool ServerAdapter::hasConnectedClients() const {
+    foreach (PlayerInfo *playerInfo, m_players.values()) {
+        if (playerInfo->state == PlayerInfo::Connected ||
+                playerInfo->state == PlayerInfo::Connecting)
+            return true;
+    }
+
+    return false;
+}
+
+/**
+  * Returns whether we are currently in-game.
+  */
+bool ServerAdapter::inGame() const {
+    return m_game != NULL;
+}
+
+/**
   * Callback to connect to cell value changes of the current board.
   */
 void ServerAdapter::onBoardChanged() {
@@ -179,6 +199,16 @@ void ServerAdapter::addServerImplementation(AbstractServer *serverImpl) {
     serverImpl->setServerAdapter(this);
 
     m_attachedServers.append(serverImpl);
+}
+
+/**
+  * Removes the given server implementation.
+  */
+void ServerAdapter::removeServerImplementation(AbstractServer *serverImpl) {
+    serverImpl->disable();
+    serverImpl->deleteLater();
+
+    m_attachedServers.removeOne(serverImpl);
 }
 
 /**

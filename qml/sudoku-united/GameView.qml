@@ -56,8 +56,6 @@ Page {
         }
     }
 
-    orientationLock: PageOrientation.LockPortrait
-
     SelectionDialog {
         id: leaveGameDialog
         titleText: "Leave the game?"
@@ -174,14 +172,14 @@ Page {
             interval: 1000
             repeat: true
             triggeredOnStart: true
-            running: true
+            running: !screen.minimized
             onTriggered: {
                 if (!game || !game.board) {
                     gameTimeLabel.text = "00:00"
                     return;
                 }
 
-                var elapsed = (new Date() - game.board.startTime) / 1000;
+                var elapsed = game.board.elapsedTime
                 var minutes = parseInt(elapsed / 60)
                 var seconds = parseInt(elapsed % 60)
 
@@ -230,6 +228,7 @@ Page {
             }
         }
     }
+
 
 
 }

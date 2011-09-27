@@ -139,12 +139,49 @@ void Sudoku::leave() {
 }
 
 
+/**
+  * Event filter to check whether we are minimized. This pauses the game timer
+  * if we don't have any clients connected or
+  */
+bool Sudoku::eventFilter(QObject *filterObj, QEvent *event) {
+    Q_UNUSED(filterObj);
+
+    if (event->type() == QEvent::WindowActivate) {
+        if (!m_game || !m_game->board())
+            return true;
+
+        if (client && client->state() != AbstractClient::Disconnected)
+            return true;
+
+        if (serverAdapter->hasConnectedClients())
+            return true;
+
+        m_game->board()->unpause();
+
+        return true;
+    }
+
+    if (event->type() == QEvent::WindowDeactivate) {
+        if (!m_game || !m_game->board())
+            return true;
+
+        m_game->board()->pause();
+        return true;
+    }
+
+    return false;
+}
+
+
 AggregateGameInfoModel::AggregateGameInfoModel(Sudoku *parent) :
     GameInfoModel(parent) {
 
     foreach (AbstractServer *adapter,
              parent->serverAdapter->serverImplementations()) {
         GameInfoModel *model = adapter->discoverGames();
+        if (!model)
+            continue;
+
         rowMap[model] = QHash<quint16, quint16>();
 
         m_gameInfoModels.append(model);

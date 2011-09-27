@@ -22,6 +22,7 @@
 
 #include <QBluetoothLocalDevice>
 #include <QBluetoothSocket>
+#include <QSystemDeviceInfo>
 
 QTM_USE_NAMESPACE
 QTM_BEGIN_NAMESPACE
@@ -45,6 +46,7 @@ private slots:
     void onNewConnection();
     void onSocketError(QBluetoothSocket::SocketError error);
     void onClientRemoved();
+    void onCurrentProfileChanged(QSystemDeviceInfo::Profile profile);
 private:
     void registerService();
     void unregisterService();
@@ -54,6 +56,8 @@ private:
 
     QBluetoothLocalDevice *localBluetoothDevice;
     QBluetoothLocalDevice::HostMode previousHostMode;
+
+    QSystemDeviceInfo *systemDeviceInfo;
 };
 
 #endif // BLUETOOTHSERVER_H

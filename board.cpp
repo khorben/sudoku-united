@@ -35,6 +35,8 @@ Board::Board(const Board &other) :
     }
 
     m_startTime = other.m_startTime;
+    m_elapsedTime = other.m_elapsedTime;
+    m_paused = other.m_paused;
 }
 
 Board::Board(QObject *parent) :
@@ -52,6 +54,8 @@ Board::Board(QObject *parent) :
     }
 
     m_startTime = QDateTime::currentMSecsSinceEpoch();
+    m_elapsedTime = 0;
+    m_paused = false;
 }
 
 Cell *Board::cellAt(quint8 x, quint8 y) const {
@@ -167,6 +171,29 @@ void Board::setCellValue(quint8 x, quint8 y, quint8 value) {
 }
 quint64 Board::startTime() const {
     return m_startTime;
+}
+
+quint32 Board::elapsedTime() const {
+    // If we are paused return the elapsed time. The WindowActived event
+    // is delivered after the elapsed time is requested which leads to
+    // an incorrect display of the elapsed time.
+    if (m_paused)
+        return m_elapsedTime / 1000;
+
+    return ((QDateTime::currentMSecsSinceEpoch() - m_startTime) + m_elapsedTime) / 1000;
+}
+
+void Board::pause() {
+    m_paused = true;
+    m_elapsedTime += QDateTime::currentMSecsSinceEpoch() - m_startTime;
+}
+
+void Board::unpause() {
+    if (!m_paused)
+        return;
+
+    m_paused = false;
+    m_startTime = QDateTime::currentMSecsSinceEpoch();
 }
 
 QDataStream &operator<<(QDataStream &s, const Board &board) {
