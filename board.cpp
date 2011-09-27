@@ -117,6 +117,8 @@ void Board::isValidMoveBlock(quint8 x, quint8 y, quint8 val, QList<QObject *> &i
 
     for (quint8 yR = startY; yR < startY + 3; yR++) {
         for (quint8 xR = startX; xR < startX + 3; xR++) {
+            if (xR == x && yR == y)
+                continue;
 
             Cell *cell = cellAt(xR, yR);
 

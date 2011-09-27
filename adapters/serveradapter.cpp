@@ -381,7 +381,7 @@ void ServerAdapter::handleSetValueMessage(PlayerInfo &playerInfo, SetValueMessag
     if (!invalidCells.isEmpty()) {
         // The boards are not in an inconsistent state - as the server we leave
         // the current cell value as is and retransmit it to the clients.
-        onCellValueChanged(cell);
+        cell->setValue(0);
         return;
     }
 
