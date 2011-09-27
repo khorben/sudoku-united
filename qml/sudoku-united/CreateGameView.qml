@@ -67,7 +67,7 @@ Page {
             text: "Simple"
             parentItem: placeholder
             onClicked: {
-                gameInstance.createGame(Sudoku.Simple)
+                gameInstance.createGame(Sudoku.SIMPLE)
             }
         }
 
@@ -76,7 +76,7 @@ Page {
             text: "Easy"
             parentItem: simpleButton
             onClicked: {
-                gameInstance.createGame(Sudoku.Easy)
+                gameInstance.createGame(Sudoku.EASY)
             }
         }
 
@@ -85,7 +85,7 @@ Page {
             parentItem: easyButton
             text: "Intermediate"
             onClicked: {
-                gameInstance.createGame(Sudoku.Intermediate)
+                gameInstance.createGame(Sudoku.INTERMEDIATE)
             }
         }
 
@@ -94,7 +94,7 @@ Page {
             text: "Hard"
             parentItem: intermediateButton
             onClicked: {
-                gameInstance.createGame(Sudoku.Hard)
+                gameInstance.createGame(Sudoku.HARD)
             }
         }
 
@@ -103,7 +103,7 @@ Page {
             text: "Expert"
             parentItem: hardButton
             onClicked: {
-                gameInstance.createGame(Sudoku.Expert)
+                gameInstance.createGame(Sudoku.EXPERT)
             }
         }
     }

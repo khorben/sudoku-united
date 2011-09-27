@@ -95,9 +95,12 @@ Page {
     BackgroundItem{}
 
     Image{
-        source: "qrc:/backgroundImage.png"
+        source: "qrc:/logo_grid.png"
+        width: 200; height: 200
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
+        anchors.bottomMargin: 50
+        smooth: true
     }
 
     Grid {
