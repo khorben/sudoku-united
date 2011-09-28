@@ -23,6 +23,8 @@ PageStackWindow {
 
     initialPage: mainPage
 
+    rotation: 90
+
     MainPage {
         id: mainPage
     }

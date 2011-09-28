@@ -149,7 +149,8 @@ Page {
             cellItems = cellItemList
         }
 
-        function onShowNumberChooser(cell) {
+        function onShowNumberChooser(cell, cellItem) {
+            numberChooser.cellItem = cellItem
             numberChooser.visible = true
             numberChooser.cell = cell
             selectedCell = cell

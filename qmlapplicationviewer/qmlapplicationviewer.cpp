@@ -154,8 +154,10 @@ void QmlApplicationViewer::showExpanded()
     showMaximized();
 #else
     QSize size = sizeHint();
+    /*
     setMinimumSize(size.height(), size.width());
     setMaximumSize(minimumSize());
+    */
     rootObject()->setProperty("rotation", 90);
     show();
 #endif

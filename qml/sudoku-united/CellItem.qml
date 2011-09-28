@@ -30,6 +30,18 @@ Rectangle {
     property bool highlighted: board.selectedCell != undefined && cell != undefined && (board.selectedCell.x == cell.x || board.selectedCell.y == cell.y)
     property bool collision: false
 
+    property ListModel noteModel: ListModel {
+        ListElement { modelValue: 1; modelMarked: false }
+        ListElement { modelValue: 2; modelMarked: false }
+        ListElement { modelValue: 3; modelMarked: false }
+        ListElement { modelValue: 4; modelMarked: false }
+        ListElement { modelValue: 5; modelMarked: false }
+        ListElement { modelValue: 6; modelMarked: false }
+        ListElement { modelValue: 7; modelMarked: false }
+        ListElement { modelValue: 8; modelMarked: false }
+        ListElement { modelValue: 9; modelMarked: false }
+    }
+
     width: 50
     height: 50
     border.width: 1
@@ -37,17 +49,34 @@ Rectangle {
 
     color: startColor
 
-    signal showNumberChooser(variant cell)
+    signal showNumberChooser(variant cell, variant cellItem)
+
+    GridView {
+        id: noteGrid
+        anchors.fill: parent
+        model: noteModel
+        cellWidth: (width / 3) - 1
+        cellHeight: (height / 3)
+
+        delegate: NoteItem {
+            value: modelValue
+            marked: modelMarked
+            width: GridView.view.cellWidth
+            height: GridView.view.cellHeight
+        }
+    }
 
     Text {
         id: currentValue
         text: !cell || cell.value === 0 ? "" : cell.value
         color: {
             if (cell && cell.valueOwner) {
-                console.log(cell.valueOwner.colorIndex)
                 return UIConstants.PLAYER_COLORS[cell.valueOwner.colorIndex]
-            } else {
+            } else if (cell.isFixedCell()){
                 return fontColor;
+            } else {
+                // Hint colour
+                return "grey";
             }
         }
         anchors.centerIn: parent
@@ -59,7 +88,7 @@ Rectangle {
         onClicked: {
             if (cell && cell.isFixedCell())
                 return;
-            showNumberChooser(parent.cell)
+            showNumberChooser(parent.cell, cellItem)
         }
     }
 
@@ -78,24 +107,24 @@ Rectangle {
         State {
             name: "fixed"
             when: cell.isFixedCell() && !highlighted
-            PropertyChanges{target: cellItem; fontColor: "grey"}
+            PropertyChanges{target: cellItem; fontColor: "black"}
             PropertyChanges{target: cellItem; startColor: "white"}
         },
         State {
             name: "highlighted"
             when: highlighted && !selected && !cell.isFixedCell()
-            PropertyChanges{target: cellItem; startColor: "#FFEFECCA"}
+            PropertyChanges{target: cellItem; startColor: "#FFE7E8D1"}
         },
         State {
             name: "highlightedFixed"
             when: highlighted && !selected && cell.isFixedCell()
-            PropertyChanges{target: cellItem; fontColor: "grey"}
-            PropertyChanges{target: cellItem; startColor: "#FFEFECCA"}
+            PropertyChanges{target: cellItem; fontColor: "black"}
+            PropertyChanges{target: cellItem; startColor: "#FFE7E8D1"}
         },
         State {
             name: "selected"
             when: selected
-            PropertyChanges{target: cellItem; startColor: "#A39770"}
+            PropertyChanges{target: cellItem; startColor: "#FFD3CEAA"}
         }
     ]
 

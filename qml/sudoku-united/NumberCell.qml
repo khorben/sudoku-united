@@ -20,6 +20,8 @@ import QtQuick 1.0
 Rectangle {
     id: numberCell
 
+    property variant numberChooser
+
     signal selected(int number)
     property int number
 
@@ -29,18 +31,6 @@ Rectangle {
     border.width: 1
     border.color: "grey"
     color: "#00000000"
-
-    gradient: Gradient{
-        GradientStop{
-            color: "white"
-            position: 0.0
-        }
-
-        GradientStop{
-            color: "lightgrey"
-            position: 1.0
-        }
-    }
 
     Text {
         text: parent.number
@@ -54,4 +44,20 @@ Rectangle {
             numberCell.selected(numberCell.number)
         }
     }
+
+    states: [
+        State {
+            name: ""
+            when: !numberChooser.cellItem.noteModel.get(number - 1).modelMarked
+
+            PropertyChanges { target: numberCell; color: "#00000000" }
+        },
+
+        State {
+            name: "marked"
+            when: numberChooser.cellItem.noteModel.get(number - 1).modelMarked
+            PropertyChanges { target: numberCell; color: "#1381dd" }
+        }
+
+    ]
 }

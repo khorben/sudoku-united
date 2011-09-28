@@ -20,6 +20,9 @@ import com.nokia.meego 1.0
 
 Rectangle{
     property variant cell
+    property variant cellItem
+    property string mode: noteEditMode.checked ? "note" : "normal"
+
     id: chooser
     width: 200
     height: 260
@@ -37,7 +40,12 @@ Rectangle{
         }
         else{
             state = "hidden"
+            noteEditMode.checked = false
         }
+    }
+
+    onCellItemChanged: {
+        noteEditMode.checked = false
     }
 
     state: "hidden"
@@ -56,7 +64,6 @@ Rectangle{
         radius: 0
         border.color: "grey"
 
-
         Grid {
             id: numberGrid
             columns: 3
@@ -66,49 +73,57 @@ Rectangle{
             Component.onCompleted: {
                 var component = Qt.createComponent("NumberCell.qml");
                 for (var i = 1; i <= 9; i++) {
-                    var object = component.createObject(numberGrid, { "number": i })
+                    var object = component.createObject(numberGrid, { "number": i,
+                                                            "numberChooser": function () { return chooser; } })
                     object.selected.connect(updateValue)
                 }
             }
 
             function updateValue(number) {
-                chooser.visible = false;
-                numberChosen(cell, number)
+                if ( chooser.mode == "note" ){
+                    cellItem.noteModel.get(number - 1).modelMarked = !cellItem.noteModel.get(number - 1).modelMarked
+                    return;
+                } else {
+                    chooser.visible = false;
+                    numberChosen(cell, number)
+                }
             }
 
         }
     }
-    Rectangle{
-        width: 60
-        height: width
-        border.width: 2;
-        border.color: "grey"
+
+    ButtonRow{
+        anchors.topMargin: 8
         anchors.top: numberBoard.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        gradient: Gradient{
-            GradientStop{
-                color: "white"
-                position: 0.0
-            }
+        anchors.left: numberBoard.left
+        width: numberBoard.width
+        exclusive: false
 
-            GradientStop{
-                color: "lightgrey"
-                position: 1.0
-            }
+        Button{
+            iconSource: "image://theme/icon-m-toolbar-close"
+            onClicked: chooser.visible = false
+            checkable: false
         }
 
-        Text{
-            text: "C"
-            anchors.centerIn: parent
-            font.pixelSize: 20
-        }
-
-        MouseArea {
-            anchors.fill: parent
+        Button{
+            iconSource: "image://theme/icon-m-toolbar-delete"
             onClicked: {
-                cell.value = 0
-                chooser.visible = false
+                if ( chooser.mode == "note" ){
+                    for (var i = 0; i < 9; i++){
+                        cellItem.noteModel.get(i).modelMarked = false
+                    }
+                } else {
+                    cell.value = 0
+                    chooser.visible = false
+                }
             }
+            checkable: false
+        }
+
+        Button{
+            iconSource: "image://theme/icon-m-toolbar-edit"
+            id: noteEditMode
+            checkable: true
         }
     }
 
