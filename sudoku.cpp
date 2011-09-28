@@ -34,6 +34,8 @@ Sudoku::Sudoku(QObject *parent) :
     m_settings = new Settings(this);
     connect(m_settings, SIGNAL(playerNameChanged()),
             SLOT(onPlayerNameChanged()));
+    connect(m_settings, SIGNAL(bluetoothEnabledChanged()),
+            SLOT(onBluetoothEnabledChanged()));
 
     m_player = new Player(this);
     m_player->setName(m_settings->playerName());
@@ -50,6 +52,22 @@ Settings *Sudoku::settings() const {
 
 void Sudoku::onPlayerNameChanged() {
     m_player->setName(m_settings->playerName());
+}
+
+void Sudoku::onBluetoothEnabledChanged() {
+    if (!m_settings->bluetoothEnabled()) {
+        foreach (AbstractServer *server, serverAdapter->serverImplementations()) {
+            if (qobject_cast<BluetoothServer *>(server))
+                serverAdapter->removeServerImplementation(server);
+        }
+    } else {
+        foreach (AbstractServer *server, serverAdapter->serverImplementations()) {
+            if (qobject_cast<BluetoothServer *>(server))
+                return;
+        }
+
+        serverAdapter->addServerImplementation(new BluetoothServer());
+    }
 }
 
 Sudoku *Sudoku::instance() {
