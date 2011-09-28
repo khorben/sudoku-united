@@ -21,6 +21,8 @@
 #include <QBluetoothServiceDiscoveryAgent>
 #include <QBluetoothDeviceInfo>
 
+QBluetoothServiceDiscoveryAgent *BluetoothGameInfoModel::m_agent = NULL;
+
 BluetoothGameInfo::BluetoothGameInfo(QObject *parent) :
     GameInfo(parent)
 {
@@ -41,7 +43,7 @@ bool BluetoothGameInfo::operator ==(const GameInfo &other) const {
     if (!otherGameInfo)
         return false;
 
-    return info.device().address() == otherGameInfo->info.device().address() &&
+    return info.device().address().toUInt64() == otherGameInfo->info.device().address().toUInt64() &&
             info.serverChannel() == otherGameInfo->info.serverChannel();
 }
 
@@ -49,23 +51,113 @@ bool BluetoothGameInfo::operator ==(const GameInfo &other) const {
 BluetoothGameInfoModel::BluetoothGameInfoModel(QObject *parent) :
     GameInfoModel(parent) {
 
-    m_agent = new QBluetoothServiceDiscoveryAgent(this);
-    m_agent->setUuidFilter(QBluetoothUuid(BLUETOOTH_SERVICE_UUID));
-    m_agent->start();
+    autoRefreshTimer = new QTimer(this);
+    autoRefreshTimer->setSingleShot(true);
+    connect(autoRefreshTimer, SIGNAL(timeout()), SLOT(startDiscovery()));
 
-    connect(m_agent, SIGNAL(serviceDiscovered(QBluetoothServiceInfo)), SLOT(onServiceDiscovered(QBluetoothServiceInfo)));
-    connect(m_agent, SIGNAL(finished()), SLOT(onFinished()));
+    QBluetoothServiceDiscoveryAgent *agent = BluetoothGameInfoModel::agent();
+
+    connect(agent, SIGNAL(serviceDiscovered(QBluetoothServiceInfo)),
+            SLOT(onServiceDiscovered(QBluetoothServiceInfo)));
+    connect(agent, SIGNAL(finished()), SLOT(onFinished()));
+    connect(agent, SIGNAL(error(QBluetoothServiceDiscoveryAgent::Error)),
+            SLOT(onError(QBluetoothServiceDiscoveryAgent::Error)));
+    connect(this, SIGNAL(autoRefreshChanged()), SLOT(onAutoRefreshChanged()));
+
+    startDiscovery();
+}
+
+QBluetoothServiceDiscoveryAgent *BluetoothGameInfoModel::agent() {
+    if (!m_agent) {
+        m_agent = new QBluetoothServiceDiscoveryAgent();
+        m_agent->setUuidFilter(QBluetoothUuid(BLUETOOTH_SERVICE_UUID));
+    }
+
+    return m_agent;
 }
 
 void BluetoothGameInfoModel::onServiceDiscovered(const QBluetoothServiceInfo &info) {
     BluetoothGameInfo *gameInfo = new BluetoothGameInfo(this);
     gameInfo->info = info;
 
+    mutex.lock();
     insertGameInfo(gameInfo);
+    newGameInfoEntries.append(gameInfo);
+    mutex.unlock();
 }
 
 void BluetoothGameInfoModel::onFinished() {
+    mutex.lock();
+
+    // Clear stale entries
+    int row = -1;
+    foreach (GameInfo *gameInfo, m_gameInfoList) {
+        row++;
+
+        if (!qobject_cast<BluetoothGameInfo *>(gameInfo))
+            continue;
+
+        bool foundMatch = false;
+        foreach (GameInfo *newGameInfo, newGameInfoEntries) {
+            if (*newGameInfo == *gameInfo) {
+                foundMatch = true;
+                break;
+            }
+        }
+
+        if (foundMatch)
+            continue;
+
+        // Stale entry remove it
+        beginRemoveRows(QModelIndex(), row, row);
+        m_gameInfoList.removeAt(row);
+        endRemoveRows();
+        row--;
+    }
+
     m_state = Complete;
 
     emit stateChanged();
+
+    if (autoRefresh())
+        autoRefreshTimer->start(5000);
+
+    mutex.unlock();
+}
+
+void BluetoothGameInfoModel::onError(QBluetoothServiceDiscoveryAgent::Error error) {
+    qWarning() << "Service discovery failed: " << error;
+
+    m_state = Complete;
+    emit stateChanged();
+
+    if (autoRefresh())
+        autoRefreshTimer->start(5000);
+}
+
+void BluetoothGameInfoModel::onAutoRefreshChanged() {
+    if (autoRefresh() && !BluetoothGameInfoModel::agent()->isActive())
+        autoRefreshTimer->start(5000);
+    else if (!autoRefresh())
+        autoRefreshTimer->stop();
+}
+
+void BluetoothGameInfoModel::startDiscovery() {
+    QBluetoothServiceDiscoveryAgent *agent = BluetoothGameInfoModel::agent();
+
+    m_state = Discovering;
+    emit stateChanged();
+
+    if (!agent->isActive()) {
+        newGameInfoEntries.clear();
+        agent->clear();
+
+        // Clearing also seems to reset the UUID filter - set it again
+        agent->setUuidFilter(QBluetoothUuid(BLUETOOTH_SERVICE_UUID));
+        agent->start();
+    }
+
+    foreach (QBluetoothServiceInfo serviceInfo, agent->discoveredServices()) {
+        onServiceDiscovered(serviceInfo);
+    }
 }

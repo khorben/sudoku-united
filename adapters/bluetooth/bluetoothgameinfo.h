@@ -21,11 +21,9 @@
 #include "../gameinfo.h"
 
 #include <QBluetoothServiceInfo>
+#include <QBluetoothServiceDiscoveryAgent>
 
 QTM_USE_NAMESPACE
-QTM_BEGIN_NAMESPACE
-class QBluetoothServiceDiscoveryAgent;
-QTM_END_NAMESPACE
 
 #define BLUETOOTH_SERVICE_UUID QLatin1String("614b8c48-c0af-4d20-b4d7-a24dfcd9900e")
 
@@ -33,11 +31,20 @@ class BluetoothGameInfoModel : public GameInfoModel {
     Q_OBJECT
 public:
     BluetoothGameInfoModel(QObject *parent);
+
+    static QBluetoothServiceDiscoveryAgent *agent();
 private slots:
     void onServiceDiscovered(const QBluetoothServiceInfo &info);
     void onFinished();
+    void onAutoRefreshChanged();
+    void onError(QBluetoothServiceDiscoveryAgent::Error error);
+    void startDiscovery();
 private:
-    QBluetoothServiceDiscoveryAgent *m_agent;
+    QList<GameInfo *> newGameInfoEntries;
+    QTimer *autoRefreshTimer;
+    QMutex mutex;
+private:
+    static QBluetoothServiceDiscoveryAgent *m_agent;
 };
 
 class BluetoothGameInfo : public GameInfo {

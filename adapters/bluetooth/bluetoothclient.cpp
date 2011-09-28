@@ -43,6 +43,9 @@ void BluetoothClient::join(GameInfo *game) {
         setState(Disconnected);
     }
 
+    // Disable service discovery
+    BluetoothGameInfoModel::agent()->stop();
+
     // Completely reset the Bluetooth socket as there have been segmentation
     // faults when reusing the old one.
     QBluetoothSocket *socket = (QBluetoothSocket *) device();
