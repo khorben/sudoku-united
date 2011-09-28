@@ -24,6 +24,8 @@ import "UIConstants.js" as UIConstants
 Page {
     id: joinView
 
+    property bool searchedOnce: false
+
     orientationLock: PageOrientation.LockPortrait
 
     tools: ToolBarLayout {
@@ -78,6 +80,16 @@ Page {
         }
     }
 
+    Connections{
+        target: gameInfoModel
+
+        onStateChanged: {
+            if (!joinView.searchedOnce){
+                joinView.searchedOnce = true
+            }
+        }
+    }
+
     LoadingOverlay {
         id: loadingOverlay
         text: "Joining game"
@@ -101,7 +113,7 @@ Page {
             id: selectionRectangle
             width: joinView.width; height: 40
             color: "lightsteelblue"; radius: 5
-            y: list.currentItem.y
+            y: list.currentItem ? list.currentItem.y : 0
             Behavior on y {
                 SpringAnimation {
                     spring: 3
@@ -194,6 +206,40 @@ Page {
 
     ScrollDecorator {
         flickableItem: list
+    }
+
+    Rectangle{
+        id: discoveryFailedOverlay
+        width: 400
+        height: 180
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.horizontalCenter: parent.horizontalCenter
+        color: "white"
+        radius: 7
+        visible: joinView.searchedOnce && list.count === 0 ? true : false
+
+        Image{
+            id: warningImage
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.top
+            anchors.topMargin: 10
+            source: "image://theme/icon-s-transfer-error"
+        }
+
+        Label{
+            anchors.top: warningImage.bottom
+            anchors.topMargin: 10
+            anchors.left: parent.left
+            anchors.leftMargin: 16
+            anchors.right: parent.right
+            anchors.rightMargin: 16
+            text: "Unable to discover games.\nPlease make sure that your Google Talk or Jabber Account is online or use Bluetooth!"
+            wrapMode: Text.WordWrap
+            horizontalAlignment: Text.AlignHCenter
+            platformStyle: LabelStyle{
+                fontFamily: UIConstants.FONT_FAMILY_LIGHT
+            }
+        }
     }
 
 }

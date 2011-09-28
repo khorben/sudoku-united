@@ -39,8 +39,9 @@ Sudoku::Sudoku(QObject *parent) :
 
     m_player = new Player(this);
     m_player->setName(m_settings->playerName());
-
+#if !(defined(Q_OS_SYMBIAN) || defined(MEEGO_EDITION_HARMATTAN) || defined(Q_WS_SIMULATOR) || defined(Q_WS_MAEMO_5))
     serverAdapter->addServerImplementation(new TCPServer());
+#endif
     serverAdapter->addServerImplementation(new TelepathyServer());
     if (m_settings->bluetoothEnabled())
         serverAdapter->addServerImplementation(new BluetoothServer());
