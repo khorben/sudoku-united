@@ -16,6 +16,7 @@
 #include <QtDeclarative/QDeclarativeComponent>
 #include <QtDeclarative/QDeclarativeEngine>
 #include <QtDeclarative/QDeclarativeContext>
+#include <QGraphicsObject>
 
 #if defined(QMLJSDEBUGGER) && QT_VERSION < 0x040800
 
@@ -152,6 +153,10 @@ void QmlApplicationViewer::showExpanded()
 #elif defined(Q_WS_MAEMO_5)
     showMaximized();
 #else
+    QSize size = sizeHint();
+    setMinimumSize(size.height(), size.width());
+    setMaximumSize(minimumSize());
+    rootObject()->setProperty("rotation", 90);
     show();
 #endif
 }
