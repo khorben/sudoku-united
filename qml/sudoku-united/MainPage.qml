@@ -90,7 +90,7 @@ Page {
 
         Button {
             id: createButton
-            text: "Create"
+            text: "Play"
             checkable: false
             onClicked: {
                 var component = Qt.createComponent("CreateGameView.qml");
