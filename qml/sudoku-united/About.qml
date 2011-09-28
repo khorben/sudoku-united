@@ -61,9 +61,10 @@ Page {
                 anchors.horizontalCenter: parent.horizontalCenter
             }
             Label{
-                text: "Sudoku United 1.0.0"
+                text: "<a href='https://gitorious.org/sudoku-united/'>Sudoku United 1.0.0</a>"
                 anchors.horizontalCenter: parent.horizontalCenter
                 platformStyle: labelStyle
+                onLinkActivated: Qt.openUrlExternally(link)
             }
             Label{
                 text: "Copyright © 2011 Philip Lorenz, Ferdinand Mayet, Philip Daubmeier"
