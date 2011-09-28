@@ -27,7 +27,7 @@ var FONT_FAMILY = "Nokia Pure Text";
 var FONT_FAMILY_BOLD = "Nokia Pure Text Bold";
 var FONT_FAMILY_LIGHT = "Nokia Pure Text Light";
 
-var PLAYER_COLORS = [ "blue", "orange" ];
+var PLAYER_COLORS = [ "blue", "orange", "dodgerblue", "peru", "olive", "mediumorchid", "darkkhaki" ];
 
 var BACKGROUND_COLOR_TOP = "#f4952f"
 var BACKGROUND_COLOR_BOTTOM = "#de3812"
