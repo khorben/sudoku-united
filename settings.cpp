@@ -18,7 +18,9 @@
 #include "settings.h"
 
 Settings::Settings(QObject *parent) :
-    QSettings("Bithub", "Sudoku United", parent)
+    QSettings("Bithub", "Sudoku United", parent),
+    m_hapticFeedbackEnabled(true),
+    m_bluetoothEnabled(true)
 {
     loadSettings();
 }
