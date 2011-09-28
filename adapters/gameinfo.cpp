@@ -35,6 +35,7 @@ GameInfoModel::GameInfoModel(QObject *parent) :
 }
 
 int GameInfoModel::insertGameInfo(GameInfo *gameInfo) {
+    Q_ASSERT(gameInfo);
     quint16 rowCount = m_gameInfoList.size();
 
     for (int i = 0; i < rowCount; i++) {

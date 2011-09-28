@@ -103,7 +103,7 @@ Page {
             checkable: false
             onClicked: {
                 var component = Qt.createComponent("JoinView.qml")
-                pageStack.push(component, { "gameInfoModel": gameInstance.discoverGames() });
+                pageStack.push(component);
             }
         }
     }

@@ -91,6 +91,9 @@ Page {
     property string gameNameProperty: ""
     property variant gameInfoModel
 
+    Component.onCompleted: gameInfoModel = gameInstance.discoverGames()
+    Component.onDestruction: gameInfoModel.destroy()
+
     Component {
         id: highlight
 

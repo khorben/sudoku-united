@@ -182,6 +182,7 @@ AggregateGameInfoModel::AggregateGameInfoModel(Sudoku *parent) :
         if (!model)
             continue;
 
+        model->setParent(this);
         rowMap[model] = QHash<quint16, quint16>();
 
         m_gameInfoModels.append(model);
