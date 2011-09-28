@@ -338,7 +338,7 @@ bool BoardGenerator::generatePuzzle(Sudoku::Difficulty difficulty){
         // Make some further adjustments to the board depending on difficulty
         // level
         if (difficulty == Sudoku::SIMPLE) {
-            qint8 missingFixedCells = 30 - getGivenCount();
+            qint8 missingFixedCells = 35 - getGivenCount();
             quint8 blockCellCount[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
             for (quint8 i = 0; i < BOARD_SIZE; i++) {
                 if (puzzle[i])
