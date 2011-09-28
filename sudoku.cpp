@@ -248,6 +248,7 @@ void AggregateGameInfoModel::onDataChanged(const QModelIndex &topLeft,
 
     for (int row = topLeft.row(); row <= bottomRight.row(); row++) {
         QModelIndex index = createIndex(rowInfo[row], 0);
+        m_gameInfoList.replace(rowInfo[row], model->row(row));
         emit dataChanged(index, index);
     }
 }
