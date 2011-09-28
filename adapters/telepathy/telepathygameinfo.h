@@ -50,7 +50,11 @@ private:
     Tp::AccountPtr findAccount(Tp::ContactManagerPtr cm);
 
     void setAutoRefresh(bool enabled);
+
+    void addContacts(Tp::ConnectionPtr connection);
 private slots:
+    void onConnectionStatusChanged(Tp::ConnectionStatus status);
+    void onConnectionChanged(Tp::ConnectionPtr connection);
     void onAccountManagerReady(Tp::PendingOperation *operation);
     void onCapabilitiesChanged(const Tp::ContactCapabilities &caps);
     void onAllKnownContactsChanged(const Tp::Contacts &contactsAdded,

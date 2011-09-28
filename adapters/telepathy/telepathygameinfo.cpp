@@ -82,40 +82,79 @@ void TelepathyGameInfoModel::buildGameInfoList() {
     endRemoveRows();
 
     foreach (Tp::AccountPtr account, accountManager->allAccounts()) {
-        if (!account->isValid() || account->connection().isNull())
+        if (!account->isValid()) {
+            qDebug() << "Account not valid...";
             continue;
-        if (!account->connection()->capabilities().streamTubes())
-            continue;
-
-        Tp::ContactManagerPtr contactManager =
-                account->connection()->contactManager();
-
-        connect(contactManager.data(),
-                SIGNAL(allKnownContactsChanged(Tp::Contacts,Tp::Contacts,Tp::Channel::GroupMemberChangeDetails)),
-                SLOT(onAllKnownContactsChanged(Tp::Contacts,Tp::Contacts,Tp::Channel::GroupMemberChangeDetails)));
-
-        Tp::Contacts contacts =
-                contactManager->allKnownContacts();
-
-        foreach (Tp::ContactPtr contact, contacts.toList()) {
-            connect(contact.data(),
-                    SIGNAL(capabilitiesChanged(Tp::ContactCapabilities)),
-                    SLOT(onCapabilitiesChanged(Tp::ContactCapabilities)));
-
-            qDebug() << contact->id()
-                     << contact->capabilities().streamTubeServices()
-                     << contact->alias();
-
-            if (contact->capabilities().streamTubes("x-sudoku-united-game")) {
-                TelepathyGameInfo *gameInfo = new TelepathyGameInfo(account,
-                                                                    contact,
-                                                                    this);
-                insertGameInfo(gameInfo);
-            }
         }
+
+        connect(account.data(), SIGNAL(connectionChanged(Tp::ConnectionPtr)),
+                SLOT(onConnectionChanged(Tp::ConnectionPtr)));
+
+        addContacts(account->connection());
     }
 
     setState(Complete);
+}
+
+void TelepathyGameInfoModel::onConnectionChanged(Tp::ConnectionPtr connection) {
+    Q_UNUSED(connection);
+
+    Tp::AccountPtr account(qobject_cast<Tp::Account *>(sender()));
+    Q_ASSERT(account);
+
+    if (!connection)
+        return;
+
+    connect(connection.data(), SIGNAL(statusChanged(Tp::ConnectionStatus)),
+            SLOT(onConnectionStatusChanged(Tp::ConnectionStatus)));
+
+    if (connection->status() == Tp::ConnectionStatusConnected)
+        addContacts(connection);
+}
+
+void TelepathyGameInfoModel::onConnectionStatusChanged(Tp::ConnectionStatus status) {
+    Tp::ConnectionPtr connection(qobject_cast<Tp::Connection *>(sender()));
+    Q_ASSERT(connection);
+
+    addContacts(connection);
+}
+
+void TelepathyGameInfoModel::addContacts(Tp::ConnectionPtr connection) {
+    if (!connection || connection->status() != Tp::ConnectionStatusConnected)
+        return;
+
+    if (!connection->capabilities().streamTubes())
+        return;
+
+    Tp::ContactManagerPtr contactManager = connection->contactManager();
+    Tp::AccountPtr account = findAccount(contactManager);
+
+    if (!account)
+        return;
+
+    connect(contactManager.data(),
+            SIGNAL(allKnownContactsChanged(Tp::Contacts,Tp::Contacts,Tp::Channel::GroupMemberChangeDetails)),
+            SLOT(onAllKnownContactsChanged(Tp::Contacts,Tp::Contacts,Tp::Channel::GroupMemberChangeDetails)));
+
+    Tp::Contacts contacts =
+            contactManager->allKnownContacts();
+
+    foreach (Tp::ContactPtr contact, contacts.toList()) {
+        connect(contact.data(),
+                SIGNAL(capabilitiesChanged(Tp::ContactCapabilities)),
+                SLOT(onCapabilitiesChanged(Tp::ContactCapabilities)));
+
+        qDebug() << contact->id()
+                 << contact->capabilities().streamTubeServices()
+                 << contact->alias();
+
+        if (contact->capabilities().streamTubes("x-sudoku-united-game")) {
+            TelepathyGameInfo *gameInfo = new TelepathyGameInfo(account,
+                                                                contact,
+                                                                this);
+            insertGameInfo(gameInfo);
+        }
+    }
 }
 
 Tp::AccountPtr TelepathyGameInfoModel::findAccount(Tp::ContactManagerPtr cm) {
@@ -226,6 +265,8 @@ void TelepathyGameInfoModel::setAutoRefresh(bool enabled) {
     GameInfoModel::setAutoRefresh(enabled);
 
     if (!enabled) {
+        disconnect(this, SLOT(onConnectionStatusChanged(Tp::ConnectionStatus)));
+        disconnect(this, SLOT(onConnectionChanged(Tp::ConnectionPtr)));
         disconnect(this, SLOT(onCapabilitiesChanged(Tp::ContactCapabilities)));
         disconnect(this,
                    SLOT(onAllKnownContactsChanged(Tp::Contacts,Tp::Contacts,Tp::Channel::GroupMemberChangeDetails)));
