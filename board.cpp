@@ -73,8 +73,10 @@ void Board::onCellValueChanged() {
 
     emit cellValueChanged(cell);
 
-    if (isFull())
+    if (isFull()) {
+        pause();
         emit boardIsFull();
+    }
 }
 
 QList<QObject *> Board::isValidMove(quint8 x, quint8 y, quint8 value) {
@@ -191,7 +193,7 @@ void Board::pause() {
 }
 
 void Board::unpause() {
-    if (!m_paused)
+    if (!m_paused || isFull())
         return;
 
     m_paused = false;
