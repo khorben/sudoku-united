@@ -72,7 +72,7 @@ Rectangle {
         color: {
             if (cell && cell.valueOwner) {
                 return UIConstants.PLAYER_COLORS[cell.valueOwner.colorIndex]
-            } else if (cell.isFixedCell()){
+            } else if (cell && cell.isFixedCell()){
                 return fontColor;
             } else {
                 // Hint colour
