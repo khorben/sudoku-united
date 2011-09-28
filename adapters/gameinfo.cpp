@@ -41,7 +41,7 @@ int GameInfoModel::insertGameInfo(GameInfo *gameInfo) {
         GameInfo *other = m_gameInfoList.at(i);
 
         if (*other == *gameInfo) {
-            m_gameInfoList.insert(i, gameInfo);
+            m_gameInfoList.replace(i, gameInfo);
 
             QModelIndex index = createIndex(i, 0);
             emit dataChanged(index, index);
@@ -79,8 +79,6 @@ QVariant GameInfoModel::data(const QModelIndex &index, int role) const {
     switch (role) {
     case NameRole:
         return QVariant::fromValue(m_gameInfoList[index.row()]->name());
-    case PlayerCountRole:
-        return 0;
     case GameInfoRole:
         return QVariant::fromValue(m_gameInfoList[index.row()]);
     }
