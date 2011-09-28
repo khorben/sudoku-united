@@ -86,10 +86,12 @@ Page {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: mainPage.bottom
         anchors.bottomMargin: 30
+        exclusive: false
 
         Button {
             id: createButton
             text: "Create"
+            checkable: false
             onClicked: {
                 var component = Qt.createComponent("CreateGameView.qml");
                 pageStack.push(component);
@@ -98,6 +100,7 @@ Page {
 
         Button {
             text: "Join"
+            checkable: false
             onClicked: {
                 var component = Qt.createComponent("JoinView.qml")
                 pageStack.push(component, { "gameInfoModel": gameInstance.discoverGames() });
