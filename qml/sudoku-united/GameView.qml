@@ -221,8 +221,10 @@ Page {
             var collisions = game.board.isValidMove(cell.x, cell.y, number);
 
             if (collisions.length === 0) {
-                cell.valueOwner = localPlayer
-                cell.value = number
+                if (cell.value != number) {
+                    cell.valueOwner = localPlayer
+                    cell.value = number
+                }
             } else {
                 // Find colliding cells
                 collisions.forEach(function (cell) {
