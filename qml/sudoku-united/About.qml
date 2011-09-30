@@ -61,7 +61,7 @@ Page {
                 anchors.horizontalCenter: parent.horizontalCenter
             }
             Label{
-                text: "<a href='https://gitorious.org/sudoku-united/'>Sudoku United 1.0.0</a>"
+                text: "<a href='https://gitorious.org/sudoku-united/'>Sudoku United " + qApplication.applicationVersion + "</a>"
                 anchors.horizontalCenter: parent.horizontalCenter
                 platformStyle: labelStyle
                 onLinkActivated: Qt.openUrlExternally(link)
