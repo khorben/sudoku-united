@@ -33,24 +33,53 @@ Page {
             iconId: "toolbar-back"
             onClicked: leaveGameDialog.open()
         }
-        ToolButton{
-            id: hintButton
-            enabled: !game ? false : !game.generationRunning
+
+        ToolButton {
+            id: undoButton
+            text: "Undo"
+            visible: true
             anchors.horizontalCenter: parent.horizontalCenter
-            text: "Hint"
+            enabled: game != null && game.board != null && game.board.canUndo
             onClicked: {
-                var hints = game.generateHint()
-                if (hints.length > 0) {
-                    infoBanner.text = "There are mistakes in the puzzle.\nPlease fix them first."
-                    infoBanner.show()
-                    hints.forEach(function (cell) {
-                                      playBoard.cellItems.forEach(
-                                                  function (cellItem) {
-                                                      if (cellItem.cell.x == cell.x && cellItem.cell.y == cell.y) {
-                                                          cellItem.collision = true
-                                                      }
-                                                  })
-                                  })
+                game.board.undo()
+            }
+        }
+
+        ToolIcon {
+            platformIconId: "toolbar-view-menu"
+            anchors.right: parent === undefined ? undefined : parent.right
+            onClicked: (myMenu.status == DialogStatus.Closed) ? myMenu.open() : myMenu.close()
+
+            Menu {
+                id: myMenu
+                visualParent: pageStack
+                MenuLayout {
+                    MenuItem {
+                        text: "Settings"
+                        onClicked:{
+                            var component = Qt.createComponent("Settings.qml")
+                            pageStack.push(component, {});
+                        }
+                    }
+                    MenuItem {
+                        text: "Hint"
+                        enabled: game != null && !game.generationRunning
+                        onClicked:{
+                            var hints = game.generateHint()
+                            if (hints.length > 0) {
+                                infoBanner.text = "There are mistakes in the puzzle.\nPlease fix them first."
+                                infoBanner.show()
+                                hints.forEach(function (cell) {
+                                                  playBoard.cellItems.forEach(
+                                                              function (cellItem) {
+                                                                  if (cellItem.cell.x == cell.x && cellItem.cell.y == cell.y) {
+                                                                      cellItem.collision = true
+                                                                  }
+                                                              })
+                                              })
+                            }
+                        }
+                    }
                 }
             }
         }

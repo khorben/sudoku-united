@@ -19,6 +19,50 @@
 #include "player.h"
 #include "boardgenerator.h"
 
+ModificationLogEntry::ModificationLogEntry() {
+
+}
+
+/**
+  * Creates a new log entry storing the cell's current value and value owner.
+  */
+ModificationLogEntry::ModificationLogEntry(const Cell *cell) {
+    m_x = cell->x();
+    m_y = cell->y();
+    m_value = cell->value();
+    m_valueOwner = cell->valueOwner();
+}
+
+/**
+  * \return The X coordinate of the modified cell.
+  */
+quint8 ModificationLogEntry::x() const {
+    return m_x;
+}
+
+/**
+  * \return the Y coordinate of the modified cell.
+  */
+quint8 ModificationLogEntry::y() const {
+    return m_y;
+}
+
+/**
+  * \return The value the cell had at the time at which the log entry was
+  *         created.
+  */
+quint8 ModificationLogEntry::value() const {
+    return m_value;
+}
+
+/**
+  * \return The value owner the cell had at the time at which the log entry was
+  *         created.
+  */
+Player *ModificationLogEntry::valueOwner() const {
+    return m_valueOwner;
+}
+
 Board::Board(const Board &other) :
     QObject(other.parent()) {
 
@@ -30,17 +74,23 @@ Board::Board(const Board &other) :
             m_cells[x][y].setParent(this);
             m_solution[x][y] = other.m_solution[x][y];
 
-            connect(&m_cells[x][y], SIGNAL(valueChanged()), SLOT(onCellValueChanged()));
+            connect(&m_cells[x][y],
+                    SIGNAL(valueChanged()),
+                    SLOT(onCellValueChanged()));
+            connect(&m_cells[x][y],
+                    SIGNAL(beforeValueChanged()),
+                    SLOT(onBeforeCellValueChanged()));
         }
     }
 
     m_startTime = other.m_startTime;
     m_elapsedTime = other.m_elapsedTime;
     m_paused = other.m_paused;
+    blockModificationLog = other.blockModificationLog;
 }
 
 Board::Board(QObject *parent) :
-    QObject(parent)
+    QObject(parent), blockModificationLog(false)
 {
     for (quint8 y = 0; y < 9; y++) {
         for (quint8 x = 0; x < 9; x++) {
@@ -49,7 +99,12 @@ Board::Board(QObject *parent) :
             m_cells[x][y].m_y = y;
             m_cells[x][y].setParent(this);
 
-            connect(&m_cells[x][y], SIGNAL(valueChanged()), SLOT(onCellValueChanged()));
+            connect(&m_cells[x][y],
+                    SIGNAL(valueChanged()),
+                    SLOT(onCellValueChanged()));
+            connect(&m_cells[x][y],
+                    SIGNAL(beforeValueChanged()),
+                    SLOT(onBeforeCellValueChanged()));
         }
     }
 
@@ -76,6 +131,18 @@ void Board::onCellValueChanged() {
     if (isFull()) {
         pause();
         emit boardIsFull();
+    }
+}
+
+void Board::onBeforeCellValueChanged()
+{
+    Cell *cell = qobject_cast<Cell *>(sender());
+
+    if (!blockModificationLog) {
+        modificationLog.push(ModificationLogEntry(cell));
+
+        if (modificationLog.size() == 1)
+            emit canUndoChanged();
     }
 }
 
@@ -200,6 +267,28 @@ void Board::unpause() {
     m_startTime = QDateTime::currentMSecsSinceEpoch();
 }
 
+void Board::undo() {
+    if (modificationLog.isEmpty())
+        return;
+
+    ModificationLogEntry entry = modificationLog.pop();
+
+    Cell *cell = cellAt(entry.x(), entry.y());
+
+    blockModificationLog = true;
+    cell->setValue(entry.value());
+    cell->setValueOwner(entry.valueOwner());
+    blockModificationLog = false;
+
+    if (modificationLog.isEmpty())
+        emit canUndoChanged();
+}
+
+bool Board::canUndo() const
+{
+    return !modificationLog.isEmpty();
+}
+
 Cell::Cell(quint8 x, quint8 y, Board *parent) :
     QObject(parent), m_x(x), m_y(y), m_fixedCell(false), m_valueOwner(NULL) {
 }
@@ -211,6 +300,8 @@ quint8 Cell::value() const {
 void Cell::setValue(quint8 value) {
     if (this->value() == value)
         return;
+
+    emit beforeValueChanged();
 
     board()->setCellValue(m_x, m_y, value);
 

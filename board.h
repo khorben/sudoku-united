@@ -53,6 +53,7 @@ public:
     quint8 x() const { return m_x; }
     quint8 y() const { return m_y; }
 signals:
+    void beforeValueChanged();
     void valueChanged();
     void valueOwnerChanged();
 private:
@@ -71,10 +72,27 @@ private:
 
 QML_DECLARE_TYPE(Cell)
 
+class ModificationLogEntry {
+public:
+    ModificationLogEntry();
+    ModificationLogEntry(const Cell *cell);
+
+    quint8 x() const;
+    quint8 y() const;
+    quint8 value() const;
+    Player *valueOwner() const;
+private:
+    quint8 m_x;
+    quint8 m_y;
+    quint8 m_value;
+    Player *m_valueOwner;
+};
+
 class Board : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool full READ isFull NOTIFY boardIsFull)
+    Q_PROPERTY(bool canUndo READ canUndo NOTIFY canUndoChanged)
     Q_PROPERTY(quint64 startTime READ startTime CONSTANT)
     Q_PROPERTY(quint32 elapsedTime READ elapsedTime)
 public:
@@ -136,6 +154,11 @@ public:
     void pause();
 
     void unpause();
+
+    Q_INVOKABLE
+    void undo();
+
+    bool canUndo() const;
 signals:
     /**
       * This signal is emitted if the value of a cell changes.
@@ -143,9 +166,12 @@ signals:
     void cellValueChanged(Cell *cell);
 
     void boardIsFull();
+
+    void canUndoChanged();
 public slots:
 
 private slots:
+    void onBeforeCellValueChanged();
     void onCellValueChanged();
 private:
     void isValidMoveHorizontal(quint8 x, quint8 y, quint8 val, QList<QObject *> &invalidList) const;
@@ -179,6 +205,9 @@ private:
     quint64 m_startTime;
     quint64 m_elapsedTime;
     bool m_paused;
+
+    QStack<ModificationLogEntry> modificationLog;
+    bool blockModificationLog;
 };
 
 QML_DECLARE_TYPE(Board)
