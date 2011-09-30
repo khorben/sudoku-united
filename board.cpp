@@ -200,39 +200,6 @@ void Board::unpause() {
     m_startTime = QDateTime::currentMSecsSinceEpoch();
 }
 
-QDataStream &operator<<(QDataStream &s, const Board &board) {
-    for (quint8 y = 0; y < 9; y++) {
-        for (quint8 x = 0; x < 9; x++) {
-            Cell *cell = board.cellAt(x, y);
-
-            QUuid uuid;
-
-            if (cell->valueOwner() != NULL)
-                uuid = cell->valueOwner()->uuid();
-
-            s << uuid;
-            s << cell->isFixedCell();
-            s << cell->value();
-        }
-    }
-
-    return s;
-}
-
-QDataStream &operator>>(QDataStream &s, Board &board) {
-    for (quint8 y = 0; y < 9; y++) {
-        for (quint8 x = 0; x < 9; x++) {
-            QUuid uuid;
-
-            s >> uuid;
-            s >> board.cellAt(x, y)->m_fixedCell;
-            s >> board.m_cellValues[x][y];
-        }
-    }
-
-    return s;
-}
-
 Cell::Cell(quint8 x, quint8 y, Board *parent) :
     QObject(parent), m_x(x), m_y(y), m_fixedCell(false), m_valueOwner(NULL) {
 }

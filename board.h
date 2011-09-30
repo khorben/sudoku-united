@@ -58,7 +58,6 @@ signals:
 private:
     friend class SudokuBoard;
     friend class BoardGenerator;
-    friend QDataStream &operator>>(QDataStream &s, Board &board);
     friend class GameMessage;
 
     inline Board *board() const { return (Board *) parent(); }
@@ -170,7 +169,6 @@ private:
 
 private:
     friend class Cell;
-    friend QDataStream &operator>>(QDataStream &s, Board &board);
     friend class GameMessage;
 
     Cell m_cells[9][9];
@@ -184,9 +182,5 @@ private:
 };
 
 QML_DECLARE_TYPE(Board)
-
-
-QDataStream &operator <<(QDataStream &s, const Board &board);
-QDataStream &operator >>(QDataStream &s, Board &board);
 
 #endif // BOARD_H
