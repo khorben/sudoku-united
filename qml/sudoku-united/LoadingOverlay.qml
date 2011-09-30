@@ -65,6 +65,7 @@ Dialog {
         }
     }
 
+    property bool _shouldClose : false;
     /**
       * Overwritten to disable click anywhere to close
       */
@@ -72,10 +73,22 @@ Dialog {
     }
 
     function close() {
-        loadingOverlay.status = DialogStatus.Closing
+        loadingDialog.status = DialogStatus.Closing
     }
 
     function forceClose() {
-        loadingOverlay.status = DialogStatus.Closed
+        if (loadingDialog.status == DialogStatus.Opening) {
+            _shouldClose = true;
+            return;
+        }
+
+        loadingDialog.status = DialogStatus.Closed;
+    }
+
+    onStatusChanged: {
+        if (_shouldClose) {
+            _shouldClose = false;
+            loadingDialog.status = DialogStatus.Closed;
+        }
     }
 }
