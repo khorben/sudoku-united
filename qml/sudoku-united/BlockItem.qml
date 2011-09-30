@@ -15,7 +15,7 @@
     along with Sudoku United.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import QtQuick 1.0
+import QtQuick 1.1
 
 Rectangle{
 
