@@ -201,7 +201,9 @@ bool GameMessage::parseStream(QDataStream &dataStream) {
                     quint8 playerIndex;
 
                     dataStream >> playerIndex;
-                    cell->setValueOwner(playerIndexMap[playerIndex]);
+
+                    if (playerIndex != 0xff)
+                        cell->setValueOwner(playerIndexMap[playerIndex]);
                 }
             }
         }
@@ -254,7 +256,10 @@ bool GameMessage::writeStream(QDataStream &dataStream) {
                 tempStream << cell->value();
                 tempStream << cell->isFixedCell();
                 if (cell->value() != 0 && !cell->isFixedCell()) {
-                    tempStream << playerIndexMap[cell->valueOwner()];
+                    if (cell->valueOwner())
+                        tempStream << playerIndexMap[cell->valueOwner()];
+                    else
+                        tempStream << quint8(0xff);
                 }
             }
         }
