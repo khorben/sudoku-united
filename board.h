@@ -23,9 +23,12 @@
 #include <QPair>
 #include <QDeclarativeListProperty>
 
+#include "sudoku.h"
+
 class QDataStream;
 class Player;
 class Board;
+class Game;
 
 class Cell : public QObject {
     Q_OBJECT
@@ -60,6 +63,7 @@ private:
     friend class SudokuBoard;
     friend class BoardGenerator;
     friend class GameMessage;
+    friend QDataStream &operator>>(QDataStream &stream, Game &game);
 
     inline Board *board() const { return (Board *) parent(); }
     friend class Board;
@@ -76,6 +80,7 @@ class ModificationLogEntry {
 public:
     ModificationLogEntry();
     ModificationLogEntry(const Cell *cell);
+    ModificationLogEntry(quint8 x, quint8 y, quint8 value, Player *valueOwner);
 
     quint8 x() const;
     quint8 y() const;
@@ -159,6 +164,8 @@ public:
     void undo();
 
     bool canUndo() const;
+
+    Sudoku::Difficulty difficulty() const;
 signals:
     /**
       * This signal is emitted if the value of a cell changes.
@@ -196,6 +203,8 @@ private:
 private:
     friend class Cell;
     friend class GameMessage;
+    friend QDataStream &operator<<(QDataStream &stream, Game &game);
+    friend QDataStream &operator>>(QDataStream &stream, Game &game);
 
     Cell m_cells[9][9];
     quint8 m_cellValues[9][9];
@@ -208,6 +217,8 @@ private:
 
     QStack<ModificationLogEntry> modificationLog;
     bool blockModificationLog;
+
+    Sudoku::Difficulty m_difficulty;
 };
 
 QML_DECLARE_TYPE(Board)

@@ -265,6 +265,8 @@ void AbstractClient::handlePlayerMessage(PlayerMessage *message) {
 
     Player *player =
             m_game->addPlayer(new Player(message->uuid(), message->name()));
+    if (!player)
+        return;
     player->setState(message->state());
 }
 

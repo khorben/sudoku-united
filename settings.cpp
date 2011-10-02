@@ -16,11 +16,13 @@
 */
 
 #include "settings.h"
+#include "game.h"
 
 Settings::Settings(QObject *parent) :
     QSettings("Bithub", "Sudoku United", parent),
     m_hapticFeedbackEnabled(true),
-    m_bluetoothEnabled(true)
+    m_bluetoothEnabled(true),
+    m_lastGame(NULL)
 {
     loadSettings();
 }
@@ -29,12 +31,36 @@ void Settings::loadSettings() {
     setPlayerName(value("playerName", "Player").toString());
     setHapticFeedbackEnabled(value("hapticFeedbackEnabled", true).toBool());
     setBluetoothEnabled(value("bluetoothEnabled", true).toBool());
+
+    QVariant lastGameVariant = value("lastGame");
+    if (!lastGameVariant.isNull()) {
+        QDataStream gameStream(lastGameVariant.toByteArray());
+
+        m_lastGame = new Game(this);
+        gameStream >> *m_lastGame;
+
+        if (gameStream.status() != QDataStream::Ok) {
+            delete m_lastGame;
+            m_lastGame = NULL;
+        }
+    } else {
+        m_lastGame = NULL;
+    }
 }
 
 void Settings::saveSettings() {
     setValue("playerName", playerName());
     setValue("hapticFeedbackEnabled", hapticFeedbackEnabled());
     setValue("bluetoothEnabled", bluetoothEnabled());
+    if (m_lastGame) {
+        QByteArray buffer;
+        QDataStream gameStream(&buffer, QIODevice::WriteOnly);
+        gameStream << *m_lastGame;
+
+        setValue("lastGame", buffer);
+    } else {
+        remove("lastGame");
+    }
 
     sync();
 }
@@ -76,4 +102,12 @@ void Settings::setBluetoothEnabled(bool enableBluetooth) {
     m_bluetoothEnabled = enableBluetooth;
 
     emit bluetoothEnabledChanged();
+}
+
+Game *Settings::lastGame() const {
+    return m_lastGame;
+}
+
+void Settings::setLastGame(Game *game) {
+    m_lastGame = game;
 }

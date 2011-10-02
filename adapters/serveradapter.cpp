@@ -349,6 +349,11 @@ void ServerAdapter::handleJoinMessage(PlayerInfo &playerInfo,
         sendMessage(playerInfo, gameMessage);
 
         playerInfo.player = m_game->addPlayer(message->uuid(), message->name());
+        if (!playerInfo.player) {
+            playerInfo.device->close();
+            return;
+        }
+
         playerInfo.player->setState(Player::Connected);
         playerInfo.state = PlayerInfo::Connected;
     }
@@ -405,5 +410,8 @@ void ServerAdapter::handlePlayerMessage(PlayerInfo &playerInfo,
 
     Player *player =
             m_game->addPlayer(new Player(message->uuid(), message->name()));
+    if (!player)
+        return;
+
     player->setState(message->state());
 }

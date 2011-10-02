@@ -65,6 +65,9 @@ Player *Game::addPlayer(Player *player) {
         }
     }
 
+    if (m_players.size() >= 0xff)
+        return NULL;
+
     connect(player, SIGNAL(stateChanged()), SLOT(onPlayerStateChanged()));
 
     player->m_colorIndex = m_currentColorIndex++;
@@ -199,4 +202,160 @@ Player *Game::atPlayersFunction(QDeclarativeListProperty<Player> *property, int 
 
 int Game::countPlayersFunction(QDeclarativeListProperty<Player> *property) {
     return ((Game *) property->object)->m_players.size();
+}
+
+
+QDataStream &operator<<(QDataStream &stream, Game &game) {
+    // Write encoding version
+    stream << quint16(1);
+
+    // Write player list
+    QMap<Player *, quint8> playerMap;
+    quint8 playerIndex = 0;
+
+    stream << quint8(game.players().size());
+
+    foreach (Player *player, game.players()) {
+        stream << player->name();
+        stream << player->uuid();
+
+        playerMap[player] = playerIndex;
+
+        playerIndex++;
+    }
+
+    // Write board
+    Board *board = game.board();
+
+    // Write elapsed time
+    stream << board->elapsedTime();
+
+    // Write difficulty
+    stream << quint8(board->difficulty());
+
+    // Write the boards current cells
+    for (quint8 y = 0; y < 9; y++) {
+        for (quint8 x = 0; x < 9; x++) {
+            Cell *cell = board->cellAt(x, y);
+            stream << cell->isFixedCell();
+            stream << cell->value();
+
+            if (!cell->isFixedCell() && cell->value() != 0) {
+                if (cell->valueOwner())
+                    stream << quint8(playerMap[cell->valueOwner()]);
+                else
+                    stream << quint8(0xff);
+            }
+        }
+    }
+
+    // Write the solution
+    for (quint8 y = 0; y < 9; y++) {
+        for (quint8 x = 0; x < 9; x++) {
+            stream << board->m_solution[x][y];
+        }
+    }
+
+    // Write the game history
+    stream << quint32(board->modificationLog.size());
+    foreach(ModificationLogEntry entry, board->modificationLog) {
+        stream << entry.x();
+        stream << entry.y();
+        stream << entry.value();
+        if (entry.valueOwner())
+            stream << playerMap[entry.valueOwner()];
+        else
+            stream << quint8(0xff);
+    }
+
+    return stream;
+}
+
+QDataStream &operator>>(QDataStream &stream, Game &game) {
+    // Read version
+    quint16 version;
+    stream >> version;
+
+    if (version != 1) {
+        stream.setStatus(QDataStream::ReadCorruptData);
+        return stream;
+    }
+
+    // Read player list
+    quint8 playerCount;
+    QMap<quint8, Player *> playerMap;
+    stream >> playerCount;
+
+    for (quint8 playerIndex = 0; playerIndex < playerCount; playerIndex++) {
+        QString name;
+        QUuid uuid;
+
+        stream >> name;
+        stream >> uuid;
+
+        Player *player = game.addPlayer(uuid, name);
+        player->setState(Player::Disconnected);
+
+        playerMap[playerIndex] = player;
+    }
+
+    // Read board
+    Board *board = new Board(&game);
+
+    // Read elapsed time
+    stream >> board->m_elapsedTime;
+    board->m_startTime = QDateTime::currentMSecsSinceEpoch();
+
+    // Read difficulty
+    quint8 difficulty;
+    stream >> difficulty;
+    board->m_difficulty = (Sudoku::Difficulty) difficulty;
+
+    // Read the boards current cells
+    for (quint8 y = 0; y < 9; y++) {
+        for (quint8 x = 0; x < 9; x++) {
+            Cell *cell = board->cellAt(x, y);
+
+            stream >> cell->m_fixedCell;
+            stream >> board->m_cellValues[x][y];
+
+            if (!cell->isFixedCell() && cell->value() != 0) {
+                quint8 playerIndex;
+                stream >> playerIndex;
+
+                if (playerIndex != 0xff)
+                    cell->setValueOwner(playerMap[playerIndex]);
+            }
+        }
+    }
+
+    // Read the solution
+    for (quint8 y = 0; y < 9; y++) {
+        for (quint8 x = 0; x < 9; x++) {
+            stream >> board->m_solution[x][y];
+        }
+    }
+
+    // Restore the game history
+    quint32 modificationLogLength;
+    stream >> modificationLogLength;
+
+    for (quint32 i = 0; i < modificationLogLength; i++) {
+        quint8 x, y, value, playerIndex;
+
+        stream >> x;
+        stream >> y;
+        stream >> value;
+        stream >> playerIndex;
+
+        Player *player = NULL;
+        if (playerIndex != 0xff)
+            player = playerMap[playerIndex];
+
+        board->modificationLog.push(ModificationLogEntry(x, y, value, player));
+    }
+
+    game.setBoard(board);
+
+    return stream;
 }

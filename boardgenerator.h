@@ -61,7 +61,6 @@ public:
     Board *toBoard() const;
     BoardGenerator::Difficulty getDifficulty();
     ~BoardGenerator();
-
 private:
     /**
          * The 81 integers that make up a sudoku puzzle.
@@ -132,6 +131,11 @@ private:
          * information about bad guesses.
          */
     vector<LogItem*>* solveInstructions;
+
+    /**
+      * Difficulty of the generated board.
+      */
+    Sudoku::Difficulty m_difficulty;
 
     /**
          * The last round of solving

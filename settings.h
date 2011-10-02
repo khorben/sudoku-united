@@ -21,6 +21,8 @@
 #include <QSettings>
 #include <QtDeclarative>
 
+class Game;
+
 class Settings : public QSettings
 {
     Q_OBJECT
@@ -32,6 +34,7 @@ class Settings : public QSettings
     Q_PROPERTY(bool bluetoothEnabled READ bluetoothEnabled
                WRITE setBluetoothEnabled
                NOTIFY bluetoothEnabledChanged)
+    Q_PROPERTY(Game *lastGame READ lastGame WRITE setLastGame)
 public:
     explicit Settings(QObject *parent = 0);
 
@@ -43,6 +46,9 @@ public:
 
     bool bluetoothEnabled() const;
     void setBluetoothEnabled(bool enableBluetooth);
+
+    Game *lastGame() const;
+    void setLastGame(Game *game);
 
     Q_INVOKABLE
     void saveSettings();
@@ -59,6 +65,7 @@ private:
     QString m_playerName;
     bool m_hapticFeedbackEnabled;
     bool m_bluetoothEnabled;
+    Game *m_lastGame;
 };
 
 QML_DECLARE_TYPE(Settings)

@@ -109,4 +109,6 @@ private:
     static void appendPlayersFunction(QDeclarativeListProperty<Player> *property, Player *value);
 };
 
+QDataStream &operator<<(QDataStream &stream, Game &game);
+QDataStream &operator>>(QDataStream &stream, Game &game);
 #endif // GAME_H

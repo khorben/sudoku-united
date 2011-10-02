@@ -85,6 +85,8 @@ Board *BoardGenerator::toBoard() const {
         board->m_solution[i % 9][i / 9] = solution[i];
     }
 
+    board->m_difficulty = m_difficulty;
+
     return board;
 }
 
@@ -256,6 +258,8 @@ void BoardGenerator::clearPuzzle(){
 }
 
 bool BoardGenerator::generatePuzzle(Sudoku::Difficulty difficulty){
+    m_difficulty = difficulty;
+
     BoardGenerator::Difficulty boardGeneratorDifficulty;
     switch (difficulty) {
     case Sudoku::SIMPLE:

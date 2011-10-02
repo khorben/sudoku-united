@@ -30,16 +30,26 @@ Page {
     property Game game : gameInstance.game
 
     onGameChanged: {
-        loadingOverlay.open()
+        if (!game)
+            return;
+
+        if (!game.board)
+            loadingOverlay.open()
+        else
+            showGameView();
     }
 
     Connections {
         target: game
         onBoardChanged: {
             loadingOverlay.forceClose()
-            var component = Qt.resolvedUrl("GameView.qml")
-            pageStack.replace(component)
+            showGameView();
         }
+    }
+
+    function showGameView() {
+        var component = Qt.resolvedUrl("GameView.qml")
+        pageStack.replace(component)
     }
 
     BackgroundItem{}
@@ -104,6 +114,40 @@ Page {
             parentItem: hardButton
             onClicked: {
                 gameInstance.createGame(Sudoku.EXPERT)
+            }
+        }
+    }
+
+    onStatusChanged: {
+        // Show dialog as soon as the page is active - the PageStack does not
+        // like it if something else is animated while itself is animating
+
+        if (status == PageStatus.Active) {
+            if (gameInstance.settings.lastGame) {
+                resumeGameDialog.open()
+            }
+        }
+    }
+
+    SelectionDialog {
+        id: resumeGameDialog
+        titleText: "Resume last game?"
+        selectedIndex: 1
+
+        model: ListModel {
+            ListElement { name: "Yes" }
+            ListElement { name: "No" }
+        }
+        onSelectedIndexChanged: {
+            if (selectedIndex == 0) {
+                gameInstance.game = gameInstance.settings.lastGame
+            }
+        }
+        onStatusChanged: {
+            // Clear the last game - no matter what the user chooses
+            if (status == DialogStatus.Closing) {
+                gameInstance.settings.lastGame = null
+                gameInstance.settings.saveSettings()
             }
         }
     }

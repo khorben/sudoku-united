@@ -33,6 +33,14 @@ ModificationLogEntry::ModificationLogEntry(const Cell *cell) {
     m_valueOwner = cell->valueOwner();
 }
 
+ModificationLogEntry::ModificationLogEntry(quint8 x,
+                                          quint8 y,
+                                          quint8 value,
+                                          Player *valueOwner) :
+    m_x(x), m_y(y), m_value(value), m_valueOwner(valueOwner) {
+
+}
+
 /**
   * \return The X coordinate of the modified cell.
   */
@@ -287,6 +295,11 @@ void Board::undo() {
 bool Board::canUndo() const
 {
     return !modificationLog.isEmpty();
+}
+
+Sudoku::Difficulty Board::difficulty() const
+{
+    return m_difficulty;
 }
 
 Cell::Cell(quint8 x, quint8 y, Board *parent) :

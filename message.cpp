@@ -175,6 +175,9 @@ bool GameMessage::parseStream(QDataStream &dataStream) {
         dataStream >> state;
 
         Player *player = m_game->addPlayer(uuid, name);
+        if (!player)
+            break;
+
         player->setState((Player::State) state);
 
         playerIndexMap[playerIndex] = player;

@@ -36,7 +36,7 @@ class Sudoku : public QObject
     Q_OBJECT
     Q_ENUMS(Difficulty)
     Q_PROPERTY(Player * player READ player CONSTANT)
-    Q_PROPERTY(Game * game READ game NOTIFY gameChanged)
+    Q_PROPERTY(Game * game READ game WRITE setGame NOTIFY gameChanged)
     Q_PROPERTY(Settings *settings READ settings CONSTANT)
 public:
     enum Difficulty {
@@ -53,6 +53,7 @@ public:
     Player *player() const { return m_player; }
 
     Game *game() const { return m_game; }
+    void setGame(Game *game);
 
     Q_INVOKABLE
     virtual void join(GameInfo *game);
@@ -79,7 +80,6 @@ public slots:
 
 protected slots:
     void onClientStateChanged(AbstractClient::State state);
-    void setGame(Game *game);
 protected:
     bool eventFilter(QObject *filterObj, QEvent *evt);
 private slots:
