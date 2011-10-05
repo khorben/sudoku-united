@@ -17,9 +17,12 @@
 
 import QtQuick 1.1
 import com.nokia.meego 1.0
+import sudoku 1.0
 
 Rectangle{
-    property variant cell
+    property GameBoard gameBoard
+
+    property Cell cell
     property variant cellItem
     property string mode: noteEditMode.checked ? "note" : "normal"
 
@@ -28,11 +31,33 @@ Rectangle{
     height: 260
     color: "#AF222222"
     radius: 7
-    anchors.horizontalCenter: parent.horizontalCenter
-    anchors.bottom: parent.bottom
-    anchors.bottomMargin: 10
 
-    signal numberChosen(variant cell, int number)
+    Connections {
+        target: gameBoard
+
+        onCellClicked: {
+            chooser.cellItem = cellItem
+            chooser.visible = true
+            chooser.cell = cellItem.cell
+        }
+    }
+
+    function setNumber(cell, number) {
+        //find collisions
+        var collisions = gameBoard.board.isValidMove(cell.x, cell.y, number);
+
+        if (collisions.length === 0) {
+            if (cell.value != number) {
+                cell.valueOwner = localPlayer
+                cell.value = number
+            }
+        } else {
+            // Find colliding cells
+            collisions.forEach(function (cell) {
+                                   gameBoard.cellAt(cell.x, cell.y).collision = true
+                               });
+        }
+    }
 
     onVisibleChanged: {
         if(visible){
@@ -85,7 +110,7 @@ Rectangle{
                     return;
                 } else {
                     chooser.visible = false;
-                    numberChosen(cell, number)
+                    setNumber(cell, number)
                 }
             }
 

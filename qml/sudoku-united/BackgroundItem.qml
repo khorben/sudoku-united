@@ -18,12 +18,9 @@
 import QtQuick 1.1
 import "./UIConstants.js" as UIConstants
 
-Rectangle{
+Image {
     anchors.fill: parent
-    color: "#666666"
     smooth: true
-    gradient: Gradient {
-        GradientStop{ position: 0; color: UIConstants.BACKGROUND_COLOR_TOP }
-        GradientStop{ position: 1; color: UIConstants.BACKGROUND_COLOR_BOTTOM }
-    }
+    fillMode: Image.TileHorizontally
+    source: "qrc:/background_gradient.png"
 }

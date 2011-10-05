@@ -31,6 +31,28 @@ Dialog {
       */
     property bool showCancelButton: false
 
+    /**
+      * This signal is emitted after the dialog has been closed.
+      */
+    signal closed()
+
+    function isVisible() {
+        return loadingDialog.status != DialogStatus.Closed
+    }
+
+    function close() {
+        loadingDialog.status = DialogStatus.Closing
+    }
+
+    function forceClose() {
+        if (loadingDialog.status == DialogStatus.Opening) {
+            _shouldClose = true;
+            return;
+        }
+
+        loadingDialog.status = DialogStatus.Closed;
+    }
+
     content: Column {
         anchors.horizontalCenter: parent.horizontalCenter
         spacing: 16
@@ -72,23 +94,11 @@ Dialog {
     function reject() {
     }
 
-    function close() {
-        loadingDialog.status = DialogStatus.Closing
-    }
-
-    function forceClose() {
-        if (loadingDialog.status == DialogStatus.Opening) {
-            _shouldClose = true;
-            return;
-        }
-
-        loadingDialog.status = DialogStatus.Closed;
-    }
-
     onStatusChanged: {
         if (_shouldClose) {
             _shouldClose = false;
             loadingDialog.status = DialogStatus.Closed;
-        }
+        } else if (loadingDialog.status == DialogStatus.Closed)
+            closed()
     }
 }

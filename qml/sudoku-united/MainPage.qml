@@ -66,8 +66,7 @@ Page {
             anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter
             width: 300; height: 300
-            source: "qrc:/logo_grid.png"
-            smooth: true
+            source: "qrc:/logo_grid_300x300.png"
         }
         Text{
             id: logo_text

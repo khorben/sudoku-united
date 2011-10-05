@@ -45,6 +45,12 @@ int main(int argc, char *argv[])
     QApplication::instance()->setApplicationName("Sudoku United");
     QApplication::instance()->setApplicationVersion("1.0.0");
 
+    // We draw our own background
+    viewer.setAttribute(Qt::WA_OpaquePaintEvent);
+    viewer.setAttribute(Qt::WA_NoSystemBackground);
+    viewer.viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
+    viewer.viewport()->setAttribute(Qt::WA_NoSystemBackground);
+
     viewer.installEventFilter(Sudoku::instance());
     viewer.rootContext()->setContextProperty("qApplication", QApplication::instance());
     viewer.rootContext()->setContextProperty("gameInstance", Sudoku::instance());

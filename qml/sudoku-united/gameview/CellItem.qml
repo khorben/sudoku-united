@@ -17,7 +17,7 @@
 
 import QtQuick 1.1
 import QtMobility.feedback 1.1
-import "./UIConstants.js" as UIConstants
+import "../UIConstants.js" as UIConstants
 
 Rectangle {
     id: cellItem
@@ -49,7 +49,7 @@ Rectangle {
 
     color: startColor
 
-    signal showNumberChooser(variant cell, variant cellItem)
+    signal showNumberChooser(variant cellItem)
 
     GridView {
         id: noteGrid
@@ -88,7 +88,7 @@ Rectangle {
         onClicked: {
             if (cell && cell.isFixedCell())
                 return;
-            showNumberChooser(parent.cell, cellItem)
+            showNumberChooser(cellItem)
         }
     }
 

@@ -42,14 +42,18 @@ Page {
     Connections {
         target: game
         onBoardChanged: {
-            loadingOverlay.forceClose()
-            showGameView();
+            if (loadingOverlay.isVisible()) {
+                loadingOverlay.close()
+                loadingOverlay.closed.connect(showGameView())
+            } else {
+                showGameView();
+            }
         }
     }
 
     function showGameView() {
-        var component = Qt.resolvedUrl("GameView.qml")
-        pageStack.replace(component)
+        var component = Qt.resolvedUrl("gameview/GameView.qml")
+        pageStack.replace(component, {}, false)
     }
 
     BackgroundItem{}
