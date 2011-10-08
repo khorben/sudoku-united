@@ -74,7 +74,7 @@ Page {
 
             if (gameInstance.game.board) {
                 loadingOverlay.close()
-                var component = Qt.createComponent("GameView.qml")
+                var component = Qt.createComponent("gameview/GameView.qml")
                 pageStack.push(component, { "game": function () { return gameInstance.game } });
             }
         }
