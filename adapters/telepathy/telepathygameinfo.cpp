@@ -158,10 +158,13 @@ void TelepathyGameInfoModel::addContacts(Tp::ConnectionPtr connection) {
 }
 
 Tp::AccountPtr TelepathyGameInfoModel::findAccount(Tp::ContactManagerPtr cm) {
-    if (!accountManager->isReady())
+    if (!cm || !accountManager->isReady())
         return Tp::AccountPtr();
 
     foreach (Tp::AccountPtr account, accountManager->allAccounts()) {
+        if (!account->connection())
+            continue;
+
         if (account->connection()->contactManager() == cm)
             return account;
     }
