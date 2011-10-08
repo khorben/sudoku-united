@@ -134,15 +134,18 @@ void BluetoothServer::registerService() {
                              protocolDescriptorList);
     //! [Protocol descriptor list]
 
-    // Register the service
-    serviceInfo->registerService();
-
     // Save old Bluetooth hostmode - we restore it as soon the server is
     // disabled.
     previousHostMode = localBluetoothDevice->hostMode();
 
-    // Set new host mode
-    localBluetoothDevice->setHostMode(QBluetoothLocalDevice::HostDiscoverableLimitedInquiry);
+    // Set new host mode if needed
+    if (localBluetoothDevice->hostMode() != QBluetoothLocalDevice::HostDiscoverable &&
+            localBluetoothDevice->hostMode() != QBluetoothLocalDevice::HostDiscoverableLimitedInquiry)
+        localBluetoothDevice->setHostMode(QBluetoothLocalDevice::HostDiscoverableLimitedInquiry);
+
+    // Register the service
+    if (!serviceInfo->registerService())
+        qWarning() << "Failed to register Bluetooth service";
 }
 
 void BluetoothServer::unregisterService() {
