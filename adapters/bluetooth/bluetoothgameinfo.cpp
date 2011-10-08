@@ -97,15 +97,11 @@ void BluetoothGameInfoModel::onServiceDiscovered(const QBluetoothServiceInfo &in
     BluetoothGameInfo *gameInfo = new BluetoothGameInfo(this);
     gameInfo->info = info;
 
-    mutex.lock();
     insertGameInfo(gameInfo);
     newGameInfoEntries.append(gameInfo);
-    mutex.unlock();
 }
 
 void BluetoothGameInfoModel::onFinished() {
-    mutex.lock();
-
     // Clear stale entries
     int row = -1;
     foreach (GameInfo *gameInfo, m_gameInfoList) {
@@ -138,8 +134,6 @@ void BluetoothGameInfoModel::onFinished() {
 
     if (autoRefresh())
         autoRefreshTimer->start(5000);
-
-    mutex.unlock();
 }
 
 void BluetoothGameInfoModel::onError(QBluetoothServiceDiscoveryAgent::Error error) {

@@ -44,7 +44,6 @@ private slots:
 private:
     QList<GameInfo *> newGameInfoEntries;
     QTimer *autoRefreshTimer;
-    QMutex mutex;
     QBluetoothLocalDevice *localDevice;
     QBluetoothLocalDevice::HostMode previousHostMode;
 private:
