@@ -56,7 +56,5 @@ void TCPGameInfoModel::addFakeServer() {
 
     insertGameInfo(gameInfo);
 
-    m_state = Complete;
-
-    emit stateChanged();
+    setState(Complete);
 }

@@ -55,8 +55,7 @@ BluetoothGameInfoModel::BluetoothGameInfoModel(QObject *parent) :
     if (!localDevice->isValid()) {
         // There does not seem to be a Bluetooth adapter in this device. No
         // point in continuing.
-        m_state = Complete;
-        emit stateChanged();
+        setState(Complete);
         return;
     }
 
@@ -128,9 +127,7 @@ void BluetoothGameInfoModel::onFinished() {
         row--;
     }
 
-    m_state = Complete;
-
-    emit stateChanged();
+    setState(Complete);
 
     if (autoRefresh())
         autoRefreshTimer->start(5000);
@@ -139,8 +136,7 @@ void BluetoothGameInfoModel::onFinished() {
 void BluetoothGameInfoModel::onError(QBluetoothServiceDiscoveryAgent::Error error) {
     qWarning() << "Service discovery failed: " << error;
 
-    m_state = Complete;
-    emit stateChanged();
+    setState(Complete);
 
     if (autoRefresh())
         autoRefreshTimer->start(5000);
@@ -154,22 +150,14 @@ void BluetoothGameInfoModel::onAutoRefreshChanged() {
 }
 
 void BluetoothGameInfoModel::startDiscovery() {
-    QBluetoothLocalDevice *localDevice = new QBluetoothLocalDevice(this);
-    if (!localDevice->isValid()) {
-        m_state = Complete;
-        emit stateChanged();
-        return;
-    }
-
     if (localDevice->hostMode() == QBluetoothLocalDevice::HostPoweredOff) {
         // We need to turn on the adapter if it is turned off
-        previousHostMode = localDevice->hostMode();
         localDevice->setHostMode(QBluetoothLocalDevice::HostConnectable);
     }
+
     QBluetoothServiceDiscoveryAgent *agent = BluetoothGameInfoModel::agent();
 
-    m_state = Discovering;
-    emit stateChanged();
+    setState(Discovering);
 
     if (!agent->isActive()) {
         newGameInfoEntries.clear();
