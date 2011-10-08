@@ -22,6 +22,7 @@
 
 #include <QBluetoothServiceInfo>
 #include <QBluetoothServiceDiscoveryAgent>
+#include <QBluetoothLocalDevice>
 
 QTM_USE_NAMESPACE
 
@@ -31,6 +32,7 @@ class BluetoothGameInfoModel : public GameInfoModel {
     Q_OBJECT
 public:
     BluetoothGameInfoModel(QObject *parent);
+    ~BluetoothGameInfoModel();
 
     static QBluetoothServiceDiscoveryAgent *agent();
 private slots:
@@ -43,6 +45,8 @@ private:
     QList<GameInfo *> newGameInfoEntries;
     QTimer *autoRefreshTimer;
     QMutex mutex;
+    QBluetoothLocalDevice *localDevice;
+    QBluetoothLocalDevice::HostMode previousHostMode;
 private:
     static QBluetoothServiceDiscoveryAgent *m_agent;
 };
