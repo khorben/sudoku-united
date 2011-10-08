@@ -23,6 +23,7 @@
 #include <QBluetoothServiceInfo>
 #include <QBluetoothServiceDiscoveryAgent>
 #include <QBluetoothLocalDevice>
+#include <QSystemDeviceInfo>
 
 QTM_USE_NAMESPACE
 
@@ -46,6 +47,7 @@ private:
     QTimer *autoRefreshTimer;
     QBluetoothLocalDevice *localDevice;
     QBluetoothLocalDevice::HostMode previousHostMode;
+    QSystemDeviceInfo *systemDeviceInfo;
 private:
     static QBluetoothServiceDiscoveryAgent *m_agent;
 };
