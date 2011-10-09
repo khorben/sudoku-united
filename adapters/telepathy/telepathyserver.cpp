@@ -79,7 +79,8 @@ void TelepathyServer::onConnectionEstablished(Tp::PendingOperation *operation) {
         qWarning() << "Failed to establish stream tube: "
                    << operation->errorMessage();
 
-        incomingStream->requestClose();
+        if (incomingStream)
+            incomingStream->requestClose();
         return;
     }
 
