@@ -33,7 +33,7 @@ Page {
         onHint: gameView.hint()
         onUndo: gameView.undo()
         onLeave: leaveGameDialog.open()
-        onSettings: pageStack.push(Qt.createComponent("../Settings.qml"), {});
+        onSettings: pageStack.push(Qt.createComponent("../Settings.qml"), {pageStack: gameView.pageStack});
     }
 
     function hint() {

@@ -22,7 +22,17 @@ import "UIConstants.js" as UIConstants
 Page {
     id: settingsPage
 
-    tools: commonToolbar
+    tools: ToolBarLayout {
+        id: commonToolbar
+        visible: false
+        ToolIcon {
+            iconId: "toolbar-back"
+            onClicked: {
+                pageStack.pop();
+            }
+            visible: { settingsPage.pageStack.depth<=1 ? false : true }
+        }
+    }
 
     orientationLock: PageOrientation.LockPortrait
 

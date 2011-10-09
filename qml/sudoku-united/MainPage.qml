@@ -43,7 +43,7 @@ Page {
                 text: "Settings"
                 onClicked:{
                     var component = Qt.createComponent("Settings.qml")
-                    pageStack.push(component, {});
+                    pageStack.push(component, {'pageStack': pageStack});
                 }
             }
             MenuItem {
