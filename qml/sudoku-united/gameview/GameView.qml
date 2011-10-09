@@ -98,6 +98,7 @@ Page {
 
     GameTimer {
         board: game && game.board
+        visible: gameInstance.settings.showGameTimer
         anchors { right: parent.right; bottom: parent.bottom; margins: 8 }
     }
 

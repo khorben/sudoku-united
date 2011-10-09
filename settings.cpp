@@ -22,7 +22,8 @@ Settings::Settings(QObject *parent) :
     QSettings("Bithub", "Sudoku United", parent),
     m_hapticFeedbackEnabled(true),
     m_bluetoothEnabled(true),
-    m_lastGame(NULL)
+    m_lastGame(NULL),
+    m_showGameTimer(false)
 {
     loadSettings();
 }
@@ -31,6 +32,7 @@ void Settings::loadSettings() {
     setPlayerName(value("playerName", "Player").toString());
     setHapticFeedbackEnabled(value("hapticFeedbackEnabled", true).toBool());
     setBluetoothEnabled(value("bluetoothEnabled", true).toBool());
+    setShowGameTimer(value("showGameTimer", false).toBool());
 
     QVariant lastGameVariant = value("lastGame");
     if (!lastGameVariant.isNull()) {
@@ -110,4 +112,17 @@ Game *Settings::lastGame() const {
 
 void Settings::setLastGame(Game *game) {
     m_lastGame = game;
+}
+
+bool Settings::showGameTimer() const {
+    return m_showGameTimer;
+}
+
+void Settings::setShowGameTimer(bool shown) {
+    if (shown == m_showGameTimer)
+        return;
+
+    m_showGameTimer = shown;
+
+    emit showGameTimerChanged();
 }

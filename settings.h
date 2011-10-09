@@ -35,6 +35,8 @@ class Settings : public QSettings
                WRITE setBluetoothEnabled
                NOTIFY bluetoothEnabledChanged)
     Q_PROPERTY(Game *lastGame READ lastGame WRITE setLastGame)
+    Q_PROPERTY(bool showGameTimer READ showGameTimer WRITE setShowGameTimer
+               NOTIFY showGameTimerChanged)
 public:
     explicit Settings(QObject *parent = 0);
 
@@ -50,13 +52,16 @@ public:
     Game *lastGame() const;
     void setLastGame(Game *game);
 
+    bool showGameTimer() const;
+    void setShowGameTimer(bool shown);
+
     Q_INVOKABLE
     void saveSettings();
 signals:
     void playerNameChanged();
     void hapticFeedbackEnabledChanged();
     void bluetoothEnabledChanged();
-
+    void showGameTimerChanged();
 public slots:
 
 private:
@@ -66,6 +71,7 @@ private:
     bool m_hapticFeedbackEnabled;
     bool m_bluetoothEnabled;
     Game *m_lastGame;
+    bool m_showGameTimer;
 };
 
 QML_DECLARE_TYPE(Settings)

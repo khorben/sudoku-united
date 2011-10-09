@@ -20,6 +20,8 @@ import com.nokia.meego 1.0
 import "UIConstants.js" as UIConstants
 
 Page {
+    id: settingsPage
+
     tools: commonToolbar
 
     orientationLock: PageOrientation.LockPortrait
@@ -111,6 +113,39 @@ Page {
                 checked: gameInstance.settings.hapticFeedbackEnabled
                 onCheckedChanged: {
                     gameInstance.settings.hapticFeedbackEnabled = checked
+                }
+            }
+        }
+
+        Item {
+            width: parent.width
+            height: UIConstants.LIST_ITEM_HEIGHT_DEFAULT
+
+            Column {
+                anchors.verticalCenter: parent.verticalCenter
+                Label {
+                    text: "Show game timer"
+                    font.weight: Font.Bold
+
+                }
+
+                Label {
+                    wrapMode: Text.WordWrap
+                    platformStyle: LabelStyle {
+                        fontPixelSize: UIConstants.FONT_XSMALL
+                    }
+
+                    text: "Shows the elapsed time in-game"
+                }
+            }
+
+            Switch {
+                id: showGameTimerSwitch
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                checked: gameInstance.settings.showGameTimer
+                onCheckedChanged: {
+                    gameInstance.settings.showGameTimer = checked
                 }
             }
         }
