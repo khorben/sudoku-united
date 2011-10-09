@@ -1,0 +1,11 @@
+# Google Breakpad support
+In order to enable Breakpad support the following steps need to be performed:
+1. Setup a Scratchbox environment
+2. Checkout Google Breakpad it is available here http://code.google.com/p/google-breakpad/
+3. Configure & compile in scratchbox environment (the build may fail at some point - this doesn't matter as the required utilities will still be built):
+3.1 CFLAGS=-Os CXXFLAGS=-Os ./configure
+3.2 make
+4. Enable breakpad support in the build (e.g. by appending BREAKPAD_PATH=<root path of breakpad> to the qmake flags)
+5. Enable scratchbox support in build (e.g. by appending SCRATCHBOX_PATH=<scratchbox root path>)
+5. Build everything
+6. Debug symbol file is automatically generated follow http://code.google.com/p/google-breakpad/wiki/LinuxStarterGuide to generate directory structure.

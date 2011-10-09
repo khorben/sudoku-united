@@ -103,60 +103,15 @@ contains(MEEGO_EDITION,harmattan): {
     DEFINES += MEEGO_EDITION_HARMATTAN
 }
 
+!isEmpty(BREAKPAD_PATH) {
+    !isEmpty(SCRATCHBOX_PATH) {
+        QMAKE_POST_LINK = cp $(TARGET) $${SCRATCHBOX_PATH}/users/$$(USER)/$${BREAKPAD_PATH}; $${SCRATCHBOX_PATH}/login $${BREAKPAD_PATH}/src/tools/linux/dump_syms/dump_syms $${SCRATCHBOX_PATH}/users/$$(USER)/$${BREAKPAD_PATH}/$(TARGET) > sudoku-united-`date +%Y%m%d%H%M%S`.sym
+        BREAKPAD_PATH = $${SCRATCHBOX_PATH}/users/$$(USER)/$${BREAKPAD_PATH}
+    } else {
+        QMAKE_POST_LINK = $${BREAKPAD_PATH}/src/tools/linux/dump_syms/dump_syms $(TARGET) > sudoku-united-`date +%Y%m%d%H%M%S`.sym
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    LIBS += -L$${BREAKPAD_PATH}/src/client/linux -lbreakpad_client
+    INCLUDEPATH += $${BREAKPAD_PATH}/src
+    DEFINES += ENABLE_BREAKPAD
+}
