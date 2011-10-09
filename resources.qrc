@@ -2,7 +2,6 @@
     <qresource prefix="/">
         <file alias="star.png">resources/star.png</file>
         <file alias="trophy.png">resources/trophy.png</file>
-        <file alias="backgroundImage.png">resources/backgroundImage.png</file>
         <file alias="logo.png">resources/sudoku-united80.png</file>
         <file alias="logo_grid_200x200.png">resources/logo_grid_200x200.png</file>
         <file alias="logo_grid_300x300.png">resources/logo_grid_300x300.png</file>
