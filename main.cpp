@@ -40,9 +40,10 @@ static bool dumpCallback(const char* dump_path,
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
-    QApplication::instance()->setApplicationName("Sudoku United");
-    QApplication::instance()->setApplicationVersion("1.0.88");
+    QApplication *app = createApplication(argc, argv);
+
+    app->setApplicationName("Sudoku United");
+    app->setApplicationVersion("1.0.88");
 
 #ifdef ENABLE_BREAKPAD
     QDesktopServices desktopServices;
@@ -56,7 +57,7 @@ int main(int argc, char *argv[])
     google_breakpad::ExceptionHandler eh(crashDumpPath.toStdString(), NULL, dumpCallback, NULL, true);
 #endif
 
-    QmlApplicationViewer viewer;
+    QmlApplicationViewer *viewer = QmlApplicationViewer::create();
 
     qRegisterMetaType<Cell *>();
 
@@ -70,19 +71,30 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableType<Settings>("sudoku", 1, 0, "Settings", "Retrieve via gameInstance.settings");
 
     // We draw our own background
-    viewer.setAttribute(Qt::WA_OpaquePaintEvent);
-    viewer.setAttribute(Qt::WA_NoSystemBackground);
-    viewer.viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
-    viewer.viewport()->setAttribute(Qt::WA_NoSystemBackground);
+    viewer->setAttribute(Qt::WA_OpaquePaintEvent);
+    viewer->setAttribute(Qt::WA_NoSystemBackground);
+    viewer->viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
+    viewer->viewport()->setAttribute(Qt::WA_NoSystemBackground);
 
-    viewer.installEventFilter(Sudoku::instance());
-    viewer.rootContext()->setContextProperty("qApplication", QApplication::instance());
-    viewer.rootContext()->setContextProperty("gameInstance", Sudoku::instance());
-    viewer.rootContext()->setContextProperty("localPlayer", Sudoku::instance()->player());
+    viewer->installEventFilter(Sudoku::instance());
+    viewer->rootContext()->setContextProperty("qApplication", QApplication::instance());
+    viewer->rootContext()->setContextProperty("gameInstance", Sudoku::instance());
+    viewer->rootContext()->setContextProperty("localPlayer", Sudoku::instance()->player());
 
-    viewer.setOrientation(QmlApplicationViewer::ScreenOrientationAuto);
-    viewer.setMainQmlFile(QLatin1String("qml/sudoku-united/main.qml"));
-    viewer.showExpanded();
+    viewer->setOrientation(QmlApplicationViewer::ScreenOrientationAuto);
+    viewer->setMainQmlFile(QLatin1String("qml/sudoku-united/main.qml"));
+    viewer->showExpanded();
 
-    return app.exec();
+    int ret = app->exec();
+
+    // Save the board if there is one
+    Sudoku *gameInstance = Sudoku::instance();
+    if (gameInstance->game() == NULL || gameInstance->game()->board() == NULL
+            || gameInstance->game()->board()->isFull())
+        return false;
+
+    gameInstance->settings()->setLastGame(gameInstance->game());
+    gameInstance->settings()->saveSettings();
+
+    return ret;
 }

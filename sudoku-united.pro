@@ -56,14 +56,6 @@ SOURCES += main.cpp \
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
 qtcAddDeployment()
 
-# Workaround for beta SDK (see http://wiki.meego.com/Porting_Fremantle_Applications_to_Harmattan#Harmattan_scope)
-exists($$QMAKE_INCDIR_QT"/../qmsystem2/qmkeys.h"):!contains(MEEGO_EDITION,harmattan): {
-  MEEGO_VERSION_MAJOR     = 1
-  MEEGO_VERSION_MINOR     = 2
-  MEEGO_VERSION_PATCH     = 0
-  MEEGO_EDITION           = harmattan
-}
-
 OTHER_FILES += \
     qtc_packaging/debian_harmattan/rules \
     qtc_packaging/debian_harmattan/copyright \
@@ -98,10 +90,6 @@ RESOURCES += resources.qrc
 
 QT += dbus
 MOBILITY += connectivity systeminfo
-
-contains(MEEGO_EDITION,harmattan): {
-    DEFINES += MEEGO_EDITION_HARMATTAN
-}
 
 !isEmpty(BREAKPAD_PATH) {
     !isEmpty(SCRATCHBOX_PATH) {
