@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     QApplication::instance()->setApplicationName("Sudoku United");
-    QApplication::instance()->setApplicationVersion("1.0.0");
+    QApplication::instance()->setApplicationVersion("1.0.88");
 
 #ifdef ENABLE_BREAKPAD
     QDesktopServices desktopServices;

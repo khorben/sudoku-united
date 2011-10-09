@@ -1,3 +1,9 @@
+sudoku-united (1.0.88) unstable; urgency=low
+
+  * Snapshot of 1.1 nightly
+
+ -- Philip Lorenz <sudokuunitedsd@bithub.de>  Sun, 09 Oct 2011 15:41:00 +0200
+
 sudoku-united (1.0.0) unstable; urgency=low
 
   * Initial Release.
