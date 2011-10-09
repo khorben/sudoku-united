@@ -38,6 +38,27 @@ static bool dumpCallback(const char* dump_path,
 }
 #endif
 
+/**
+  * Copied from QmlApplicationViewerPrivate as it is private there.
+  */
+QString adjustPath(const QString &path) {
+#ifdef Q_OS_UNIX
+#ifdef Q_OS_MAC
+    if (!QDir::isAbsolutePath(path))
+        return QCoreApplication::applicationDirPath()
+                + QLatin1String("/../Resources/") + path;
+#else
+    QString pathInInstallDir;
+    const QString applicationDirPath = QCoreApplication::applicationDirPath();
+    pathInInstallDir = QString::fromAscii("%1/../%2").arg(applicationDirPath, path);
+
+    if (QFileInfo(pathInInstallDir).exists())
+        return pathInInstallDir;
+#endif
+#endif
+    return path;
+}
+
 int main(int argc, char *argv[])
 {
     QApplication *app = createApplication(argc, argv);
@@ -80,6 +101,13 @@ int main(int argc, char *argv[])
     viewer->rootContext()->setContextProperty("qApplication", QApplication::instance());
     viewer->rootContext()->setContextProperty("gameInstance", Sudoku::instance());
     viewer->rootContext()->setContextProperty("localPlayer", Sudoku::instance()->player());
+
+    // Preload the game board
+    QDeclarativeComponent *gameViewComponent =
+            new QDeclarativeComponent(viewer->engine(),
+                                      QUrl::fromLocalFile(adjustPath("qml/sudoku-united/gameview/GameView.qml")));
+    QObject *gameView = gameViewComponent->create(viewer->rootContext());
+    viewer->rootContext()->setContextProperty("gameView", gameView);
 
     viewer->setOrientation(QmlApplicationViewer::ScreenOrientationAuto);
     viewer->setMainQmlFile(QLatin1String("qml/sudoku-united/main.qml"));

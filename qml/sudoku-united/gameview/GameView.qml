@@ -74,6 +74,13 @@ Page {
         }
     }
 
+    onStatusChanged: {
+        if (status == PageStatus.Active) {
+            // Reset state of game view - it may be restored from cache
+            leaveGameDialog.selectedIndex = 1
+        }
+    }
+
     BackgroundItem {
         Image {
             source: "qrc:/logo_grid_200x200.png"

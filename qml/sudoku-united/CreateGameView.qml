@@ -52,8 +52,8 @@ Page {
     }
 
     function showGameView() {
-        var component = Qt.resolvedUrl("gameview/GameView.qml")
-        pageStack.replace(component, {}, false)
+        // var component = Qt.resolvedUrl("gameview/GameView.qml")
+        pageStack.replace(gameView, {}, false)
     }
 
     BackgroundItem{}

@@ -25,6 +25,8 @@
 #include "adapters/telepathy/telepathyserver.h"
 #include "game.h"
 
+#include <qplatformdefs.h> // MEEGO_EDITION_HARMATTAN
+
 Sudoku *Sudoku::m_instance = NULL;
 
 Sudoku::Sudoku(QObject *parent) :
