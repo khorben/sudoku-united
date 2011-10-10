@@ -113,6 +113,8 @@ QDataStream &operator>>(QDataStream &stream, HighscoreModel &highscore) {
 
         highscore.addHighscore(numberOfPlayers, playTime, (Sudoku::Difficulty) difficulty);
     }
+
+    return stream;
 }
 
 HighscoreEntry::HighscoreEntry(QObject *parent):
