@@ -24,6 +24,7 @@
 #include "adapters/bluetooth/bluetoothserver.h"
 #include "adapters/telepathy/telepathyserver.h"
 #include "game.h"
+#include "highscore.h"
 
 #include <qplatformdefs.h> // MEEGO_EDITION_HARMATTAN
 
@@ -39,6 +40,10 @@ Sudoku::Sudoku(QObject *parent) :
     connect(m_settings, SIGNAL(bluetoothEnabledChanged()),
             SLOT(onBluetoothEnabledChanged()));
 
+    m_highscore = new HighscoreFilterModel(this);
+    m_highscore->setSourceModel(m_settings->highscoreModel());
+    m_highscore->setSortRole(HighscoreModel::PlayTimeRole);
+
     m_player = new Player(this);
     m_player->setName(m_settings->playerName());
 #if !(defined(Q_OS_SYMBIAN) || defined(MEEGO_EDITION_HARMATTAN) || defined(Q_WS_SIMULATOR) || defined(Q_WS_MAEMO_5))
@@ -51,6 +56,11 @@ Sudoku::Sudoku(QObject *parent) :
 
 Settings *Sudoku::settings() const {
     return m_settings;
+}
+
+QSortFilterProxyModel *Sudoku::highscore() const {
+    m_highscore->sort(0);
+    return m_highscore;
 }
 
 void Sudoku::onPlayerNameChanged() {

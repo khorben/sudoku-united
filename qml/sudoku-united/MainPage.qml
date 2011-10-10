@@ -40,6 +40,13 @@ Page {
         visualParent: pageStack
         MenuLayout {
             MenuItem {
+                text: "Highscore"
+                onClicked:{
+                    var component = Qt.createComponent("HighscoreView.qml")
+                    pageStack.push(component, {highscoreModel: gameInstance.highscore});
+                }
+            }
+            MenuItem {
                 text: "Settings"
                 onClicked:{
                     var component = Qt.createComponent("Settings.qml")

@@ -50,7 +50,8 @@ SOURCES += main.cpp \
     adapters/bluetooth/bluetoothclient.cpp \
     adapters/bluetooth/bluetoothserver.cpp \
     adapters/bluetooth/bluetoothgameinfo.cpp \
-    settings.cpp
+    settings.cpp \
+    highscore.cpp
 
 # Please do not modify the following two lines. Required for deployment.
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
@@ -84,7 +85,8 @@ HEADERS += \
     adapters/bluetooth/bluetoothclient.h \
     adapters/bluetooth/bluetoothserver.h \
     adapters/bluetooth/bluetoothgameinfo.h \
-    settings.h
+    settings.h \
+    highscore.h
 
 RESOURCES += resources.qrc
 
@@ -103,3 +105,5 @@ MOBILITY += connectivity systeminfo
     INCLUDEPATH += $${BREAKPAD_PATH}/src
     DEFINES += ENABLE_BREAKPAD
 }
+
+

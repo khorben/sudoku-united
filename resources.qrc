@@ -6,5 +6,6 @@
         <file alias="logo_grid_200x200.png">resources/logo_grid_200x200.png</file>
         <file alias="logo_grid_300x300.png">resources/logo_grid_300x300.png</file>
         <file alias="background_gradient.png">resources/background_gradient.png</file>
+        <file alias="squirtle.png">resources/sqirtle_orange_48x48.png</file>
     </qresource>
 </RCC>

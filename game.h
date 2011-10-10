@@ -94,6 +94,8 @@ private slots:
     void onBoardGenerated();
     void onHintGenerated();
     void onPlayerStateChanged();
+    void onBoardIsFull();
+
 private:
     Board *m_board;
     QList<Player *> m_players;

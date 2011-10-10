@@ -94,6 +94,7 @@ Board::Board(const Board &other) :
     m_startTime = other.m_startTime;
     m_elapsedTime = other.m_elapsedTime;
     m_paused = other.m_paused;
+    m_difficulty = other.m_difficulty;
     blockModificationLog = other.blockModificationLog;
 }
 
@@ -118,6 +119,7 @@ Board::Board(QObject *parent) :
 
     m_startTime = QDateTime::currentMSecsSinceEpoch();
     m_elapsedTime = 0;
+    m_difficulty = Sudoku::SIMPLE;
     m_paused = false;
 }
 

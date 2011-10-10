@@ -18,6 +18,8 @@
 #include "game.h"
 #include "board.h"
 #include "player.h"
+#include "sudoku.h"
+#include "highscore.h"
 
 Game::Game(QObject *parent) :
     QObject(parent), m_board(NULL), m_boardGenerationThread(NULL), m_boardGeneratorWrapper(NULL),
@@ -36,6 +38,8 @@ void Game::setBoard(Board *board) {
         return;
 
     m_board = board;
+
+    connect(m_board, SIGNAL(boardIsFull()), SLOT(onBoardIsFull()));
 
     if (m_board != NULL)
         m_board->setParent(this);
@@ -188,6 +192,11 @@ void Game::onPlayerStateChanged() {
         emit playerLeft(player);
         break;
     }
+}
+
+void Game::onBoardIsFull() {
+    Sudoku *sudoku = Sudoku::instance();
+    sudoku->settings()->highscoreModel()->addHighscore(players().size(), board()->elapsedTime(), board()->difficulty());
 }
 
 void Game::appendPlayersFunction(QDeclarativeListProperty<Player> *property, Player *value) {

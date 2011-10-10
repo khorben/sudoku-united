@@ -24,6 +24,7 @@
 #include "player.h"
 #include "adapters/abstractserver.h"
 #include "sudoku.h"
+#include "highscore.h"
 
 #ifdef ENABLE_BREAKPAD
 #include <client/linux/handler/exception_handler.h>
@@ -90,6 +91,7 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableType<GameInfoModel>("sudoku", 1, 0, "GameInfoModel", "Returned via discovery");
     qmlRegisterUncreatableType<Sudoku>("sudoku", 1, 0, "Sudoku", "Global instance provided via the gameInstance variable.");
     qmlRegisterUncreatableType<Settings>("sudoku", 1, 0, "Settings", "Retrieve via gameInstance.settings");
+    qmlRegisterUncreatableType<QSortFilterProxyModel>("sudoku", 1, 0, "QSortFilterProxyModel", "...");
 
     // We draw our own background
     viewer->setAttribute(Qt::WA_OpaquePaintEvent);
@@ -117,11 +119,10 @@ int main(int argc, char *argv[])
 
     // Save the board if there is one
     Sudoku *gameInstance = Sudoku::instance();
-    if (gameInstance->game() == NULL || gameInstance->game()->board() == NULL
-            || gameInstance->game()->board()->isFull())
-        return false;
+    if (gameInstance->game() != NULL && gameInstance->game()->board() != NULL
+            && !gameInstance->game()->board()->isFull())
+        gameInstance->settings()->setLastGame(gameInstance->game());
 
-    gameInstance->settings()->setLastGame(gameInstance->game());
     gameInstance->settings()->saveSettings();
 
     return ret;

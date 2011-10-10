@@ -38,6 +38,7 @@ class Sudoku : public QObject
     Q_PROPERTY(Player * player READ player CONSTANT)
     Q_PROPERTY(Game * game READ game WRITE setGame NOTIFY gameChanged)
     Q_PROPERTY(Settings *settings READ settings CONSTANT)
+    Q_PROPERTY(QSortFilterProxyModel *highscore READ highscore CONSTANT)
 public:
     enum Difficulty {
         SIMPLE,
@@ -72,6 +73,8 @@ public:
 
     Settings *settings() const;
 
+    QSortFilterProxyModel *highscore() const;
+
     static Sudoku *instance();
 signals:
     void joinFailed(QString reason);
@@ -93,12 +96,14 @@ private:
     ServerAdapter *serverAdapter;
     AbstractClient *client;
     Settings *m_settings;
+    QSortFilterProxyModel *m_highscore;
     bool notConnected;
 private:
     static Sudoku *m_instance;
 
 };
 
+Q_DECLARE_METATYPE(Sudoku::Difficulty)
 QML_DECLARE_TYPE(Sudoku)
 
 class AggregateGameInfoModel : public GameInfoModel {

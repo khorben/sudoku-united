@@ -17,13 +17,15 @@
 
 #include "settings.h"
 #include "game.h"
+#include "highscore.h"
 
 Settings::Settings(QObject *parent) :
     QSettings("Bithub", "Sudoku United", parent),
     m_hapticFeedbackEnabled(true),
     m_bluetoothEnabled(true),
     m_lastGame(NULL),
-    m_showGameTimer(false)
+    m_showGameTimer(false),
+    m_highscoreModel(NULL)
 {
     loadSettings();
 }
@@ -48,6 +50,22 @@ void Settings::loadSettings() {
     } else {
         m_lastGame = NULL;
     }
+
+    QVariant highscoreVariant = value("highscore");
+    if (!highscoreVariant.isNull()){
+        QDataStream highscoreStream(highscoreVariant.toByteArray());
+
+        m_highscoreModel = new HighscoreModel(this);
+        highscoreStream >> *m_highscoreModel;
+
+        if (highscoreStream.status() != QDataStream::Ok) {
+            delete m_highscoreModel;
+            m_highscoreModel = NULL;
+        }
+    }
+    if (m_highscoreModel == NULL) {
+        m_highscoreModel = new HighscoreModel(this);
+    }
 }
 
 void Settings::saveSettings() {
@@ -63,7 +81,15 @@ void Settings::saveSettings() {
     } else {
         remove("lastGame");
     }
+    if (m_highscoreModel) {
+        QByteArray highscoreBuffer;
+        QDataStream highscoreStream(&highscoreBuffer, QIODevice::WriteOnly);
+        highscoreStream << *m_highscoreModel;
 
+        setValue("highscore", highscoreBuffer);
+    } else {
+        remove("highscore");
+    }
     sync();
 }
 
@@ -126,3 +152,15 @@ void Settings::setShowGameTimer(bool shown) {
 
     emit showGameTimerChanged();
 }
+
+HighscoreModel *Settings::highscoreModel() const
+{
+    return m_highscoreModel;
+}
+
+void Settings::setHighscoreModel(HighscoreModel *highscoreModel)
+{
+    m_highscoreModel = highscoreModel;
+}
+
+

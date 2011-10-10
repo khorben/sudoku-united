@@ -22,6 +22,7 @@
 #include <QtDeclarative>
 
 class Game;
+class HighscoreModel;
 
 class Settings : public QSettings
 {
@@ -55,6 +56,9 @@ public:
     bool showGameTimer() const;
     void setShowGameTimer(bool shown);
 
+    HighscoreModel *highscoreModel() const;
+    void setHighscoreModel(HighscoreModel *highscoreModel);
+
     Q_INVOKABLE
     void saveSettings();
 signals:
@@ -72,6 +76,7 @@ private:
     bool m_bluetoothEnabled;
     Game *m_lastGame;
     bool m_showGameTimer;
+    HighscoreModel *m_highscoreModel;
 };
 
 QML_DECLARE_TYPE(Settings)
