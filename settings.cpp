@@ -25,7 +25,8 @@ Settings::Settings(QObject *parent) :
     m_bluetoothEnabled(true),
     m_lastGame(NULL),
     m_showGameTimer(false),
-    m_highscoreModel(NULL)
+    m_highscoreModel(NULL),
+    m_quickAccessAction(UndoAction)
 {
     loadSettings();
 }
@@ -35,6 +36,7 @@ void Settings::loadSettings() {
     setHapticFeedbackEnabled(value("hapticFeedbackEnabled", true).toBool());
     setBluetoothEnabled(value("bluetoothEnabled", true).toBool());
     setShowGameTimer(value("showGameTimer", false).toBool());
+    setQuickAccessAction((QuickAccessAction) value("quickAccessAction", 0).toUInt());
 
     QVariant lastGameVariant = value("lastGame");
     if (!lastGameVariant.isNull()) {
@@ -72,6 +74,8 @@ void Settings::saveSettings() {
     setValue("playerName", playerName());
     setValue("hapticFeedbackEnabled", hapticFeedbackEnabled());
     setValue("bluetoothEnabled", bluetoothEnabled());
+    setValue("quickAccessAction", (quint32) quickAccessAction());
+
     if (m_lastGame) {
         QByteArray buffer;
         QDataStream gameStream(&buffer, QIODevice::WriteOnly);
@@ -162,5 +166,21 @@ void Settings::setHighscoreModel(HighscoreModel *highscoreModel)
 {
     m_highscoreModel = highscoreModel;
 }
+
+
+Settings::QuickAccessAction Settings::quickAccessAction() const
+{
+    return m_quickAccessAction;
+}
+
+void Settings::setQuickAccessAction(Settings::QuickAccessAction action)
+{
+    if (m_quickAccessAction == action)
+        return;
+
+    m_quickAccessAction = action;
+    emit quickAccessActionChanged();
+}
+
 
 

@@ -27,6 +27,7 @@ class HighscoreModel;
 class Settings : public QSettings
 {
     Q_OBJECT
+    Q_ENUMS(QuickAccessAction)
     Q_PROPERTY(QString playerName READ playerName WRITE setPlayerName
                NOTIFY playerNameChanged)
     Q_PROPERTY(bool hapticFeedbackEnabled READ hapticFeedbackEnabled
@@ -38,6 +39,14 @@ class Settings : public QSettings
     Q_PROPERTY(Game *lastGame READ lastGame WRITE setLastGame)
     Q_PROPERTY(bool showGameTimer READ showGameTimer WRITE setShowGameTimer
                NOTIFY showGameTimerChanged)
+    Q_PROPERTY(QuickAccessAction quickAccessAction READ quickAccessAction
+               WRITE setQuickAccessAction NOTIFY quickAccessActionChanged)
+public:
+    enum QuickAccessAction {
+        UndoAction,
+        HintAction
+    };
+
 public:
     explicit Settings(QObject *parent = 0);
 
@@ -59,6 +68,9 @@ public:
     HighscoreModel *highscoreModel() const;
     void setHighscoreModel(HighscoreModel *highscoreModel);
 
+    QuickAccessAction quickAccessAction() const;
+    void setQuickAccessAction(QuickAccessAction action);
+
     Q_INVOKABLE
     void saveSettings();
 signals:
@@ -66,6 +78,7 @@ signals:
     void hapticFeedbackEnabledChanged();
     void bluetoothEnabledChanged();
     void showGameTimerChanged();
+    void quickAccessActionChanged();
 public slots:
 
 private:
@@ -77,6 +90,7 @@ private:
     Game *m_lastGame;
     bool m_showGameTimer;
     HighscoreModel *m_highscoreModel;
+    QuickAccessAction m_quickAccessAction;
 };
 
 QML_DECLARE_TYPE(Settings)

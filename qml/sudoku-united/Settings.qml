@@ -18,6 +18,7 @@
 import QtQuick 1.1
 import com.nokia.meego 1.0
 import "UIConstants.js" as UIConstants
+import sudoku 1.0
 
 Page {
     id: settingsPage
@@ -156,6 +157,81 @@ Page {
                 checked: gameInstance.settings.showGameTimer
                 onCheckedChanged: {
                     gameInstance.settings.showGameTimer = checked
+                }
+            }
+        }
+
+        Item {
+            width: parent.width
+            height: UIConstants.LIST_ITEM_HEIGHT_DEFAULT
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    quickAccessDialog.open()
+                }
+            }
+
+            SelectionDialog {
+                id: quickAccessDialog
+                titleText: "Quick access button"
+
+                model: ListModel {
+                    ListElement { name: "Undo" }
+                    ListElement { name: "Hint" }
+                }
+
+                onSelectedIndexChanged: {
+                    var action;
+
+                    switch (selectedIndex) {
+                    case 0:
+                        action = Settings.UndoAction;
+                        break;
+                    case 1:
+                        action = Settings.HintAction;
+                        break;
+                    }
+
+                    gameInstance.settings.quickAccessAction = action
+                }
+
+                selectedIndex: gameInstance.settings.quickAccessAction
+            }
+
+            Row {
+                width: parent.width
+                Column {
+                    width: parent.width - comboBoxImage.width
+                    anchors.verticalCenter: parent.verticalCenter
+                    Label {
+                        text: "Quick access button"
+                        font.weight: Font.Bold
+
+                    }
+
+                    Label {
+                        wrapMode: Text.WordWrap
+                        platformStyle: LabelStyle {
+                            fontPixelSize: UIConstants.FONT_XSMALL
+                        }
+
+                        text: {
+                            switch(gameInstance.settings.quickAccessAction) {
+                            case Settings.UndoAction:
+                                return "Undo";
+                            case Settings.HintAction:
+                                return "Hint";
+                            }
+                        }
+                    }
+                }
+
+                Image {
+                    id: comboBoxImage
+                    width: sourceSize.width
+                    anchors.verticalCenter: parent.verticalCenter
+                    source: "image://theme/icon-m-common-combobox-arrow-selected"
                 }
             }
         }

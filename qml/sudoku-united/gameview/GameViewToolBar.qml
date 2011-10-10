@@ -38,10 +38,19 @@ ToolBarLayout {
     ToolButton {
         id: undoButton
         text: "Undo"
-        visible: true
-        anchors.horizontalCenter: parent.horizontalCenter
+        visible: gameInstance.settings.quickAccessAction == Settings.UndoAction
+        anchors.centerIn: parent
         enabled: board != null && game.board.canUndo
         onClicked: undo()
+    }
+
+    ToolButton {
+        id: hintButton
+        text: "Hint"
+        visible: gameInstance.settings.quickAccessAction == Settings.HintAction
+        anchors.centerIn: parent
+        enabled: game != null && !game.generationRunning
+        onClicked: hint()
     }
 
     ToolIcon {
@@ -59,8 +68,15 @@ ToolBarLayout {
                 }
                 MenuItem {
                     text: "Hint"
+                    visible: gameInstance.settings.quickAccessAction != Settings.HintAction
                     enabled: game != null && !game.generationRunning
                     onClicked: hint()
+                }
+                MenuItem {
+                    text: "Undo"
+                    visible: gameInstance.settings.quickAccessAction != Settings.UndoAction
+                    enabled: board != null && game.board.canUndo
+                    onClicked: undo()
                 }
             }
         }
