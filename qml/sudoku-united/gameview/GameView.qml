@@ -42,7 +42,7 @@ Page {
             infoBanner.text = "There are mistakes in the puzzle.\nPlease fix them first."
             infoBanner.show()
             hints.forEach(function (cell) {
-                              playBoard.cellAt(cell.x, cell.y).collsion = true
+                              playBoard.cellAt(cell.x, cell.y).collision = true
                           })
         }
     }
