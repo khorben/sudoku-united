@@ -201,7 +201,10 @@ void BluetoothGameInfoModel::startDiscovery() {
 
 void BluetoothGameInfoModel::onBluetoothAdapterReady(QBluetoothLocalDevice::HostMode hostMode)
 {
-    disconnect(this, SLOT(onBluetoothAdapterReady(QBluetoothLocalDevice::HostMode)));
+    disconnect(localDevice,
+               SIGNAL(hostModeStateChanged(QBluetoothLocalDevice::HostMode)),
+               this,
+               SLOT(onBluetoothAdapterReady(QBluetoothLocalDevice::HostMode)));
 
     if (hostMode == QBluetoothLocalDevice::HostPoweredOff) {
         if (autoRefresh())
