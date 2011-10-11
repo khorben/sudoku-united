@@ -23,7 +23,7 @@
 
 BluetoothServer::BluetoothServer(QObject *parent) :
     AbstractServer(parent), server(NULL), serviceInfo(NULL),
-    localBluetoothDevice(NULL)
+    localBluetoothDevice(NULL), enableBluetoothHostDiscoverable(false)
 {
     systemDeviceInfo = new QSystemDeviceInfo(this);
     connect(systemDeviceInfo,
@@ -49,6 +49,9 @@ GameInfoModel *BluetoothServer::discoverGames() {
 }
 
 void BluetoothServer::enable() {
+    if (!localBluetoothDevice->isValid())
+        return;
+
     if (systemDeviceInfo->currentProfile() == QSystemDeviceInfo::OfflineProfile) {
         qDebug() << "Device in offline profile - not enabling Bluetooth";
         return;
@@ -139,10 +142,13 @@ void BluetoothServer::registerService() {
     previousHostMode = localBluetoothDevice->hostMode();
 
     // Set new host mode if needed
-    if (localBluetoothDevice->hostMode() != QBluetoothLocalDevice::HostDiscoverable &&
-            localBluetoothDevice->hostMode() != QBluetoothLocalDevice::HostDiscoverableLimitedInquiry)
+    if (localBluetoothDevice->hostMode() != QBluetoothLocalDevice::HostDiscoverable
+            && localBluetoothDevice->hostMode() != QBluetoothLocalDevice::HostDiscoverableLimitedInquiry) {
+        connect(localBluetoothDevice,
+                SIGNAL(hostModeStateChanged(QBluetoothLocalDevice::HostMode)),
+                SLOT(onHostModeStateChanged(QBluetoothLocalDevice::HostMode)));
         localBluetoothDevice->setHostMode(QBluetoothLocalDevice::HostDiscoverableLimitedInquiry);
-
+    }
     // Register the service
     if (!serviceInfo->registerService())
         qWarning() << "Failed to register Bluetooth service";
@@ -202,4 +208,19 @@ void BluetoothServer::onClientRemoved() {
     Q_ASSERT(socket);
 
     disconnect(socket, 0, this, 0);
+}
+
+/**
+  * Workaround for a problem on Harmattan where setting a powered off device to
+  * Discoverable would only put it into the connectable state.
+  */
+void BluetoothServer::onHostModeStateChanged(QBluetoothLocalDevice::HostMode hostMode)
+{
+    disconnect(localBluetoothDevice,
+               SIGNAL(hostModeStateChanged(QBluetoothLocalDevice::HostMode)),
+               this,
+               SLOT(onHostModeStateChanged(QBluetoothLocalDevice::HostMode)));
+    if (hostMode == QBluetoothLocalDevice::HostConnectable && server)
+        localBluetoothDevice->setHostMode(QBluetoothLocalDevice::HostDiscoverableLimitedInquiry);
+
 }

@@ -47,6 +47,7 @@ private slots:
     void onSocketError(QBluetoothSocket::SocketError error);
     void onClientRemoved();
     void onCurrentProfileChanged(QSystemDeviceInfo::Profile profile);
+    void onHostModeStateChanged(QBluetoothLocalDevice::HostMode hostMode);
 private:
     void registerService();
     void unregisterService();
@@ -58,6 +59,8 @@ private:
     QBluetoothLocalDevice::HostMode previousHostMode;
 
     QSystemDeviceInfo *systemDeviceInfo;
+
+    bool enableBluetoothHostDiscoverable;
 };
 
 #endif // BLUETOOTHSERVER_H
