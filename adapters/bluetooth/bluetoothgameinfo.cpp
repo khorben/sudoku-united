@@ -67,13 +67,8 @@ BluetoothGameInfoModel::BluetoothGameInfoModel(QObject *parent) :
     autoRefreshTimer->setSingleShot(true);
     connect(autoRefreshTimer, SIGNAL(timeout()), SLOT(startDiscovery()));
 
-    QBluetoothServiceDiscoveryAgent *agent = BluetoothGameInfoModel::agent();
+    connectToAgent();
 
-    connect(agent, SIGNAL(serviceDiscovered(QBluetoothServiceInfo)),
-            SLOT(onServiceDiscovered(QBluetoothServiceInfo)));
-    connect(agent, SIGNAL(finished()), SLOT(onFinished()));
-    connect(agent, SIGNAL(error(QBluetoothServiceDiscoveryAgent::Error)),
-            SLOT(onError(QBluetoothServiceDiscoveryAgent::Error)));
     connect(this, SIGNAL(autoRefreshChanged()), SLOT(onAutoRefreshChanged()));
 
     startDiscovery();
@@ -84,6 +79,16 @@ BluetoothGameInfoModel::~BluetoothGameInfoModel() {
             systemDeviceInfo->currentProfile() != QSystemDeviceInfo::OfflineProfile) {
         localDevice->setHostMode(previousHostMode);
     }
+}
+
+void BluetoothGameInfoModel::connectToAgent() {
+    QBluetoothServiceDiscoveryAgent *agent = BluetoothGameInfoModel::agent();
+
+    connect(agent, SIGNAL(serviceDiscovered(QBluetoothServiceInfo)),
+            SLOT(onServiceDiscovered(QBluetoothServiceInfo)));
+    connect(agent, SIGNAL(finished()), SLOT(onFinished()));
+    connect(agent, SIGNAL(error(QBluetoothServiceDiscoveryAgent::Error)),
+            SLOT(onError(QBluetoothServiceDiscoveryAgent::Error)));
 }
 
 QBluetoothServiceDiscoveryAgent *BluetoothGameInfoModel::agent() {
@@ -153,13 +158,27 @@ void BluetoothGameInfoModel::onAutoRefreshChanged() {
 }
 
 void BluetoothGameInfoModel::startDiscovery() {
-    // Do not enable Bluetooth device while in flight mode
-    if (systemDeviceInfo->currentProfile() == QSystemDeviceInfo::OfflineProfile)
-        return;
+    setState(Complete);
 
+    // Do not enable Bluetooth device while in flight mode
+    if (systemDeviceInfo->currentProfile() == QSystemDeviceInfo::OfflineProfile) {
+        return;
+    }
+
+    // Set host mode in a while loop as the actual action is performed
+    // asynchronously
     if (localDevice->hostMode() == QBluetoothLocalDevice::HostPoweredOff) {
         // We need to turn on the adapter if it is turned off
+
+        // The host mode is set via DBus (i.e. asynchronously) - wait for the
+        // property changed before actually starting the discovery
+        connect(localDevice,
+                SIGNAL(hostModeStateChanged(QBluetoothLocalDevice::HostMode)),
+                SLOT(onBluetoothAdapterReady(QBluetoothLocalDevice::HostMode)));
+
         localDevice->setHostMode(QBluetoothLocalDevice::HostConnectable);
+
+        return;
     }
 
     QBluetoothServiceDiscoveryAgent *agent = BluetoothGameInfoModel::agent();
@@ -178,4 +197,17 @@ void BluetoothGameInfoModel::startDiscovery() {
     foreach (QBluetoothServiceInfo serviceInfo, agent->discoveredServices()) {
         onServiceDiscovered(serviceInfo);
     }
+}
+
+void BluetoothGameInfoModel::onBluetoothAdapterReady(QBluetoothLocalDevice::HostMode hostMode)
+{
+    disconnect(this, SLOT(onBluetoothAdapterReady(QBluetoothLocalDevice::HostMode)));
+
+    if (hostMode == QBluetoothLocalDevice::HostPoweredOff) {
+        if (autoRefresh())
+            autoRefreshTimer->start();
+        return;
+    }
+
+    startDiscovery();
 }

@@ -36,12 +36,16 @@ public:
     ~BluetoothGameInfoModel();
 
     static QBluetoothServiceDiscoveryAgent *agent();
+
 private slots:
     void onServiceDiscovered(const QBluetoothServiceInfo &info);
     void onFinished();
     void onAutoRefreshChanged();
     void onError(QBluetoothServiceDiscoveryAgent::Error error);
+    void onBluetoothAdapterReady(QBluetoothLocalDevice::HostMode hostMode);
     void startDiscovery();
+private:
+    void connectToAgent();
 private:
     QList<GameInfo *> newGameInfoEntries;
     QTimer *autoRefreshTimer;
