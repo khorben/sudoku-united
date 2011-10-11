@@ -16,6 +16,7 @@
 */
 
 #include "highscore.h"
+#include "player.h"
 
 
 HighscoreModel::HighscoreModel(QObject *parent) :
@@ -27,7 +28,8 @@ HighscoreModel::HighscoreModel(QObject *parent) :
     roles[DifficultyRole] = "difficulty";
     roles[NumberOfPlayersRole] = "numberOfPlayers";
     roles[DifficultyStringRole] = "difficultyString";
-    roles[SectionIndexRole] = "sectionIndex";;
+    roles[SectionIndexRole] = "sectionIndex";
+    roles[PlayerNamesRole] = "playerNames";
 
     setRoleNames(roles);
 }
@@ -55,6 +57,16 @@ QVariant HighscoreModel::data(const QModelIndex &index, int role) const {
         case 4: return QString("Expert");
         default: return QString("Unknown");
         }
+    case PlayerNamesRole:
+        QString names = "";
+        foreach (Player *player, m_highscoreList[index.row()]->players()) {
+            if (names.length() + player->name().length() <= 20) {
+                names += player->name() + (player ==  m_highscoreList[index.row()]->players().last() ? "" : ", ");
+            } else {
+                names += "...";
+            }
+        }
+        return names;
     }
 
     return QVariant();
@@ -66,9 +78,9 @@ int HighscoreModel::rowCount(const QModelIndex &parent) const {
     return m_highscoreList.size();
 }
 
-void HighscoreModel::addHighscore(qint8 numberOfPlayers, quint64 playTime, Sudoku::Difficulty difficulty) {
+void HighscoreModel::addHighscore(QList<Player *> players, quint64 playTime, Sudoku::Difficulty difficulty) {
     beginInsertRows(QModelIndex(), m_highscoreList.size(), m_highscoreList.size());
-    m_highscoreList.append(new HighscoreEntry(numberOfPlayers, playTime, difficulty, this));
+    m_highscoreList.append(new HighscoreEntry(players, playTime, difficulty, this));
     endInsertRows();
 }
 
@@ -80,7 +92,13 @@ QDataStream &operator<<(QDataStream &stream, HighscoreModel &highscore) {
     stream << quint8(highscore.highscores().size());
 
     foreach (HighscoreEntry *highscoreEntry, highscore.highscores()) {
+
         stream << highscoreEntry->numberOfPlayers();
+        foreach (Player *player, highscoreEntry->players()) {
+            stream << player->name();
+            stream << player->uuid();
+        }
+
         stream << highscoreEntry->playTime();
         stream << (quint8) highscoreEntry->difficulty();
     }
@@ -103,26 +121,38 @@ QDataStream &operator>>(QDataStream &stream, HighscoreModel &highscore) {
     stream >> highscoreCount;
 
     for (quint8 highscoreIndex = 0; highscoreIndex < highscoreCount; highscoreIndex++) {
+        QList<Player *> players;
         qint8 numberOfPlayers;
         quint64 playTime;
         quint8 difficulty;
 
         stream >> numberOfPlayers;
+        for (quint8 playerIndex = 0; playerIndex < numberOfPlayers; playerIndex++) {
+            QString name;
+            QUuid uuid;
+
+            stream >> name;
+            stream >> uuid;
+
+            Player *player = new Player(uuid, name);
+            player->setState(Player::Disconnected);
+            players.append(player);
+        }
         stream >> playTime;
         stream >> difficulty;
 
-        highscore.addHighscore(numberOfPlayers, playTime, (Sudoku::Difficulty) difficulty);
+        highscore.addHighscore(players, playTime, (Sudoku::Difficulty) difficulty);
     }
 
     return stream;
 }
 
 HighscoreEntry::HighscoreEntry(QObject *parent):
-    QObject(parent), m_numberOfPlayers(0), m_playTime(0), m_diffculty(Sudoku::EASY) {
+    QObject(parent), m_players(QList<Player *>()), m_playTime(0), m_diffculty(Sudoku::EASY) {
 }
 
-HighscoreEntry::HighscoreEntry(quint8 numberOfPlayers, quint64 playTime, Sudoku::Difficulty difficulty, QObject *parent): QObject(parent) {
-    m_numberOfPlayers = numberOfPlayers;
+HighscoreEntry::HighscoreEntry(QList<Player *> players, quint64 playTime, Sudoku::Difficulty difficulty, QObject *parent): QObject(parent) {
+    m_players = players;
     m_playTime = playTime;
     m_diffculty = difficulty;
 }

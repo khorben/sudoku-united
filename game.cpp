@@ -196,7 +196,7 @@ void Game::onPlayerStateChanged() {
 
 void Game::onBoardIsFull() {
     Sudoku *sudoku = Sudoku::instance();
-    sudoku->settings()->highscoreModel()->addHighscore(players().size(), board()->elapsedTime(), board()->difficulty());
+    sudoku->settings()->highscoreModel()->addHighscore(players(), board()->elapsedTime(), board()->difficulty());
 }
 
 void Game::appendPlayersFunction(QDeclarativeListProperty<Player> *property, Player *value) {

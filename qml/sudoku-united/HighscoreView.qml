@@ -92,12 +92,23 @@ Page {
                 }
             }
             Label {
+                id: playersLabel
                 text: "<i>Players: </i>" + numberOfPlayers
                 anchors.horizontalCenter: parent.horizontalCenter;
                 anchors.verticalCenter: parent.verticalCenter
                 platformStyle: LabelStyle {
                     fontFamily: UIConstants.FONT_FAMILY_BOLD
                     fontPixelSize: 18
+                }
+
+                Label {
+                    text: playerNames
+                    anchors.horizontalCenter: parent.horizontalCenter;
+                    anchors.top: playersLabel.bottom
+                    platformStyle: LabelStyle {
+                        fontFamily: UIConstants.FONT_FAMILY_LIGHT
+                        fontPixelSize: 10
+                    }
                 }
             }
             Label {

@@ -35,7 +35,7 @@ public:
     int rowCount(const QModelIndex &parent) const;
 
     Q_INVOKABLE
-    void addHighscore(qint8 numberOfPlayers, quint64 playTime, Sudoku::Difficulty difficulty);
+    void addHighscore(QList<Player *> players, quint64 playTime, Sudoku::Difficulty difficulty);
 
     QList<HighscoreEntry *> highscores(){ return m_highscoreList; }
 
@@ -45,7 +45,8 @@ public:
         DifficultyRole,
         NumberOfPlayersRole,
         DifficultyStringRole,
-        SectionIndexRole
+        SectionIndexRole,
+        PlayerNamesRole
     };
 private:
     QList<HighscoreEntry *> m_highscoreList;
@@ -65,14 +66,15 @@ class HighscoreEntry : public QObject
 
 public:
     HighscoreEntry(QObject *parent = 0);
-    HighscoreEntry(quint8 numberOfPlayers, quint64 playTime, Sudoku::Difficulty difficulty, QObject *parent = 0);
+    HighscoreEntry(QList<Player *> players, quint64 playTime, Sudoku::Difficulty difficulty, QObject *parent = 0);
 
-    quint8 numberOfPlayers() const { return m_numberOfPlayers; }
+    quint8 numberOfPlayers() const { return m_players.size(); }
     quint64 playTime() const { return m_playTime; }
     Sudoku::Difficulty difficulty() const { return m_diffculty; }
+    QList<Player *> players() const { return m_players; }
 
 private:
-    quint8 m_numberOfPlayers;
+    QList<Player *> m_players;
     quint64 m_playTime;
     Sudoku::Difficulty m_diffculty;
 };
