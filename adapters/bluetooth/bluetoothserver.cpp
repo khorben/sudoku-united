@@ -23,7 +23,7 @@
 
 BluetoothServer::BluetoothServer(QObject *parent) :
     AbstractServer(parent), server(NULL), serviceInfo(NULL),
-    localBluetoothDevice(NULL), enableBluetoothHostDiscoverable(false)
+    localBluetoothDevice(NULL)
 {
     systemDeviceInfo = new QSystemDeviceInfo(this);
     connect(systemDeviceInfo,

@@ -59,8 +59,6 @@ private:
     QBluetoothLocalDevice::HostMode previousHostMode;
 
     QSystemDeviceInfo *systemDeviceInfo;
-
-    bool enableBluetoothHostDiscoverable;
 };
 
 #endif // BLUETOOTHSERVER_H
