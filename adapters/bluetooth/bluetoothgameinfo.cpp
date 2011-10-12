@@ -158,10 +158,9 @@ void BluetoothGameInfoModel::onAutoRefreshChanged() {
 }
 
 void BluetoothGameInfoModel::startDiscovery() {
-    setState(Complete);
-
     // Do not enable Bluetooth device while in flight mode
     if (systemDeviceInfo->currentProfile() == QSystemDeviceInfo::OfflineProfile) {
+        setState(Complete);
         return;
     }
 
