@@ -166,7 +166,15 @@ void Game::onHintGenerated() {
         LogItem *item = *it;
         if (item->getType() == LogItem::GIVEN)
             continue;
+
         Cell *cell = m_board->cellAt(item->getPosition() % 9, item->getPosition() / 9);
+
+        // Ignore special log entries which do not set a value but simply
+        // show the solving technique.
+        if (cell->value() != 0 || item->getValue() == 0) {
+            continue;
+        }
+
         cell->setValue(item->getValue());
         break;
     }
