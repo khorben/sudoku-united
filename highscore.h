@@ -66,7 +66,7 @@ class HighscoreEntry : public QObject
 
 public:
     HighscoreEntry(QObject *parent = 0);
-    HighscoreEntry(QList<Player *> players, quint64 playTime, Sudoku::Difficulty difficulty, QObject *parent = 0);
+    HighscoreEntry(const QList<Player *> &players, quint64 playTime, Sudoku::Difficulty difficulty, QObject *parent = 0);
 
     quint8 numberOfPlayers() const { return m_players.size(); }
     quint64 playTime() const { return m_playTime; }

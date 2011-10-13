@@ -38,6 +38,7 @@ public:
 
     explicit Player(QObject *parent = 0);
     explicit Player(const QUuid &uuid, const QString &name, QObject *parent = 0);
+    Player(const Player &other, QObject *parent = 0);
 
     State state() const { return m_state; }
     void setState(State state);

@@ -28,6 +28,12 @@ Player::Player(const QUuid &uuid, const QString &name, QObject *parent)
 {
 }
 
+Player::Player(const Player &other, QObject *parent) :
+    QObject(parent), m_name(other.m_name), m_uuid(other.m_uuid),
+    m_state(other.m_state), m_colorIndex(other.m_colorIndex) {
+
+}
+
 void Player::setName(const QString &name) {
     if (m_name == name)
         return;

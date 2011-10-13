@@ -151,8 +151,11 @@ HighscoreEntry::HighscoreEntry(QObject *parent):
     QObject(parent), m_players(QList<Player *>()), m_playTime(0), m_diffculty(Sudoku::EASY) {
 }
 
-HighscoreEntry::HighscoreEntry(QList<Player *> players, quint64 playTime, Sudoku::Difficulty difficulty, QObject *parent): QObject(parent) {
-    m_players = players;
+HighscoreEntry::HighscoreEntry(const QList<Player *> &players, quint64 playTime, Sudoku::Difficulty difficulty, QObject *parent): QObject(parent) {
+    foreach (const Player *player, players) {
+        m_players.append(new Player(*player, this));
+    }
+
     m_playTime = playTime;
     m_diffculty = difficulty;
 }
