@@ -171,9 +171,18 @@ void Game::onHintGenerated() {
 
         // Ignore special log entries which do not set a value but simply
         // show the solving technique.
-        if (cell->value() != 0 || item->getValue() == 0) {
+        switch (item->getType()) {
+        case LogItem::NAKED_PAIR_COLUMN:
+        case LogItem::NAKED_PAIR_ROW:
+        case LogItem::NAKED_PAIR_SECTION:
+        case LogItem::POINTING_PAIR_TRIPLE_COLUMN:
+        case LogItem::POINTING_PAIR_TRIPLE_ROW:
+        case LogItem::ROW_BOX:
+        case LogItem::COLUMN_BOX:
             continue;
         }
+
+        qDebug() << cell->value() << item->getType() << item->getValue();
 
         cell->setValue(item->getValue());
         break;
