@@ -71,6 +71,8 @@ public:
     QuickAccessAction quickAccessAction() const;
     void setQuickAccessAction(QuickAccessAction action);
 
+    QUuid playerUuid() const;
+
     Q_INVOKABLE
     void saveSettings();
 signals:
@@ -91,8 +93,10 @@ private:
     bool m_showGameTimer;
     HighscoreModel *m_highscoreModel;
     QuickAccessAction m_quickAccessAction;
+    QUuid m_playerUuid;
 };
 
 QML_DECLARE_TYPE(Settings)
+Q_DECLARE_METATYPE(QUuid)
 
 #endif // SETTINGS_H

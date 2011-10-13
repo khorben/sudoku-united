@@ -44,8 +44,7 @@ Sudoku::Sudoku(QObject *parent) :
     m_highscore->setSourceModel(m_settings->highscoreModel());
     m_highscore->setSortRole(HighscoreModel::PlayTimeRole);
 
-    m_player = new Player(this);
-    m_player->setName(m_settings->playerName());
+    m_player = new Player(m_settings->playerUuid(), m_settings->playerName(), this);
 #if !(defined(Q_OS_SYMBIAN) || defined(MEEGO_EDITION_HARMATTAN) || defined(Q_WS_SIMULATOR) || defined(Q_WS_MAEMO_5))
     serverAdapter->addServerImplementation(new TCPServer());
 #endif

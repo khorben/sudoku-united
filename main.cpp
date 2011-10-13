@@ -82,6 +82,8 @@ int main(int argc, char *argv[])
     QmlApplicationViewer *viewer = QmlApplicationViewer::create();
 
     qRegisterMetaType<Cell *>();
+    qRegisterMetaTypeStreamOperators<QUuid>("QUuid");
+    qRegisterMetaType<QUuid>();
 
     qmlRegisterType<Cell>("sudoku", 1, 0, "Cell");
     qmlRegisterType<Board>("sudoku", 1, 0, "Board");

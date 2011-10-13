@@ -38,6 +38,8 @@ void Settings::loadSettings() {
     setShowGameTimer(value("showGameTimer", false).toBool());
     setQuickAccessAction((QuickAccessAction) value("quickAccessAction", 0).toUInt());
 
+    m_playerUuid = value("playerUuid", QVariant::fromValue(QUuid::createUuid())).value<QUuid>();
+
     QVariant lastGameVariant = value("lastGame");
     if (!lastGameVariant.isNull()) {
         QDataStream gameStream(lastGameVariant.toByteArray());
@@ -75,6 +77,7 @@ void Settings::saveSettings() {
     setValue("hapticFeedbackEnabled", hapticFeedbackEnabled());
     setValue("bluetoothEnabled", bluetoothEnabled());
     setValue("quickAccessAction", (quint32) quickAccessAction());
+    setValue("playerUuid", QVariant::fromValue(playerUuid()));
 
     if (m_lastGame) {
         QByteArray buffer;
@@ -182,5 +185,7 @@ void Settings::setQuickAccessAction(Settings::QuickAccessAction action)
     emit quickAccessActionChanged();
 }
 
-
+QUuid Settings::playerUuid() const {
+    return m_playerUuid;
+}
 
