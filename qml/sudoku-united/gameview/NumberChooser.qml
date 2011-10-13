@@ -51,6 +51,7 @@ Rectangle{
                 cell.valueOwner = localPlayer
                 cell.value = number
             }
+            chooser.visible = false;
         } else {
             // Find colliding cells
             collisions.forEach(function (cell) {
@@ -67,10 +68,6 @@ Rectangle{
             state = "hidden"
             noteEditMode.checked = false
         }
-    }
-
-    onCellItemChanged: {
-        noteEditMode.checked = false
     }
 
     state: "hidden"
@@ -109,7 +106,6 @@ Rectangle{
                     cellItem.noteModel.get(number - 1).modelMarked = !cellItem.noteModel.get(number - 1).modelMarked
                     return;
                 } else {
-                    chooser.visible = false;
                     setNumber(cell, number)
                 }
             }
