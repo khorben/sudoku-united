@@ -30,7 +30,8 @@ BluetoothServer::BluetoothServer(QObject *parent) :
             SIGNAL(currentProfileChanged(QSystemDeviceInfo::Profile)),
             SLOT(onCurrentProfileChanged(QSystemDeviceInfo::Profile)));
 
-    localBluetoothDevice = new QBluetoothLocalDevice(this);
+    if (QBluetoothLocalDevice::allDevices().size() > 0)
+        localBluetoothDevice = new QBluetoothLocalDevice(this);
 }
 
 BluetoothServer::~BluetoothServer() {
@@ -49,7 +50,7 @@ GameInfoModel *BluetoothServer::discoverGames() {
 }
 
 void BluetoothServer::enable() {
-    if (!localBluetoothDevice->isValid())
+    if (!localBluetoothDevice || !localBluetoothDevice->isValid())
         return;
 
     if (systemDeviceInfo->currentProfile() == QSystemDeviceInfo::OfflineProfile) {
