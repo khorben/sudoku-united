@@ -19,16 +19,18 @@ import QtQuick 1.1
 import com.nokia.meego 1.0
 import Qt.labs.particles 1.0
 import sudoku 1.0
+import "../UIConstants.js" as UIConstants
 
 MouseArea {
-    property variant playBoard
+    property Board board
+
     anchors.fill: parent
 
     Rectangle {
         id: winningScreen
 
-        width: 150
-        height: 150
+        width: 200
+        height: 200
         anchors.centerIn: parent
         radius: 20
 
@@ -49,7 +51,7 @@ MouseArea {
 
         Particles {
             anchors.top: winningScreen.top
-            anchors.topMargin: 30
+            anchors.topMargin: 55
             anchors.horizontalCenter: winningScreen.horizontalCenter
             width: 1
             height: 1
@@ -69,5 +71,27 @@ MouseArea {
             }
         }
 
+        Label {
+            anchors.bottom: parent.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottomMargin: 10
+
+            style: LabelStyle {
+                fontPixelSize: UIConstants.FONT_XLARGE
+            }
+
+            text: {
+                var elapsed = board.elapsedTime / 1000
+                var minutes = parseInt(elapsed / 60)
+                var seconds = parseInt(elapsed % 60)
+
+                if (minutes < 10)
+                    minutes = "0" + minutes;
+                if (seconds < 10)
+                    seconds = "0" + seconds;
+
+                return minutes + ":" + seconds;
+            }
+        }
     }
 }

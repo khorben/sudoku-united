@@ -115,7 +115,7 @@ Page {
 
             var component = Qt.createComponent("WinningScreen.qml");
             var winningScreen =
-                component.createObject(parent, {"playBoard": playBoard});
+                component.createObject(parent, {"board": game.board});
             winningScreen.clicked.connect(function () {
                                               gameInstance.leave()
                                           })
