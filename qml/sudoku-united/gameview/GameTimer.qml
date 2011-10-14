@@ -28,10 +28,6 @@ Rectangle {
     width: 96
     height: 40
 
-    Text {
-
-    }
-
     Label {
         anchors.centerIn: parent
         width: 64
