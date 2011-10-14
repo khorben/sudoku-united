@@ -178,23 +178,23 @@ bool Sudoku::eventFilter(QObject *filterObj, QEvent *event) {
 
     if (event->type() == QEvent::WindowActivate) {
         if (!m_game || !m_game->board())
-            return true;
+            return false;
 
         m_game->board()->unpause();
 
-        return true;
+        return false;
     } else if (event->type() == QEvent::WindowDeactivate) {
         if (!m_game || !m_game->board())
-            return true;
+            return false;
 
         if (client && client->state() != AbstractClient::Disconnected)
-            return true;
+            return false;
 
         if (serverAdapter->hasConnectedClients())
-            return true;
+            return false;
 
         m_game->board()->pause();
-        return true;
+        return false;
     } else if (event->type() == QEvent::Destroy) {
         // Save the board if there is one
         if (game() == NULL || game()->board() == NULL
@@ -204,7 +204,7 @@ bool Sudoku::eventFilter(QObject *filterObj, QEvent *event) {
         m_settings->setLastGame(game());
         m_settings->saveSettings();
 
-        return true;
+        return false;
     }
 
     return false;
