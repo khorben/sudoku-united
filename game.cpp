@@ -182,8 +182,6 @@ void Game::onHintGenerated() {
             continue;
         }
 
-        qDebug() << cell->value() << item->getType() << item->getValue();
-
         cell->setValue(item->getValue());
         break;
     }
