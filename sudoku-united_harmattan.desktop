@@ -4,7 +4,7 @@ Version=1.0
 Type=Application
 Terminal=false
 Name=Sudoku United
-Exec=/usr/bin/single-instance /opt/sudoku-united/bin/sudoku-united
+Exec=/usr/bin/invoker --single-instance --splash /usr/share/sudoku-united/splash.jpg --type=d /opt/sudoku-united/bin/sudoku-united
 Icon=/usr/share/icons/hicolor/80x80/apps/sudoku-united80.png
 X-Window-Icon=
 X-HildonDesk-ShowInToolbar=true

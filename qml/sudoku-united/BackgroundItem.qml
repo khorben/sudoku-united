@@ -22,5 +22,5 @@ Image {
     anchors.fill: parent
     smooth: true
     fillMode: Image.TileHorizontally
-    source: "qrc:/background_gradient.png"
+    source: "qrc:/background_gradient.svg"
 }

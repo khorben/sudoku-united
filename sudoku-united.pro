@@ -3,6 +3,21 @@ folder_01.source = qml/sudoku-united
 folder_01.target = qml
 DEPLOYMENTFOLDERS = folder_01
 
+# Taken from Butaca pro file
+isEmpty(PREFIX) {
+    PREFIX = /usr
+}
+BINDIR = $$PREFIX/bin
+DATADIR =$$PREFIX/share
+
+splash.files += splash.jpg
+splash.path = $$DATADIR/$${TARGET}/
+
+icon64.path = $$DATADIR/icons/hicolor/64x64/apps
+icon64.files += sudoku-united64.png
+
+INSTALLS += splash icon64
+
 # Additional import path used to resolve QML modules in Creator's code model
 QML_IMPORT_PATH =
 
@@ -24,6 +39,12 @@ CONFIG += mobility
 
 CONFIG += link_pkgconfig
 PKGCONFIG += TelepathyQt4
+
+#contains(MEEGO_EDITION,harmattan) {
+CONFIG += qdeclarative-boostable
+CONFIG += qt-boostable
+PKGCONFIG += qdeclarative-boostable
+#}
 
 # Add dependency to symbian components
 # CONFIG += qtquickcomponents
