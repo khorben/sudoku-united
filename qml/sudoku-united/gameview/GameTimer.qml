@@ -48,7 +48,7 @@ Rectangle {
         interval: 1000
         repeat: true
         triggeredOnStart: true
-        running: !screen.minimized
+        running: !screen.minimized && gameTimer.visible
         onTriggered: {
             if (!board) {
                 gameTimeLabel.text = "00:00"
