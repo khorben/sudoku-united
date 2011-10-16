@@ -33,7 +33,7 @@ Page {
     Header {
         id: header
         text: "Highscore"
-        color: "#ff6600"
+        color: UIConstants.HEADER_DEFAULT_BACKGROUND_COLOR
     }
 
     // The delegate for each section header
