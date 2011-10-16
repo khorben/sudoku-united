@@ -51,6 +51,11 @@ bool BluetoothGameInfo::operator ==(const GameInfo &other) const {
 BluetoothGameInfoModel::BluetoothGameInfoModel(QObject *parent) :
     GameInfoModel(parent), localDevice(NULL), systemDeviceInfo(NULL) {
 
+    if (QBluetoothLocalDevice::allDevices().size() == 0) {
+        setState(Complete);
+        return;
+    }
+
     localDevice = new QBluetoothLocalDevice(this);
     systemDeviceInfo = new QSystemDeviceInfo(this);
 
