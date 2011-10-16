@@ -62,17 +62,21 @@ ToolBarLayout {
             id: myMenu
             visualParent: pageStack
             MenuLayout {
+                id: menuList
+
                 MenuItem {
                     text: "Settings"
                     onClicked: settings()
                 }
-                MenuItem {
+                MenuItemFixed {
                     text: "Hint"
                     visible: gameInstance.settings.quickAccessAction != Settings.HintAction
                     enabled: game != null && !game.generationRunning
                     onClicked: hint()
                 }
-                MenuItem {
+
+                MenuItemFixed {
+                    id: undoMenuEntry
                     text: "Undo"
                     visible: gameInstance.settings.quickAccessAction != Settings.UndoAction
                     enabled: board != null && game.board.canUndo
