@@ -65,7 +65,7 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     QApplication *app = createApplication(argc, argv);
 
     app->setApplicationName("Sudoku United");
-    app->setApplicationVersion("1.0.88");
+    app->setApplicationVersion("1.1.0");
 
 #ifdef ENABLE_BREAKPAD
     QDesktopServices desktopServices;
