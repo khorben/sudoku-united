@@ -158,8 +158,15 @@ void BluetoothGameInfoModel::onError(QBluetoothServiceDiscoveryAgent::Error erro
 void BluetoothGameInfoModel::onAutoRefreshChanged() {
     if (autoRefresh() && !BluetoothGameInfoModel::agent()->isActive())
         autoRefreshTimer->start(5000);
-    else if (!autoRefresh())
+    else if (!autoRefresh()) {
+
         autoRefreshTimer->stop();
+
+        // Stop the discovery agent
+        if (BluetoothGameInfoModel::agent()->isActive())
+            BluetoothGameInfoModel::agent()->stop();
+        setState(Complete);
+    }
 }
 
 void BluetoothGameInfoModel::startDiscovery() {
