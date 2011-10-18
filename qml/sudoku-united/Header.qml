@@ -49,5 +49,8 @@ Rectangle {
         anchors.rightMargin: 16
         running: true
         visible: parent.busy
+        platformStyle: BusyIndicatorStyle {
+            inverted: true
+        }
     }
 }
