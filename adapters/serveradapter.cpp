@@ -199,6 +199,9 @@ void ServerAdapter::addServerImplementation(AbstractServer *serverImpl) {
     serverImpl->setServerAdapter(this);
 
     m_attachedServers.append(serverImpl);
+
+    if (m_game)
+        serverImpl->enable();
 }
 
 /**
