@@ -57,11 +57,12 @@ Page {
             spacing: UIConstants.DEFAULT_MARGIN
 
             Column {
-                anchors { left: parent.left; right: parent.right; margins: UIConstants.DEFAULT_MARGIN }
+                anchors { top: parent.top; left: parent.left; right: parent.right; margins: UIConstants.DEFAULT_MARGIN }
 
                 Label {
                     id: playerNameLabel
                     text: "Player Name"
+                    font.weight: Font.Bold
                 }
 
                 TextField {
