@@ -73,6 +73,7 @@ Page {
             width: highscoreList.width
             height: UIConstants.LIST_ITEM_HEIGHT_DEFAULT
             Image {
+                id: placeImage
                 anchors.left: parent.left
                 anchors.leftMargin: UIConstants.DEFAULT_MARGIN;
                 anchors.verticalCenter: parent.verticalCenter
@@ -86,43 +87,29 @@ Page {
                     anchors.centerIn: parent
                     platformStyle: LabelStyle {
                         fontFamily: UIConstants.FONT_FAMILY_BOLD
-                        fontPixelSize: 20
+                        fontPixelSize: 24
                     }
                     color: "white"
                 }
             }
             Label {
-                id: playersLabel
-                text: "<i>Players: </i>" + numberOfPlayers
-                anchors.horizontalCenter: parent.horizontalCenter;
-                anchors.verticalCenter: parent.verticalCenter
-                platformStyle: LabelStyle {
-                    fontFamily: UIConstants.FONT_FAMILY_BOLD
-                    fontPixelSize: 18
-                }
-
-                Label {
-                    text: playerNames
-                    anchors.horizontalCenter: parent.horizontalCenter;
-                    anchors.top: playersLabel.bottom
-                    platformStyle: LabelStyle {
-                        fontFamily: UIConstants.FONT_FAMILY_LIGHT
-                        fontPixelSize: 10
-                    }
-                }
-            }
-            Label {
+                id: timeLabel
                 text: {
                     var time = new Date(playTime);
-                    Qt.formatTime(time , "m:s")
+                    Qt.formatTime(time , "mm:ss")
                 }
-                anchors.right: parent.right
-                anchors.rightMargin: UIConstants.DEFAULT_MARGIN;
+                anchors.centerIn: parent
                 anchors.verticalCenter: parent.verticalCenter
                 platformStyle: LabelStyle {
                     fontFamily: UIConstants.FONT_FAMILY_BOLD
-                    fontPixelSize: 18
+                    fontPixelSize: 24
                 }
+            }
+            Image {
+                anchors.right: parent.right
+                anchors.rightMargin: UIConstants.DEFAULT_MARGIN
+                anchors.verticalCenter: parent.verticalCenter
+                source: numberOfPlayers > 1 ? "image://theme/icon-m-contacts-group" : "image://theme/icon-m-toolbar-contact"
             }
         }
     }
@@ -141,5 +128,30 @@ Page {
         section.property: "difficultyString"
         section.criteria: ViewSection.FullString
         section.delegate: sectionHeading
+    }
+
+    Item {
+        id: noHighscoreOverlay
+        width: 400
+        height: 90
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.horizontalCenter: parent.horizontalCenter
+        visible: highscoreList.count === 0 ? true : false
+
+        Label {
+           anchors.topMargin: 10
+            anchors.left: parent.left
+            anchors.leftMargin: 16
+            anchors.right: parent.right
+            anchors.rightMargin: 16
+            text: "You haven't finished a game yet!"
+            wrapMode: Text.WordWrap
+            color: "darkgrey"
+            horizontalAlignment: Text.AlignHCenter
+            platformStyle: LabelStyle{
+                fontFamily: UIConstants.FONT_FAMILY_LIGHT
+                fontPixelSize: UIConstants.FONT_XLARGE
+            }
+        }
     }
 }

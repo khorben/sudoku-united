@@ -41,6 +41,7 @@ class Settings : public QSettings
                NOTIFY showGameTimerChanged)
     Q_PROPERTY(QuickAccessAction quickAccessAction READ quickAccessAction
                WRITE setQuickAccessAction NOTIFY quickAccessActionChanged)
+    Q_PROPERTY(bool showedJoinHelp READ showedJoinHelp WRITE setShowedJoinHelp CONSTANT)
 public:
     enum QuickAccessAction {
         UndoAction,
@@ -73,6 +74,9 @@ public:
 
     QUuid playerUuid() const;
 
+    bool showedJoinHelp() const;
+    void setShowedJoinHelp(bool showed);
+
     Q_INVOKABLE
     void saveSettings();
 signals:
@@ -94,6 +98,7 @@ private:
     HighscoreModel *m_highscoreModel;
     QuickAccessAction m_quickAccessAction;
     QUuid m_playerUuid;
+    bool m_showedJoinHelp;
 };
 
 QML_DECLARE_TYPE(Settings)

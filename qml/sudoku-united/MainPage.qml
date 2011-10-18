@@ -28,7 +28,6 @@ Page {
 
     tools: ToolBarLayout {
         id: commonTools
-        visible: true
         ToolIcon { platformIconId: "toolbar-view-menu";
              anchors.right: parent===undefined ? undefined : parent.right
              onClicked: (myMenu.status == DialogStatus.Closed) ? myMenu.open() : myMenu.close()
@@ -108,8 +107,16 @@ Page {
             text: "Join"
             checkable: false
             onClicked: {
-                var component = Qt.createComponent("JoinView.qml")
-                pageStack.push(component);
+                var component;
+                var parameters = {};
+                if (!gameInstance.settings.showedJoinHelp) {
+                    component = Qt.createComponent("HelpView.qml");
+                    parameters = { firstUse: true }
+                } else {
+                    component = Qt.createComponent("JoinView.qml");
+                }
+
+                pageStack.push(component, parameters);
             }
         }
     }

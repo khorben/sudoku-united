@@ -45,6 +45,19 @@ Page {
                 gameInstance.join(list.currentItem.myData.gameInfo)
             }
         }
+
+        ToolButton {
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            text: "?"
+            width: 52
+            height: 52
+            anchors.rightMargin: UIConstants.DEFAULT_MARGIN
+            onClicked: {
+                var component = Qt.createComponent("HelpView.qml");
+                pageStack.push(component);
+            }
+        }
     }
 
     InfoBanner {

@@ -80,7 +80,7 @@ Rectangle {
             }
         }
         anchors.centerIn: parent
-        font.pixelSize: 20
+        font.pixelSize: 28
     }
 
     MouseArea {

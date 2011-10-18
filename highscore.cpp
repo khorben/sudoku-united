@@ -30,6 +30,7 @@ HighscoreModel::HighscoreModel(QObject *parent) :
     roles[DifficultyStringRole] = "difficultyString";
     roles[SectionIndexRole] = "sectionIndex";
     roles[PlayerNamesRole] = "playerNames";
+    roles[FinishedDateRole] = "finishedDate";
 
     setRoleNames(roles);
 }
@@ -57,6 +58,8 @@ QVariant HighscoreModel::data(const QModelIndex &index, int role) const {
         case 4: return QString("Expert");
         default: return QString("Unknown");
         }
+    case FinishedDateRole:
+        return QVariant::fromValue(m_highscoreList[index.row()]->finishedDate());
     case PlayerNamesRole:
         QString names = "";
         foreach (Player *player, m_highscoreList[index.row()]->players()) {
@@ -78,9 +81,33 @@ int HighscoreModel::rowCount(const QModelIndex &parent) const {
     return m_highscoreList.size();
 }
 
-void HighscoreModel::addHighscore(QList<Player *> players, quint64 playTime, Sudoku::Difficulty difficulty) {
+void HighscoreModel::addHighscore(QList<Player *> players, quint64 playTime, Sudoku::Difficulty difficulty, QDateTime finsihedDate) {
+    // Prune entries if more than MAX_ENTRIES per difficulty are present
+    quint32 entriesByDifficulty = 0;
+    quint32 index = 0;
+    quint64 maxPlayTime = playTime;
+    for (int i = 0; i < m_highscoreList.size(); i++) {
+        HighscoreEntry *he = m_highscoreList[i];
+        if (he->difficulty() == difficulty){
+            entriesByDifficulty++;
+            if (he->playTime() > maxPlayTime) {
+                maxPlayTime = he->playTime();
+                index = i;
+            }
+        }
+    }
+    // nothing to do if list is full and play times are better than new one
+    if (maxPlayTime <= playTime && entriesByDifficulty == MAX_ENTRIES) return;
+
+    // Delete entry if playTime < maxPlayTime
+    if (maxPlayTime > playTime && entriesByDifficulty >= MAX_ENTRIES) {
+        beginRemoveRows(QModelIndex(), index, index);
+        m_highscoreList.removeAt(index);
+        endRemoveRows();
+    }
+
     beginInsertRows(QModelIndex(), m_highscoreList.size(), m_highscoreList.size());
-    m_highscoreList.append(new HighscoreEntry(players, playTime, difficulty, this));
+    m_highscoreList.append(new HighscoreEntry(players, playTime, difficulty, finsihedDate, this));
     endInsertRows();
 }
 
@@ -101,6 +128,7 @@ QDataStream &operator<<(QDataStream &stream, HighscoreModel &highscore) {
 
         stream << highscoreEntry->playTime();
         stream << (quint8) highscoreEntry->difficulty();
+        stream << highscoreEntry->finishedDate();
     }
 
     return stream;
@@ -125,6 +153,7 @@ QDataStream &operator>>(QDataStream &stream, HighscoreModel &highscore) {
         qint8 numberOfPlayers;
         quint64 playTime;
         quint8 difficulty;
+        QDateTime finishedDate;
 
         stream >> numberOfPlayers;
         for (quint8 playerIndex = 0; playerIndex < numberOfPlayers; playerIndex++) {
@@ -140,24 +169,26 @@ QDataStream &operator>>(QDataStream &stream, HighscoreModel &highscore) {
         }
         stream >> playTime;
         stream >> difficulty;
+        stream >> finishedDate;
 
-        highscore.addHighscore(players, playTime, (Sudoku::Difficulty) difficulty);
+        highscore.addHighscore(players, playTime, (Sudoku::Difficulty) difficulty, finishedDate);
     }
 
     return stream;
 }
 
 HighscoreEntry::HighscoreEntry(QObject *parent):
-    QObject(parent), m_players(QList<Player *>()), m_playTime(0), m_diffculty(Sudoku::EASY) {
+    QObject(parent), m_players(QList<Player *>()), m_playTime(0), m_diffculty(Sudoku::EASY), m_finishedDate(QDateTime()) {
 }
 
-HighscoreEntry::HighscoreEntry(const QList<Player *> &players, quint64 playTime, Sudoku::Difficulty difficulty, QObject *parent): QObject(parent) {
+HighscoreEntry::HighscoreEntry(const QList<Player *> &players, quint64 playTime, Sudoku::Difficulty difficulty, QDateTime finishedDate, QObject *parent): QObject(parent) {
     foreach (const Player *player, players) {
         m_players.append(new Player(*player, this));
     }
 
     m_playTime = playTime;
     m_diffculty = difficulty;
+    m_finishedDate = finishedDate;
 }
 
 HighscoreFilterModel::HighscoreFilterModel(QObject *parent) : QSortFilterProxyModel(parent) {

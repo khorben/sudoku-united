@@ -20,6 +20,7 @@
 #include "player.h"
 #include "sudoku.h"
 #include "highscore.h"
+#include <QDateTime>
 
 Game::Game(QObject *parent) :
     QObject(parent), m_board(NULL), m_boardGenerationThread(NULL), m_boardGeneratorWrapper(NULL),
@@ -211,7 +212,7 @@ void Game::onPlayerStateChanged() {
 
 void Game::onBoardIsFull() {
     Sudoku *sudoku = Sudoku::instance();
-    sudoku->settings()->highscoreModel()->addHighscore(players(), board()->elapsedTime(), board()->difficulty());
+    sudoku->settings()->highscoreModel()->addHighscore(players(), board()->elapsedTime(), board()->difficulty(), QDateTime::currentDateTime());
 }
 
 void Game::appendPlayersFunction(QDeclarativeListProperty<Player> *property, Player *value) {

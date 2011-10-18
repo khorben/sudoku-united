@@ -22,10 +22,12 @@
 #include <QtDeclarative>
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
+#include <QDateTime>
 #include "sudoku.h"
 
 class HighscoreEntry;
 
+#define MAX_ENTRIES 10
 
 class HighscoreModel : public QAbstractListModel {
 public:
@@ -35,7 +37,7 @@ public:
     int rowCount(const QModelIndex &parent) const;
 
     Q_INVOKABLE
-    void addHighscore(QList<Player *> players, quint64 playTime, Sudoku::Difficulty difficulty);
+    void addHighscore(QList<Player *> players, quint64 playTime, Sudoku::Difficulty difficulty, QDateTime finishedDate);
 
     QList<HighscoreEntry *> highscores(){ return m_highscoreList; }
 
@@ -46,7 +48,8 @@ public:
         NumberOfPlayersRole,
         DifficultyStringRole,
         SectionIndexRole,
-        PlayerNamesRole
+        PlayerNamesRole,
+        FinishedDateRole
     };
 private:
     QList<HighscoreEntry *> m_highscoreList;
@@ -66,17 +69,19 @@ class HighscoreEntry : public QObject
 
 public:
     HighscoreEntry(QObject *parent = 0);
-    HighscoreEntry(const QList<Player *> &players, quint64 playTime, Sudoku::Difficulty difficulty, QObject *parent = 0);
+    HighscoreEntry(const QList<Player *> &players, quint64 playTime, Sudoku::Difficulty difficulty, QDateTime finishedDate, QObject *parent = 0);
 
     quint8 numberOfPlayers() const { return m_players.size(); }
     quint64 playTime() const { return m_playTime; }
     Sudoku::Difficulty difficulty() const { return m_diffculty; }
     QList<Player *> players() const { return m_players; }
+    QDateTime finishedDate() const { return m_finishedDate; }
 
 private:
     QList<Player *> m_players;
     quint64 m_playTime;
     Sudoku::Difficulty m_diffculty;
+    QDateTime m_finishedDate;
 };
 
 class HighscoreFilterModel : public QSortFilterProxyModel {

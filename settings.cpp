@@ -26,7 +26,8 @@ Settings::Settings(QObject *parent) :
     m_lastGame(NULL),
     m_showGameTimer(false),
     m_highscoreModel(NULL),
-    m_quickAccessAction(UndoAction)
+    m_quickAccessAction(UndoAction),
+    m_showedJoinHelp(false)
 {
     loadSettings();
 }
@@ -37,6 +38,7 @@ void Settings::loadSettings() {
     setBluetoothEnabled(value("bluetoothEnabled", true).toBool());
     setShowGameTimer(value("showGameTimer", false).toBool());
     setQuickAccessAction((QuickAccessAction) value("quickAccessAction", 0).toUInt());
+    setShowedJoinHelp(value("showedJoinHelp", false).toBool());
 
     m_playerUuid = value("playerUuid", QVariant::fromValue(QUuid::createUuid())).value<QUuid>();
 
@@ -78,6 +80,7 @@ void Settings::saveSettings() {
     setValue("bluetoothEnabled", bluetoothEnabled());
     setValue("quickAccessAction", (quint32) quickAccessAction());
     setValue("playerUuid", QVariant::fromValue(playerUuid()));
+    setValue("showedJoinHelp", showedJoinHelp());
 
     if (m_lastGame) {
         QByteArray buffer;
@@ -189,3 +192,10 @@ QUuid Settings::playerUuid() const {
     return m_playerUuid;
 }
 
+bool Settings::showedJoinHelp() const {
+    return m_showedJoinHelp;
+}
+
+void Settings::setShowedJoinHelp(bool showed) {
+    m_showedJoinHelp = showed;
+}
