@@ -118,6 +118,7 @@ Page {
                 component.createObject(parent, {"board": game.board});
             winningScreen.clicked.connect(function () {
                                               gameInstance.leave()
+                                              winningScreen.destroy()
                                           })
         }
     }
