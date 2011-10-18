@@ -87,7 +87,7 @@ Page {
 
             if (gameInstance.game.board) {
                 loadingOverlay.close()
-                pageStack.push(gameView, { "game": function () { return gameInstance.game } });
+                pageStack.push(gameView);
             }
         }
     }
