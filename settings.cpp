@@ -78,6 +78,7 @@ void Settings::saveSettings() {
     setValue("playerName", playerName());
     setValue("hapticFeedbackEnabled", hapticFeedbackEnabled());
     setValue("bluetoothEnabled", bluetoothEnabled());
+    setValue("showGameTimer", showGameTimer());
     setValue("quickAccessAction", (quint32) quickAccessAction());
     setValue("playerUuid", QVariant::fromValue(playerUuid()));
     setValue("showedJoinHelp", showedJoinHelp());
