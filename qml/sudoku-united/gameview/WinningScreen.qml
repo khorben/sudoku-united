@@ -20,6 +20,7 @@ import com.nokia.meego 1.0
 import Qt.labs.particles 1.0
 import sudoku 1.0
 import "../UIConstants.js" as UIConstants
+import "../UIFunctions.js" as UIFunctions
 
 MouseArea {
     property Board board
@@ -80,18 +81,7 @@ MouseArea {
                 fontPixelSize: UIConstants.FONT_XLARGE
             }
 
-            text: {
-                var elapsed = board.elapsedTime / 1000
-                var minutes = parseInt(elapsed / 60)
-                var seconds = parseInt(elapsed % 60)
-
-                if (minutes < 10)
-                    minutes = "0" + minutes;
-                if (seconds < 10)
-                    seconds = "0" + seconds;
-
-                return minutes + ":" + seconds;
-            }
+            text: UIFunctions.formatDuration(board.elapsedTime)
         }
     }
 }

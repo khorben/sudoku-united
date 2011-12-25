@@ -19,6 +19,7 @@ import Qt 4.7
 import QtQuick 1.1
 import com.nokia.meego 1.0
 import "UIConstants.js" as UIConstants
+import "UIFunctions.js" as UIFunctions
 
 Page {
     id: highscoreView
@@ -94,10 +95,7 @@ Page {
             }
             Label {
                 id: timeLabel
-                text: {
-                    var time = new Date(playTime);
-                    Qt.formatTime(time , "mm:ss")
-                }
+                text: UIFunctions.formatDuration(playTime)
                 anchors.centerIn: parent
                 anchors.verticalCenter: parent.verticalCenter
                 platformStyle: LabelStyle {
