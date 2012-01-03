@@ -36,15 +36,17 @@ symbian:TARGET.CAPABILITY += NetworkServices
 # If your application uses the Qt Mobility libraries, uncomment the following
 # lines and add the respective components to the MOBILITY variable.
 CONFIG += mobility
+QT += dbus
+MOBILITY += connectivity systeminfo
 
 CONFIG += link_pkgconfig
 PKGCONFIG += TelepathyQt4
 
-#contains(MEEGO_EDITION,harmattan) {
+contains(MEEGO_EDITION,harmattan) {
 CONFIG += qdeclarative-boostable
 CONFIG += qt-boostable
 PKGCONFIG += qdeclarative-boostable
-#}
+}
 
 # Add dependency to symbian components
 # CONFIG += qtquickcomponents
@@ -72,7 +74,8 @@ SOURCES += main.cpp \
     adapters/bluetooth/bluetoothserver.cpp \
     adapters/bluetooth/bluetoothgameinfo.cpp \
     settings.cpp \
-    highscore.cpp
+    highscore.cpp \
+    notemodel.cpp
 
 # Please do not modify the following two lines. Required for deployment.
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
@@ -107,12 +110,10 @@ HEADERS += \
     adapters/bluetooth/bluetoothserver.h \
     adapters/bluetooth/bluetoothgameinfo.h \
     settings.h \
-    highscore.h
+    highscore.h \
+    notemodel.h
 
 RESOURCES += resources.qrc
-
-QT += dbus
-MOBILITY += connectivity systeminfo
 
 !isEmpty(BREAKPAD_PATH) {
     !isEmpty(SCRATCHBOX_PATH) {
