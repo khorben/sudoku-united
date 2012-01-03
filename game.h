@@ -113,4 +113,6 @@ private:
 
 QDataStream &operator<<(QDataStream &stream, Game &game);
 QDataStream &operator>>(QDataStream &stream, Game &game);
+QDataStream &readGameV1(QDataStream &stream, Game &game);
+QDataStream &readGameV2(QDataStream &stream, Game &game);
 #endif // GAME_H

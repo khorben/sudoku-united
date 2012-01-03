@@ -25,6 +25,7 @@
 #include "adapters/abstractserver.h"
 #include "sudoku.h"
 #include "highscore.h"
+#include "notemodel.h"
 
 #ifdef ENABLE_BREAKPAD
 #include <client/linux/handler/exception_handler.h>
@@ -95,6 +96,8 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     qmlRegisterUncreatableType<Sudoku>("sudoku", 1, 0, "Sudoku", "Global instance provided via the gameInstance variable.");
     qmlRegisterUncreatableType<Settings>("sudoku", 1, 0, "Settings", "Retrieve via gameInstance.settings");
     qmlRegisterUncreatableType<QSortFilterProxyModel>("sudoku", 1, 0, "QSortFilterProxyModel", "...");
+    qmlRegisterUncreatableType<Note>("sudoku", 1, 0, "Note", "Returned via NoteModel::get");
+    qmlRegisterUncreatableType<NoteModel>("sudoku", 1, 0, "NoteModel", "Accessible from Cell via noteModel property.");
 
     // We draw our own background
     viewer->setAttribute(Qt::WA_OpaquePaintEvent);

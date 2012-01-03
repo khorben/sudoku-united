@@ -18,6 +18,7 @@
 #include "board.h"
 #include "player.h"
 #include "boardgenerator.h"
+#include "notemodel.h"
 
 ModificationLogEntry::ModificationLogEntry() {
 
@@ -305,7 +306,8 @@ Sudoku::Difficulty Board::difficulty() const
 }
 
 Cell::Cell(quint8 x, quint8 y, Board *parent) :
-    QObject(parent), m_x(x), m_y(y), m_fixedCell(false), m_valueOwner(NULL) {
+    QObject(parent), m_x(x), m_y(y), m_fixedCell(false), m_valueOwner(NULL),
+    m_noteModel(new NoteModel(this)) {
 }
 
 quint8 Cell::value() const {
@@ -340,6 +342,11 @@ void Cell::clear() {
     m_valueOwner = NULL;
 }
 
+NoteModel *Cell::noteModel() const
+{
+    return m_noteModel;
+}
+
 Cell &Cell::operator =(const Cell &other) {
     m_x = other.m_x;
     m_y = other.m_y;
@@ -347,4 +354,9 @@ Cell &Cell::operator =(const Cell &other) {
     m_valueOwner = other.m_valueOwner;
 
     return *this;
+}
+
+Cell::Cell() :
+    m_fixedCell(false), m_valueOwner(NULL), m_noteModel(new NoteModel(this))
+{
 }

@@ -20,6 +20,7 @@
 #include "player.h"
 #include "sudoku.h"
 #include "highscore.h"
+#include "notemodel.h"
 #include <QDateTime>
 
 Game::Game(QObject *parent) :
@@ -232,7 +233,7 @@ int Game::countPlayersFunction(QDeclarativeListProperty<Player> *property) {
 
 QDataStream &operator<<(QDataStream &stream, Game &game) {
     // Write encoding version
-    stream << quint16(1);
+    stream << quint16(2);
 
     // Write player list
     QMap<Player *, quint8> playerMap;
@@ -271,6 +272,9 @@ QDataStream &operator<<(QDataStream &stream, Game &game) {
                 else
                     stream << quint8(0xff);
             }
+
+            // Write notes
+            stream << cell->noteModel()->notes;
         }
     }
 
@@ -301,11 +305,18 @@ QDataStream &operator>>(QDataStream &stream, Game &game) {
     quint16 version;
     stream >> version;
 
-    if (version != 1) {
+    switch (version) {
+    case 1:
+        return readGameV1(stream, game);
+    case 2:
+        return readGameV2(stream, game);
+    default:
         stream.setStatus(QDataStream::ReadCorruptData);
         return stream;
     }
+}
 
+QDataStream &readGameV1(QDataStream &stream, Game &game) {
     // Read player list
     quint8 playerCount;
     QMap<quint8, Player *> playerMap;
@@ -351,6 +362,89 @@ QDataStream &operator>>(QDataStream &stream, Game &game) {
                 if (playerIndex != 0xff)
                     cell->setValueOwner(playerMap[playerIndex]);
             }
+        }
+    }
+
+    // Read the solution
+    for (quint8 y = 0; y < 9; y++) {
+        for (quint8 x = 0; x < 9; x++) {
+            stream >> board->m_solution[x][y];
+        }
+    }
+
+    // Restore the game history
+    quint32 modificationLogLength;
+    stream >> modificationLogLength;
+
+    for (quint32 i = 0; i < modificationLogLength; i++) {
+        quint8 x, y, value, playerIndex;
+
+        stream >> x;
+        stream >> y;
+        stream >> value;
+        stream >> playerIndex;
+
+        Player *player = NULL;
+        if (playerIndex != 0xff)
+            player = playerMap[playerIndex];
+
+        board->modificationLog.push(ModificationLogEntry(x, y, value, player));
+    }
+
+    game.setBoard(board);
+
+    return stream;
+}
+
+QDataStream &readGameV2(QDataStream &stream, Game &game) {
+    // Read player list
+    quint8 playerCount;
+    QMap<quint8, Player *> playerMap;
+    stream >> playerCount;
+
+    for (quint8 playerIndex = 0; playerIndex < playerCount; playerIndex++) {
+        QString name;
+        QUuid uuid;
+
+        stream >> name;
+        stream >> uuid;
+
+        Player *player = game.addPlayer(uuid, name);
+        player->setState(Player::Disconnected);
+
+        playerMap[playerIndex] = player;
+    }
+
+    // Read board
+    Board *board = new Board(&game);
+
+    // Read elapsed time
+    stream >> board->m_elapsedTime;
+    board->m_startTime = QDateTime::currentMSecsSinceEpoch();
+
+    // Read difficulty
+    quint8 difficulty;
+    stream >> difficulty;
+    board->m_difficulty = (Sudoku::Difficulty) difficulty;
+
+    // Read the boards current cells
+    for (quint8 y = 0; y < 9; y++) {
+        for (quint8 x = 0; x < 9; x++) {
+            Cell *cell = board->cellAt(x, y);
+
+            stream >> cell->m_fixedCell;
+            stream >> board->m_cellValues[x][y];
+
+            if (!cell->isFixedCell() && cell->value() != 0) {
+                quint8 playerIndex;
+                stream >> playerIndex;
+
+                if (playerIndex != 0xff)
+                    cell->setValueOwner(playerMap[playerIndex]);
+            }
+
+            // Read notes
+            stream >> cell->noteModel()->notes;
         }
     }
 

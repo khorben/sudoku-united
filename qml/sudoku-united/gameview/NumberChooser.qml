@@ -103,7 +103,7 @@ Rectangle{
 
             function updateValue(number) {
                 if ( chooser.mode == "note" ){
-                    cellItem.noteModel.get(number - 1).modelMarked = !cellItem.noteModel.get(number - 1).modelMarked
+                    cellItem.cell.noteModel.get(number - 1).modelMarked = !cellItem.cell.noteModel.get(number - 1).modelMarked
                     return;
                 } else {
                     setNumber(cell, number)
@@ -131,7 +131,7 @@ Rectangle{
             onClicked: {
                 if ( chooser.mode == "note" ){
                     for (var i = 0; i < 9; i++){
-                        cellItem.noteModel.get(i).modelMarked = false
+                        cell.noteModel.get(i).modelMarked = false
                     }
                 } else {
                     cell.value = 0

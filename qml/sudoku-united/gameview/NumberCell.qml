@@ -48,14 +48,14 @@ Rectangle {
     states: [
         State {
             name: ""
-            when: !numberChooser.cellItem.noteModel.get(number - 1).modelMarked
+            when: !numberChooser.cell.noteModel.get(number - 1).modelMarked
 
             PropertyChanges { target: numberCell; color: "#00000000" }
         },
 
         State {
             name: "marked"
-            when: numberChooser.cellItem.noteModel.get(number - 1).modelMarked
+            when: numberChooser.cell.noteModel.get(number - 1).modelMarked
             PropertyChanges { target: numberCell; color: "#1381dd" }
         }
 

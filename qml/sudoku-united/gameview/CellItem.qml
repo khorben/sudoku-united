@@ -29,18 +29,6 @@ Rectangle {
     property bool highlighted: board.selectedCell != undefined && cell != undefined && (board.selectedCell.x == cell.x || board.selectedCell.y == cell.y)
     property bool collision: false
 
-    property ListModel noteModel: ListModel {
-        ListElement { modelValue: 1; modelMarked: false }
-        ListElement { modelValue: 2; modelMarked: false }
-        ListElement { modelValue: 3; modelMarked: false }
-        ListElement { modelValue: 4; modelMarked: false }
-        ListElement { modelValue: 5; modelMarked: false }
-        ListElement { modelValue: 6; modelMarked: false }
-        ListElement { modelValue: 7; modelMarked: false }
-        ListElement { modelValue: 8; modelMarked: false }
-        ListElement { modelValue: 9; modelMarked: false }
-    }
-
     width: 50
     height: 50
     border.width: 1
@@ -50,16 +38,10 @@ Rectangle {
 
     signal showNumberChooser(variant cellItem)
 
-    onCellChanged: {
-        // Reset notes when the cell changes
-        for (var i = 0; i < noteModel.count; i++)
-            noteModel.get(i).modelMarked = false;
-    }
-
     GridView {
         id: noteGrid
         anchors.fill: parent
-        model: noteModel
+        model: !cell ? undefined : cell.noteModel
         cellWidth: (width / 3) - 1
         cellHeight: (height / 3)
 

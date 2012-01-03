@@ -29,6 +29,7 @@ class QDataStream;
 class Player;
 class Board;
 class Game;
+class NoteModel;
 
 class Cell : public QObject {
     Q_OBJECT
@@ -36,8 +37,9 @@ class Cell : public QObject {
     Q_PROPERTY(Player *valueOwner READ valueOwner WRITE setValueOwner NOTIFY valueOwnerChanged)
     Q_PROPERTY(quint8 x READ x CONSTANT)
     Q_PROPERTY(quint8 y READ y CONSTANT)
+    Q_PROPERTY(NoteModel *noteModel READ noteModel CONSTANT)
 public:
-    Cell() : m_fixedCell(false), m_valueOwner(NULL) {}
+    Cell();
     explicit Cell(quint8 x, quint8 y, Board *parent = 0);
 
     Cell &operator =(const Cell &other);
@@ -55,6 +57,8 @@ public:
 
     quint8 x() const { return m_x; }
     quint8 y() const { return m_y; }
+
+    NoteModel *noteModel() const;
 signals:
     void beforeValueChanged();
     void valueChanged();
@@ -63,7 +67,8 @@ private:
     friend class SudokuBoard;
     friend class BoardGenerator;
     friend class GameMessage;
-    friend QDataStream &operator>>(QDataStream &stream, Game &game);
+    friend QDataStream &readGameV1(QDataStream &stream, Game &game);
+    friend QDataStream &readGameV2(QDataStream &stream, Game &game);
 
     inline Board *board() const { return (Board *) parent(); }
     friend class Board;
@@ -72,6 +77,7 @@ private:
     quint8 m_y;
     bool m_fixedCell;
     Player *m_valueOwner;
+    NoteModel *m_noteModel;
 };
 
 QML_DECLARE_TYPE(Cell)
@@ -204,7 +210,8 @@ private:
     friend class Cell;
     friend class GameMessage;
     friend QDataStream &operator<<(QDataStream &stream, Game &game);
-    friend QDataStream &operator>>(QDataStream &stream, Game &game);
+    friend QDataStream &readGameV1(QDataStream &stream, Game &game);
+    friend QDataStream &readGameV2(QDataStream &stream, Game &game);
 
     Cell m_cells[9][9];
     quint8 m_cellValues[9][9];
