@@ -51,6 +51,12 @@ Rectangle {
 
     signal showNumberChooser(variant cellItem)
 
+    onCellChanged: {
+        // Reset notes when the cell changes
+        for (var i = 0; i < noteModel.count; i++)
+            noteModel.get(i).modelMarked = false;
+    }
+
     GridView {
         id: noteGrid
         anchors.fill: parent
