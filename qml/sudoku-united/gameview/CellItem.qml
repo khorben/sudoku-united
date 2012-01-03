@@ -16,7 +16,6 @@
 */
 
 import QtQuick 1.1
-import QtMobility.feedback 1.1
 import "../UIConstants.js" as UIConstants
 
 Rectangle {
@@ -143,16 +142,5 @@ Rectangle {
             }
         }
     ]
-
-    HapticsEffect {
-        id: rumbleEffect
-        attackIntensity: 0.0
-        attackTime: 250
-        intensity: 1.0
-        duration: 500
-        fadeTime: 250
-        fadeIntensity: 0.0
-        running: collision && gameInstance.settings.hapticFeedbackEnabled
-    }
 }
 

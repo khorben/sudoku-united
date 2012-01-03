@@ -16,6 +16,7 @@
 */
 
 import QtQuick 1.1
+import QtMobility.feedback 1.1
 import sudoku 1.0
 
 Grid {
@@ -66,7 +67,7 @@ Grid {
                                            })
                                })(x, y)
                 object.board = playBoard
-
+                object.collisionChanged.connect(function (cellItem) { return function () { _playHapticFeedback(cellItem) } }(object))
                 object.showNumberChooser.connect(cellClicked)
                 object.showNumberChooser.connect(_onCellClicked)
 
@@ -79,5 +80,22 @@ Grid {
 
     function _onCellClicked(cellItem) {
         selectedCell = cellItem.cell
+    }
+
+    function _playHapticFeedback(cellItem) {
+        if (!cellItem.collision || !gameInstance.settings.hapticFeedbackEnabled)
+            return;
+
+        rumbleEffect.start()
+    }
+
+    HapticsEffect {
+        id: rumbleEffect
+        attackIntensity: 0.0
+        attackTime: 250
+        intensity: 1.0
+        duration: 500
+        fadeTime: 250
+        fadeIntensity: 0.0
     }
 }
