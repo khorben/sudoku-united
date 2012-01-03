@@ -182,6 +182,8 @@ void Game::onHintGenerated() {
         case LogItem::ROW_BOX:
         case LogItem::COLUMN_BOX:
             continue;
+        default:
+            break;
         }
 
         cell->setValue(item->getValue());

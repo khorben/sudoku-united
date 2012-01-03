@@ -113,6 +113,8 @@ void TelepathyGameInfoModel::onConnectionChanged(Tp::ConnectionPtr connection) {
 }
 
 void TelepathyGameInfoModel::onConnectionStatusChanged(Tp::ConnectionStatus status) {
+    Q_UNUSED(status);
+
     Tp::ConnectionPtr connection(qobject_cast<Tp::Connection *>(sender()));
     Q_ASSERT(connection);
 
