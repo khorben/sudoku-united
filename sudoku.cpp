@@ -45,6 +45,7 @@ Sudoku::Sudoku(QObject *parent) :
     m_highscore->setSortRole(HighscoreModel::PlayTimeRole);
 
     m_player = new Player(m_settings->playerUuid(), m_settings->playerName(), this);
+
 #if !(defined(Q_OS_SYMBIAN) || defined(MEEGO_EDITION_HARMATTAN) || defined(Q_WS_SIMULATOR) || defined(Q_WS_MAEMO_5))
     serverAdapter->addServerImplementation(new TCPServer());
 #endif
@@ -82,6 +83,17 @@ void Sudoku::onBluetoothEnabledChanged() {
     }
 }
 
+void Sudoku::onPublicGameChanged()
+{
+    QList<AbstractServer *> serverImplList = serverAdapter->serverImplementations();
+    foreach(AbstractServer *server, serverImplList) {
+        if (!m_game->isPublicGame())
+            server->disable();
+        else
+            server->enable();
+    }
+}
+
 Sudoku *Sudoku::instance() {
     if (m_instance == NULL)
         m_instance = new Sudoku();
@@ -100,6 +112,7 @@ void Sudoku::setGame(Game *game) {
 
     if (m_game) {
         m_game->setParent(this);
+        connect(m_game, SIGNAL(publicGameChanged()), SLOT(onPublicGameChanged()));
     } else if (client) {
         client->leave();
         client->deleteLater();

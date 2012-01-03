@@ -63,7 +63,8 @@ Page {
             id: instructions
             anchors { left: parent.left; right: parent.right; top: parent.top; margins: UIConstants.DEFAULT_MARGIN;}
             wrapMode: Text.WordWrap
-            text: "<p>Sudoku United supports two different technologies to play with other players:</p>
+            text: "<p>In order to host a multiplayer game the host has to declare the game as public. This can be achieved by clicking the settings button while in-game and selecting \"Make game public\".</p>
+                  <p>Sudoku United supports two different technologies to play with other players:</p>
             <h3 style='margin: 10px 0px 0px 0px;'>Bluetooth</h3><hr>
             <ol>
             <li>Make sure that both players have enabled Bluetooth in the Sudoku United settings - it is enabled by default.</li>

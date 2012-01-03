@@ -68,6 +68,15 @@ ToolBarLayout {
                     text: "Settings"
                     onClicked: settings()
                 }
+
+                MenuItemFixed {
+                    visible: game != null
+                    text: game ? (game.publicGame ? "Make game private" : "Make game public") : ""
+                    onClicked: {
+                        game.publicGame = !game.publicGame
+                    }
+                }
+
                 MenuItemFixed {
                     text: "Hint"
                     visible: gameInstance.settings.quickAccessAction != Settings.HintAction

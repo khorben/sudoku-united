@@ -102,8 +102,9 @@ void ServerAdapter::setGame(Game *game) {
                 this, SLOT(onPlayerChanged(Player*)));
         onBoardChanged();
 
-        foreach (AbstractServer *server, m_attachedServers)
-            server->enable();
+        if (m_game->isPublicGame())
+            foreach (AbstractServer *server, m_attachedServers)
+                server->enable();
     }
 }
 
@@ -200,7 +201,7 @@ void ServerAdapter::addServerImplementation(AbstractServer *serverImpl) {
 
     m_attachedServers.append(serverImpl);
 
-    if (m_game)
+    if (m_game && m_game->isPublicGame())
         serverImpl->enable();
 }
 

@@ -88,6 +88,7 @@ protected:
 private slots:
     void onPlayerNameChanged();
     void onBluetoothEnabledChanged();
+    void onPublicGameChanged();
 private:
     friend class AggregateGameInfoModel;
 

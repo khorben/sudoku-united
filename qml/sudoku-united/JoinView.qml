@@ -20,6 +20,7 @@ import com.nokia.meego 1.0
 import com.nokia.extras 1.0
 import sudoku 1.0
 import "UIConstants.js" as UIConstants
+import "UIFunctions.js" as UIFunctions
 
 Page {
     id: joinView
@@ -220,10 +221,10 @@ Page {
         flickableItem: list
     }
 
-    Rectangle{
+    Rectangle {
         id: discoveryFailedOverlay
         width: 400
-        height: 180
+        height: UIFunctions.totalComponentHeight(warningImage) + UIFunctions.totalComponentHeight(noGamesDiscoveredLabel) + 16
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
         color: "white"
@@ -239,13 +240,14 @@ Page {
         }
 
         Label{
+            id: noGamesDiscoveredLabel
             anchors.top: warningImage.bottom
             anchors.topMargin: 10
             anchors.left: parent.left
             anchors.leftMargin: 16
             anchors.right: parent.right
             anchors.rightMargin: 16
-            text: "Unable to discover games.\nPlease make sure that your Google Talk or Jabber Account is online or use Bluetooth!"
+            text: "No games were found.\nPlease make sure that the other player has made the game public and that your Google Talk/Jabber account is online or that Bluetooth is enabled."
             wrapMode: Text.WordWrap
             horizontalAlignment: Text.AlignHCenter
             platformStyle: LabelStyle{

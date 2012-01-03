@@ -12,3 +12,7 @@ function formatDuration(ms) {
 
     return minutes + ":" + seconds
 }
+
+function totalComponentHeight(component) {
+    return component.height + component.anchors.topMargin + component.anchors.bottomMargin
+}

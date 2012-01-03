@@ -34,12 +34,16 @@ class Game : public QObject
     Q_PROPERTY(Board *board READ board NOTIFY boardChanged)
     Q_PROPERTY(QDeclarativeListProperty<Player> players READ playerList NOTIFY playersChanged)
     Q_PROPERTY(bool generationRunning READ hintGenerationRunning NOTIFY hintGenerationRunningChanged)
+    Q_PROPERTY(bool publicGame READ isPublicGame WRITE setPublicGame NOTIFY publicGameChanged)
 public:
     explicit Game(QObject *parent = 0);
     explicit Game(Board *board, QObject *parent = 0);
 
     Board *board() const { return m_board; }
     void setBoard(Board *board);
+
+    bool isPublicGame() const;
+    void setPublicGame(bool publicGame);
 
     const QList<Player *> &players() const { return m_players; }
 
@@ -90,6 +94,7 @@ signals:
       */
     void hintGenerationRunningChanged();
 
+    void publicGameChanged();
 private slots:
     void onBoardGenerated();
     void onHintGenerated();
@@ -105,6 +110,7 @@ private:
     HintGenerator *m_hintGenerator;
     quint8 m_currentColorIndex;
     bool m_boardGenerationRunning;
+    bool m_publicGame;
 private:
     static int countPlayersFunction(QDeclarativeListProperty<Player> *property);
     static Player *atPlayersFunction(QDeclarativeListProperty<Player> *property, int index);

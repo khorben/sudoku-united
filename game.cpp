@@ -25,12 +25,14 @@
 
 Game::Game(QObject *parent) :
     QObject(parent), m_board(NULL), m_boardGenerationThread(NULL), m_boardGeneratorWrapper(NULL),
-    m_hintGenerationThread(NULL), m_hintGenerator(NULL), m_currentColorIndex(0), m_boardGenerationRunning(false) {
+    m_hintGenerationThread(NULL), m_hintGenerator(NULL), m_currentColorIndex(0),
+    m_boardGenerationRunning(false), m_publicGame(false) {
 }
 
 Game::Game(Board *board, QObject *parent) :
     QObject(parent), m_board(NULL), m_boardGenerationThread(NULL), m_boardGeneratorWrapper(NULL),
-    m_hintGenerationThread(NULL), m_hintGenerator(NULL), m_currentColorIndex(0), m_boardGenerationRunning(false) {
+    m_hintGenerationThread(NULL), m_hintGenerator(NULL), m_currentColorIndex(0),
+    m_boardGenerationRunning(false), m_publicGame(false) {
     setBoard(board);
 }
 
@@ -47,6 +49,21 @@ void Game::setBoard(Board *board) {
         m_board->setParent(this);
 
     emit boardChanged();
+}
+
+bool Game::isPublicGame() const
+{
+    return m_publicGame;
+}
+
+void Game::setPublicGame(bool publicGame)
+{
+    if (m_publicGame == publicGame)
+        return;
+
+    m_publicGame = publicGame;
+
+    emit publicGameChanged();
 }
 
 Player *Game::addPlayer(const QUuid &uuid, const QString &name) {
