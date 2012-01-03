@@ -102,7 +102,7 @@ class Board : public QObject
     Q_PROPERTY(quint32 elapsedTime READ elapsedTime)
 public:
     explicit Board(QObject *parent = 0);
-    Board(const Board &other);
+    Board(const Board &other, QObject *parent = 0);
 
     /**
       * Returns a Cell object describing the cell at the

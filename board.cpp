@@ -71,8 +71,8 @@ Player *ModificationLogEntry::valueOwner() const {
     return m_valueOwner;
 }
 
-Board::Board(const Board &other) :
-    QObject(other.parent()) {
+Board::Board(const Board &other, QObject *parent) :
+    QObject(parent ? parent : other.parent()) {
 
     memcpy(m_cellValues, other.m_cellValues, sizeof(m_cellValues));
 

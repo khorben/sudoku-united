@@ -56,9 +56,11 @@ Page {
         titleText: "Leave game"
         acceptButtonText: "Yes"
         rejectButtonText: "No"
-        message: "Are you sure that you want to leave the game?"
+        message: "Are you sure that you want to leave the game (the current game state will be saved)?"
 
         onAccepted: {
+            gameInstance.settings.lastGame = gameInstance.game
+            gameInstance.settings.saveSettings()
             gameInstance.leave()
         }
     }

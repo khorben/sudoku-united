@@ -93,7 +93,7 @@ void Sudoku::setGame(Game *game) {
     if (game == m_game)
         return;
 
-    if (m_game)
+    if (m_game && m_game->parent() == this)
         m_game->deleteLater();
 
     m_game = game;

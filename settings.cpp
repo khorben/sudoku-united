@@ -148,7 +148,15 @@ Game *Settings::lastGame() const {
 }
 
 void Settings::setLastGame(Game *game) {
-    m_lastGame = game;
+    if (m_lastGame && m_lastGame->parent() == this)
+        m_lastGame->deleteLater();
+
+    if (game) {
+        m_lastGame = game;
+        m_lastGame->setParent(this);
+    } else {
+        m_lastGame = NULL;
+    }
 }
 
 bool Settings::showGameTimer() const {
