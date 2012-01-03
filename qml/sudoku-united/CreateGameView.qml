@@ -133,26 +133,25 @@ Page {
         }
     }
 
-    SelectionDialog {
+    QueryDialog {
         id: resumeGameDialog
-        titleText: "Resume last game?"
-        selectedIndex: 1
+        titleText: "Resume game"
+        acceptButtonText: "Yes"
+        rejectButtonText: "No"
+        message: "Do you want to resume your last game?"
 
-        model: ListModel {
-            ListElement { name: "Yes" }
-            ListElement { name: "No" }
+        onAccepted: {
+            gameInstance.game = gameInstance.settings.lastGame
+            _clearLastGame()
         }
-        onSelectedIndexChanged: {
-            if (selectedIndex == 0) {
-                gameInstance.game = gameInstance.settings.lastGame
-            }
+
+        onRejected: {
+            _clearLastGame()
         }
-        onStatusChanged: {
-            // Clear the last game - no matter what the user chooses
-            if (status == DialogStatus.Closing) {
-                gameInstance.settings.lastGame = null
-                gameInstance.settings.saveSettings()
-            }
+
+        function _clearLastGame() {
+            gameInstance.settings.lastGame = null
+            gameInstance.settings.saveSettings()
         }
     }
 }

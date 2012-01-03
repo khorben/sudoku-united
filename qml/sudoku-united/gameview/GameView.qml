@@ -51,33 +51,21 @@ Page {
         game.board.undo()
     }
 
-    SelectionDialog {
+    QueryDialog {
         id: leaveGameDialog
-        titleText: "Leave the game?"
-        selectedIndex: 1
+        titleText: "Leave game"
+        acceptButtonText: "Yes"
+        rejectButtonText: "No"
+        message: "Are you sure that you want to leave the game?"
 
-        model: ListModel {
-            ListElement { name: "Yes" }
-            ListElement { name: "No" }
-        }
-        onSelectedIndexChanged: {
-            if (selectedIndex == 0){
-                close()
-                gameInstance.leave()
-            }
+        onAccepted: {
+            gameInstance.leave()
         }
     }
 
     onGameChanged: {
         if (!game) {
             pageStack.pop();
-        }
-    }
-
-    onStatusChanged: {
-        if (status == PageStatus.Active) {
-            // Reset state of game view - it may be restored from cache
-            leaveGameDialog.selectedIndex = 1
         }
     }
 
