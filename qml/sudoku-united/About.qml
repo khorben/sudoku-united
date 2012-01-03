@@ -74,6 +74,14 @@ Page {
                 width: parent.width
             }
             Label{
+                text: "Contributors: mthuurne"
+                anchors.horizontalCenter: parent.horizontalCenter
+                platformStyle: labelStyle
+                wrapMode: Text.WordWrap
+                width: parent.width
+            }
+
+            Label{
                 text: license
                 wrapMode: Text.WordWrap
                 width: parent.width
