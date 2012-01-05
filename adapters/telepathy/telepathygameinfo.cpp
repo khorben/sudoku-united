@@ -38,7 +38,7 @@ AbstractClient *TelepathyGameInfo::client() const {
     return new TelepathyClient();
 }
 
-bool TelepathyGameInfo::operator ==(const GameInfo &other) const {
+bool TelepathyGameInfo::operator ==(GameInfo &other) const {
     const TelepathyGameInfo *otherGameInfo =
             qobject_cast<const TelepathyGameInfo *>(&other);
 

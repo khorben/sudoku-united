@@ -32,7 +32,7 @@ public:
     QString name() const;
     AbstractClient *client() const;
 
-    bool operator ==(const GameInfo &other) const;
+    bool operator ==(GameInfo &other) const;
 };
 
 class TCPGameInfoModel : public GameInfoModel {

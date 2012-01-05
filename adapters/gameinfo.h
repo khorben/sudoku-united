@@ -45,7 +45,7 @@ public:
       * Override the equality operator to indicate if two GameInfo entries
       * contain the same values.
       */
-    virtual bool operator ==(const GameInfo &other) const = 0;
+    virtual bool operator ==(GameInfo &other) const = 0;
 };
 
 QML_DECLARE_TYPE(GameInfo)

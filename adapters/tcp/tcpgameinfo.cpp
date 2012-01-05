@@ -31,7 +31,7 @@ AbstractClient *TCPGameInfo::client() const {
     return new TCPClient();
 }
 
-bool TCPGameInfo::operator ==(const GameInfo &other) const {
+bool TCPGameInfo::operator ==(GameInfo &other) const {
     const TCPGameInfo *otherGameInfo =
             qobject_cast<const TCPGameInfo *>(&other);
 
