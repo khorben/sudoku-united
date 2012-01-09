@@ -77,9 +77,11 @@ void TelepathyGameInfoModel::onAccountManagerReady(Tp::PendingOperation *operati
 }
 
 void TelepathyGameInfoModel::buildGameInfoList() {
-    beginRemoveRows(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
-    m_gameInfoList.clear();
-    endRemoveRows();
+    if (rowCount(QModelIndex())) {
+        beginRemoveRows(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
+        m_gameInfoList.clear();
+        endRemoveRows();
+    }
 
     foreach (Tp::AccountPtr account, accountManager->allAccounts()) {
         if (!account->isValid()) {
