@@ -20,9 +20,15 @@
 #include "adapters/serveradapter.h"
 #include "adapters/abstractserver.h"
 #include "adapters/abstractclient.h"
+#ifdef WITH_TCP_SERVER
 #include "adapters/tcp/tcpserver.h"
+#endif
+#ifdef WITH_BLUETOOTH
 #include "adapters/bluetooth/bluetoothserver.h"
+#endif
+#ifdef WITH_TELEPATHY
 #include "adapters/telepathy/telepathyserver.h"
+#endif
 #include "game.h"
 #include "highscore.h"
 
@@ -37,8 +43,6 @@ Sudoku::Sudoku(QObject *parent) :
     m_settings = new Settings(this);
     connect(m_settings, SIGNAL(playerNameChanged()),
             SLOT(onPlayerNameChanged()));
-    connect(m_settings, SIGNAL(bluetoothEnabledChanged()),
-            SLOT(onBluetoothEnabledChanged()));
 
     m_highscore = new HighscoreFilterModel(this);
     m_highscore->setSourceModel(m_settings->highscoreModel());
@@ -46,12 +50,18 @@ Sudoku::Sudoku(QObject *parent) :
 
     m_player = new Player(m_settings->playerUuid(), m_settings->playerName(), this);
 
-#if !(defined(Q_OS_SYMBIAN) || defined(MEEGO_EDITION_HARMATTAN) || defined(Q_WS_SIMULATOR) || defined(Q_WS_MAEMO_5))
+#ifdef WITH_TCP_SERVER
     serverAdapter->addServerImplementation(new TCPServer());
 #endif
+#ifdef WITH_TELEPATHY
     serverAdapter->addServerImplementation(new TelepathyServer());
+#endif
+#ifdef WITH_BLUETOOTH
+    connect(m_settings, SIGNAL(bluetoothEnabledChanged()),
+            SLOT(onBluetoothEnabledChanged()));
     if (m_settings->bluetoothEnabled())
         serverAdapter->addServerImplementation(new BluetoothServer());
+#endif
 }
 
 Settings *Sudoku::settings() const {
@@ -67,6 +77,7 @@ void Sudoku::onPlayerNameChanged() {
     m_player->setName(m_settings->playerName());
 }
 
+#ifdef WITH_BLUETOOTH
 void Sudoku::onBluetoothEnabledChanged() {
     if (!m_settings->bluetoothEnabled()) {
         foreach (AbstractServer *server, serverAdapter->serverImplementations()) {
@@ -82,6 +93,7 @@ void Sudoku::onBluetoothEnabledChanged() {
         serverAdapter->addServerImplementation(new BluetoothServer());
     }
 }
+#endif
 
 void Sudoku::onPublicGameChanged()
 {

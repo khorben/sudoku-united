@@ -1,7 +1,19 @@
+#
+# Sudoku United project file
+#
+# Configuration options for qmake:
+# ENABLE_TCP_SERVER=1 : Enables the TCP adapter
+# ENABLE_BLUETOOTH=1 (default): Enables the Bluetooth adapter
+# ENABLE_TELEPATHY=1 (default): Enables the Telepathy adapter
+#
+# Setting any of these to 0 disables the respective adapters. Some adapters
+# may not be added if development headers are missing.
+#
+
 # Add more folders to ship with the application, here
-folder_01.source = qml/sudoku-united
-folder_01.target = qml
-DEPLOYMENTFOLDERS = folder_01
+qml.source = qml/sudoku-united
+qml.target = qml
+DEPLOYMENTFOLDERS = qml
 
 # Taken from Butaca pro file
 isEmpty(PREFIX) {
@@ -18,40 +30,20 @@ icon64.files += sudoku-united64.png
 
 INSTALLS += splash icon64
 
-# Additional import path used to resolve QML modules in Creator's code model
-QML_IMPORT_PATH =
+# Enable Qt Mobility
 
-symbian:TARGET.UID3 = 0xE282D591
-
-# Smart Installer package's UID
-# This UID is from the protected range and therefore the package will
-# fail to install if self-signed. By default qmake uses the unprotected
-# range value if unprotected UID is defined for the application and
-# 0x2002CCCF value if protected UID is given to the application
-#symbian:DEPLOYMENT.installer_header = 0x2002CCCF
-
-# Allow network access on Symbian
-symbian:TARGET.CAPABILITY += NetworkServices
-
-# If your application uses the Qt Mobility libraries, uncomment the following
-# lines and add the respective components to the MOBILITY variable.
-CONFIG += mobility
-QT += dbus
-MOBILITY += connectivity systeminfo
-
-CONFIG += link_pkgconfig
-PKGCONFIG += TelepathyQt4
-
-contains(MEEGO_EDITION,harmattan) {
-CONFIG += qdeclarative-boostable
-CONFIG += qt-boostable
-PKGCONFIG += qdeclarative-boostable
+!load(mobilityconfig) {
+    error("Qt Mobility is required.")
 }
 
-# Add dependency to symbian components
-# CONFIG += qtquickcomponents
+!contains(MOBILITY_CONFIG, systeminfo) {
+    error("Qt Mobility systeminfo module is required.")
+}
+CONFIG += mobility
+MOBILITY += systeminfo
 
-# The .cpp file which was generated for your project. Feel free to hack it.
+CONFIG += link_pkgconfig
+
 SOURCES += src/main.cpp \
     src/board.cpp \
     src/player.cpp \
@@ -60,18 +52,8 @@ SOURCES += src/main.cpp \
     src/sudoku.cpp \
     src/adapters/serveradapter.cpp \
     src/adapters/abstractserver.cpp \
-    src/adapters/tcp/tcpserver.cpp \
     src/adapters/abstractclient.cpp \
-    src/adapters/tcp/tcpclient.cpp \
-    src/adapters/tcp/tcpgameinfo.cpp \
     src/adapters/gameinfo.cpp \
-    src/adapters/telepathy/telepathyclient.cpp \
-    src/adapters/telepathy/telepathyserver.cpp \
-    src/adapters/telepathy/telepathygameinfo.cpp \
-    src/adapters/telepathy/telepathyhandler.cpp \
-    src/adapters/bluetooth/bluetoothclient.cpp \
-    src/adapters/bluetooth/bluetoothserver.cpp \
-    src/adapters/bluetooth/bluetoothgameinfo.cpp \
     src/settings.cpp \
     src/highscore.cpp \
     src/notemodel.cpp \
@@ -82,10 +64,6 @@ SOURCES += src/main.cpp \
     src/messages/gamemessage.cpp \
     src/messages/hellomessage.cpp \
     src/messages/playermessage.cpp
-
-# Please do not modify the following two lines. Required for deployment.
-include(qmlapplicationviewer/qmlapplicationviewer.pri)
-qtcAddDeployment()
 
 OTHER_FILES += \
     qtc_packaging/debian_harmattan/rules \
@@ -102,18 +80,8 @@ HEADERS += \
     src/sudoku.h \
     src/adapters/serveradapter.h \
     src/adapters/abstractserver.h \
-    src/adapters/tcp/tcpserver.h \
     src/adapters/abstractclient.h \
-    src/adapters/tcp/tcpclient.h \
-    src/adapters/tcp/tcpgameinfo.h \
     src/adapters/gameinfo.h \
-    src/adapters/telepathy/telepathyclient.h \
-    src/adapters/telepathy/telepathyserver.h \
-    src/adapters/telepathy/telepathygameinfo.h \
-    src/adapters/telepathy/telepathyhandler.h \
-    src/adapters/bluetooth/bluetoothclient.h \
-    src/adapters/bluetooth/bluetoothserver.h \
-    src/adapters/bluetooth/bluetoothgameinfo.h \
     src/settings.h \
     src/highscore.h \
     src/notemodel.h \
@@ -126,6 +94,81 @@ HEADERS += \
     src/messages/playermessage.h
 
 RESOURCES += resources.qrc
+
+# packagesExist was added in Qt 4.8.0
+!defined(packagesExist, test) {
+    defineTest(packagesExist) {
+        # this can't be done in global scope here because qt_functions is loaded
+        # before the .pro is parsed, so if the .pro set PKG_CONFIG, we wouldn't know it
+        # yet. oops.
+        isEmpty(PKG_CONFIG):PKG_CONFIG = pkg-config # keep consistent with link_pkgconfig.prf! too
+
+        for(package, ARGS) {
+            !system($$PKG_CONFIG --exists $$package):return(false)
+        }
+
+        return(true)
+    }
+}
+
+# The pkg-config wrapper part of the Harmattan SDK does not support the --exists
+# parameter. Hence, everything supported by the SDK is enabled here.
+contains(MEEGO_EDITION, harmattan) | packagesExist(TelepathyQt4) {
+    !isEqual(ENABLE_TELEPATHY, 0) {
+        PKGCONFIG += TelepathyQt4
+        SOURCES += src/adapters/telepathy/telepathyclient.cpp \
+                   src/adapters/telepathy/telepathyserver.cpp \
+                   src/adapters/telepathy/telepathygameinfo.cpp \
+                   src/adapters/telepathy/telepathyhandler.cpp
+        HEADERS += src/adapters/telepathy/telepathyclient.h \
+                   src/adapters/telepathy/telepathyserver.h \
+                   src/adapters/telepathy/telepathygameinfo.h \
+                   src/adapters/telepathy/telepathyhandler.h
+        DEFINES += WITH_TELEPATHY
+
+        QT += dbus
+
+        message("Enabling Telepathy adapter")
+    }
+} else {
+    warning("Disabling Telepathy adapter as TelepathyQt4 was not found.")
+}
+
+
+isEmpty(ENABLE_BLUETOOTH) | !isEqual(ENABLE_BLUETOOTH, 0) {
+    !contains(MOBILITY_CONFIG, connectivity) {
+        warning("Disabling Bluetooth adapter as Qt Mobility's connectivity module is missing.")
+    } else {
+        MOBILITY += connectivity
+        SOURCES += src/adapters/bluetooth/bluetoothclient.cpp \
+                   src/adapters/bluetooth/bluetoothserver.cpp \
+                   src/adapters/bluetooth/bluetoothgameinfo.cpp
+        HEADERS += src/adapters/bluetooth/bluetoothclient.h \
+                   src/adapters/bluetooth/bluetoothserver.h \
+                   src/adapters/bluetooth/bluetoothgameinfo.h
+        DEFINES += WITH_BLUETOOTH
+        message("Enabling Bluetooth adapter")
+    }
+}
+
+
+isEqual(ENABLE_TCP_SERVER, 1) {
+    SOURCES += src/adapters/tcp/tcpserver.cpp \
+               src/adapters/tcp/tcpclient.cpp \
+               src/adapters/tcp/tcpgameinfo.cpp
+    HEADERS += src/adapters/tcp/tcpserver.h \
+               src/adapters/tcp/tcpclient.h \
+               src/adapters/tcp/tcpgameinfo.h
+    DEFINES += WITH_TCP_SERVER
+
+    message("Enabling TCP adapter")
+}
+
+contains(MEEGO_EDITION, harmattan) | packagesExist(qdeclarative-boostable) {
+    CONFIG += qdeclarative-boostable qt-boostable
+    PKGCONFIG += qdeclarative-boostable
+    message("Enabling boostable build")
+}
 
 !isEmpty(BREAKPAD_PATH) {
     !isEmpty(SCRATCHBOX_PATH) {
@@ -140,4 +183,6 @@ RESOURCES += resources.qrc
     DEFINES += ENABLE_BREAKPAD
 }
 
-
+# Please do not modify the following two lines. Required for deployment.
+include(qmlapplicationviewer/qmlapplicationviewer.pri)
+qtcAddDeployment()

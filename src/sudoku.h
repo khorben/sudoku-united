@@ -87,7 +87,9 @@ protected:
     bool eventFilter(QObject *filterObj, QEvent *evt);
 private slots:
     void onPlayerNameChanged();
+#ifdef WITH_BLUETOOTH
     void onBluetoothEnabledChanged();
+#endif
     void onPublicGameChanged();
 private:
     friend class AggregateGameInfoModel;
