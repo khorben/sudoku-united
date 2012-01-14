@@ -52,30 +52,30 @@ PKGCONFIG += qdeclarative-boostable
 # CONFIG += qtquickcomponents
 
 # The .cpp file which was generated for your project. Feel free to hack it.
-SOURCES += main.cpp \
-    board.cpp \
-    player.cpp \
-    game.cpp \
-    message.cpp \
-    boardgenerator.cpp \
-    sudoku.cpp \
-    adapters/serveradapter.cpp \
-    adapters/abstractserver.cpp \
-    adapters/tcp/tcpserver.cpp \
-    adapters/abstractclient.cpp \
-    adapters/tcp/tcpclient.cpp \
-    adapters/tcp/tcpgameinfo.cpp \
-    adapters/gameinfo.cpp \
-    adapters/telepathy/telepathyclient.cpp \
-    adapters/telepathy/telepathyserver.cpp \
-    adapters/telepathy/telepathygameinfo.cpp \
-    adapters/telepathy/telepathyhandler.cpp \
-    adapters/bluetooth/bluetoothclient.cpp \
-    adapters/bluetooth/bluetoothserver.cpp \
-    adapters/bluetooth/bluetoothgameinfo.cpp \
-    settings.cpp \
-    highscore.cpp \
-    notemodel.cpp
+SOURCES += src/main.cpp \
+    src/board.cpp \
+    src/player.cpp \
+    src/game.cpp \
+    src/message.cpp \
+    src/boardgenerator.cpp \
+    src/sudoku.cpp \
+    src/adapters/serveradapter.cpp \
+    src/adapters/abstractserver.cpp \
+    src/adapters/tcp/tcpserver.cpp \
+    src/adapters/abstractclient.cpp \
+    src/adapters/tcp/tcpclient.cpp \
+    src/adapters/tcp/tcpgameinfo.cpp \
+    src/adapters/gameinfo.cpp \
+    src/adapters/telepathy/telepathyclient.cpp \
+    src/adapters/telepathy/telepathyserver.cpp \
+    src/adapters/telepathy/telepathygameinfo.cpp \
+    src/adapters/telepathy/telepathyhandler.cpp \
+    src/adapters/bluetooth/bluetoothclient.cpp \
+    src/adapters/bluetooth/bluetoothserver.cpp \
+    src/adapters/bluetooth/bluetoothgameinfo.cpp \
+    src/settings.cpp \
+    src/highscore.cpp \
+    src/notemodel.cpp
 
 # Please do not modify the following two lines. Required for deployment.
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
@@ -89,29 +89,29 @@ OTHER_FILES += \
     qtc_packaging/debian_harmattan/changelog \
 
 HEADERS += \
-    board.h \
-    player.h \
-    game.h \
-    message.h \
-    boardgenerator.h \
-    sudoku.h \
-    adapters/serveradapter.h \
-    adapters/abstractserver.h \
-    adapters/tcp/tcpserver.h \
-    adapters/abstractclient.h \
-    adapters/tcp/tcpclient.h \
-    adapters/tcp/tcpgameinfo.h \
-    adapters/gameinfo.h \
-    adapters/telepathy/telepathyclient.h \
-    adapters/telepathy/telepathyserver.h \
-    adapters/telepathy/telepathygameinfo.h \
-    adapters/telepathy/telepathyhandler.h \
-    adapters/bluetooth/bluetoothclient.h \
-    adapters/bluetooth/bluetoothserver.h \
-    adapters/bluetooth/bluetoothgameinfo.h \
-    settings.h \
-    highscore.h \
-    notemodel.h
+    src/board.h \
+    src/player.h \
+    src/game.h \
+    src/message.h \
+    src/boardgenerator.h \
+    src/sudoku.h \
+    src/adapters/serveradapter.h \
+    src/adapters/abstractserver.h \
+    src/adapters/tcp/tcpserver.h \
+    src/adapters/abstractclient.h \
+    src/adapters/tcp/tcpclient.h \
+    src/adapters/tcp/tcpgameinfo.h \
+    src/adapters/gameinfo.h \
+    src/adapters/telepathy/telepathyclient.h \
+    src/adapters/telepathy/telepathyserver.h \
+    src/adapters/telepathy/telepathygameinfo.h \
+    src/adapters/telepathy/telepathyhandler.h \
+    src/adapters/bluetooth/bluetoothclient.h \
+    src/adapters/bluetooth/bluetoothserver.h \
+    src/adapters/bluetooth/bluetoothgameinfo.h \
+    src/settings.h \
+    src/highscore.h \
+    src/notemodel.h
 
 RESOURCES += resources.qrc
 
