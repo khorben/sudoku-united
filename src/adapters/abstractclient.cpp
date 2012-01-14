@@ -16,7 +16,12 @@
 */
 
 #include "abstractclient.h"
-#include "../message.h"
+#include "../messages/message.h"
+#include "../messages/setvaluemessage.h"
+#include "../messages/hellomessage.h"
+#include "../messages/joinmessage.h"
+#include "../messages/gamemessage.h"
+#include "../messages/playermessage.h"
 #include "../game.h"
 #include "../sudoku.h"
 #include "../player.h"

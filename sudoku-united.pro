@@ -56,7 +56,6 @@ SOURCES += src/main.cpp \
     src/board.cpp \
     src/player.cpp \
     src/game.cpp \
-    src/message.cpp \
     src/boardgenerator.cpp \
     src/sudoku.cpp \
     src/adapters/serveradapter.cpp \
@@ -76,7 +75,13 @@ SOURCES += src/main.cpp \
     src/settings.cpp \
     src/highscore.cpp \
     src/notemodel.cpp \
-    src/cell.cpp
+    src/cell.cpp \
+    src/messages/message.cpp \
+    src/messages/joinmessage.cpp \
+    src/messages/setvaluemessage.cpp \
+    src/messages/gamemessage.cpp \
+    src/messages/hellomessage.cpp \
+    src/messages/playermessage.cpp
 
 # Please do not modify the following two lines. Required for deployment.
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
@@ -93,7 +98,6 @@ HEADERS += \
     src/board.h \
     src/player.h \
     src/game.h \
-    src/message.h \
     src/boardgenerator.h \
     src/sudoku.h \
     src/adapters/serveradapter.h \
@@ -113,7 +117,13 @@ HEADERS += \
     src/settings.h \
     src/highscore.h \
     src/notemodel.h \
-    src/cell.h
+    src/cell.h \
+    src/messages/message.h \
+    src/messages/joinmessage.h \
+    src/messages/setvaluemessage.h \
+    src/messages/gamemessage.h \
+    src/messages/hellomessage.h \
+    src/messages/playermessage.h
 
 RESOURCES += resources.qrc
 
