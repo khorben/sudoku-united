@@ -115,11 +115,9 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     QDeclarativeComponent *gameViewComponent =
             new QDeclarativeComponent(viewer->engine(),
                                       QUrl::fromLocalFile(adjustPath("qml/sudoku-united/gameview/GameView.qml")));
-        QTime startTime = QTime::currentTime();
     QObject *gameView = gameViewComponent->create(viewer->rootContext());
     viewer->rootContext()->setContextProperty("gameView", gameView);
-    qDebug() << startTime.msecsTo(QTime::currentTime());
-    return 0;
+
     appViewer->setOrientation(QmlApplicationViewer::ScreenOrientationAuto);
     appViewer->setMainQmlFile(QLatin1String("qml/sudoku-united/main.qml"));
     appViewer->showExpanded();
