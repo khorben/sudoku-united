@@ -275,6 +275,8 @@ bool BoardGenerator::generatePuzzle(Sudoku::Difficulty difficulty){
     case Sudoku::EXPERT:
         boardGeneratorDifficulty = BoardGenerator::EXPERT;
         break;
+    default:
+        return false;
     }
 
     while (true) {
