@@ -41,7 +41,7 @@ class Settings : public QSettings
                NOTIFY showGameTimerChanged)
     Q_PROPERTY(QuickAccessAction quickAccessAction READ quickAccessAction
                WRITE setQuickAccessAction NOTIFY quickAccessActionChanged)
-    Q_PROPERTY(bool showedJoinHelp READ showedJoinHelp WRITE setShowedJoinHelp CONSTANT)
+    Q_PROPERTY(bool showedJoinHelp READ showedJoinHelp WRITE setShowedJoinHelp NOTIFY showedJoinHelpChanged)
 public:
     enum QuickAccessAction {
         UndoAction,
@@ -85,6 +85,7 @@ signals:
     void bluetoothEnabledChanged();
     void showGameTimerChanged();
     void quickAccessActionChanged();
+    void showedJoinHelpChanged();
 public slots:
 
 private:

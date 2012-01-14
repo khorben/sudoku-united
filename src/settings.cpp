@@ -206,5 +206,10 @@ bool Settings::showedJoinHelp() const {
 }
 
 void Settings::setShowedJoinHelp(bool showed) {
+    if (showed == m_showedJoinHelp)
+        return;
+
     m_showedJoinHelp = showed;
+
+    emit showedJoinHelpChanged();
 }
