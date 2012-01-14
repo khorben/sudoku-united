@@ -24,63 +24,11 @@
 #include <QDeclarativeListProperty>
 
 #include "sudoku.h"
+#include "cell.h"
 
 class QDataStream;
 class Player;
-class Board;
 class Game;
-class NoteModel;
-
-class Cell : public QObject {
-    Q_OBJECT
-    Q_PROPERTY(quint8 value READ value WRITE setValue NOTIFY valueChanged)
-    Q_PROPERTY(Player *valueOwner READ valueOwner WRITE setValueOwner NOTIFY valueOwnerChanged)
-    Q_PROPERTY(quint8 x READ x CONSTANT)
-    Q_PROPERTY(quint8 y READ y CONSTANT)
-    Q_PROPERTY(NoteModel *noteModel READ noteModel CONSTANT)
-public:
-    Cell();
-    explicit Cell(quint8 x, quint8 y, Board *parent = 0);
-
-    Cell &operator =(const Cell &other);
-
-    quint8 value() const;
-    void setValue(quint8 value);
-
-    Player *valueOwner() const { return m_valueOwner; }
-    void setValueOwner(Player *player);
-
-    Q_INVOKABLE
-    bool isFixedCell() const { return m_fixedCell; }
-
-    void clear();
-
-    quint8 x() const { return m_x; }
-    quint8 y() const { return m_y; }
-
-    NoteModel *noteModel() const;
-signals:
-    void beforeValueChanged();
-    void valueChanged();
-    void valueOwnerChanged();
-private:
-    friend class SudokuBoard;
-    friend class BoardGenerator;
-    friend class GameMessage;
-    friend QDataStream &readGameV1(QDataStream &stream, Game &game);
-    friend QDataStream &readGameV2(QDataStream &stream, Game &game);
-
-    inline Board *board() const { return (Board *) parent(); }
-    friend class Board;
-
-    quint8 m_x;
-    quint8 m_y;
-    bool m_fixedCell;
-    Player *m_valueOwner;
-    NoteModel *m_noteModel;
-};
-
-QML_DECLARE_TYPE(Cell)
 
 class ModificationLogEntry {
 public:

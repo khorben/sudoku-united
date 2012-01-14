@@ -75,7 +75,8 @@ SOURCES += src/main.cpp \
     src/adapters/bluetooth/bluetoothgameinfo.cpp \
     src/settings.cpp \
     src/highscore.cpp \
-    src/notemodel.cpp
+    src/notemodel.cpp \
+    src/cell.cpp
 
 # Please do not modify the following two lines. Required for deployment.
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
@@ -111,7 +112,8 @@ HEADERS += \
     src/adapters/bluetooth/bluetoothgameinfo.h \
     src/settings.h \
     src/highscore.h \
-    src/notemodel.h
+    src/notemodel.h \
+    src/cell.h
 
 RESOURCES += resources.qrc
 
