@@ -114,21 +114,27 @@ RESOURCES += resources.qrc
 # The pkg-config wrapper part of the Harmattan SDK does not support the --exists
 # parameter. Hence, everything supported by the SDK is enabled here.
 contains(MEEGO_EDITION, harmattan) | packagesExist(TelepathyQt4) {
-    !isEqual(ENABLE_TELEPATHY, 0) {
-        PKGCONFIG += TelepathyQt4
-        SOURCES += src/adapters/telepathy/telepathyclient.cpp \
-                   src/adapters/telepathy/telepathyserver.cpp \
-                   src/adapters/telepathy/telepathygameinfo.cpp \
-                   src/adapters/telepathy/telepathyhandler.cpp
-        HEADERS += src/adapters/telepathy/telepathyclient.h \
-                   src/adapters/telepathy/telepathyserver.h \
-                   src/adapters/telepathy/telepathygameinfo.h \
-                   src/adapters/telepathy/telepathyhandler.h
-        DEFINES += WITH_TELEPATHY
+    OUT = $$system(pkg-config --modversion TelepathyQt4)
+    VERSION_MATCH = $$find(OUT, ^0\\.5|6|7|8.*)
+    !count(VERSION_MATCH, 1) {
+        warning("Unsupported TelepathyQt4 version ($$OUT) supported versions are 0.5 until 0.8.")
+    } else {
+        !isEqual(ENABLE_TELEPATHY, 0) {
+            PKGCONFIG += TelepathyQt4
+            SOURCES += src/adapters/telepathy/telepathyclient.cpp \
+                       src/adapters/telepathy/telepathyserver.cpp \
+                       src/adapters/telepathy/telepathygameinfo.cpp \
+                       src/adapters/telepathy/telepathyhandler.cpp
+            HEADERS += src/adapters/telepathy/telepathyclient.h \
+                       src/adapters/telepathy/telepathyserver.h \
+                       src/adapters/telepathy/telepathygameinfo.h \
+                       src/adapters/telepathy/telepathyhandler.h
+            DEFINES += WITH_TELEPATHY
 
-        QT += dbus
+            QT += dbus
 
-        message("Enabling Telepathy adapter")
+            message("Enabling Telepathy adapter")
+        }
     }
 } else {
     warning("Disabling Telepathy adapter as TelepathyQt4 was not found.")
