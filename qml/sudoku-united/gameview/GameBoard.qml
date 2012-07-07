@@ -24,8 +24,6 @@ Grid {
 
     property Cell selectedCell
 
-    signal cellClicked(variant cellItem)
-
     id: playBoard
 
     columns: 3
@@ -68,7 +66,6 @@ Grid {
                                })(x, y)
                 object.board = playBoard
                 object.collisionChanged.connect(function (cellItem) { return function () { _playHapticFeedback(cellItem) } }(object))
-                object.showNumberChooser.connect(cellClicked)
                 object.showNumberChooser.connect(_onCellClicked)
 
                 cellItemList.push(object);

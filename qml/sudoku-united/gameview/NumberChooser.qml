@@ -22,8 +22,7 @@ import sudoku 1.0
 Rectangle{
     property GameBoard gameBoard
 
-    property Cell cell
-    property variant cellItem
+    property Cell cell: gameBoard ? gameBoard.selectedCell : undefined
     property string mode: noteEditMode.checked ? "note" : "normal"
 
     id: chooser
@@ -31,16 +30,6 @@ Rectangle{
     height: 260
     color: "#AF222222"
     radius: 7
-
-    Connections {
-        target: gameBoard
-
-        onCellClicked: {
-            chooser.cellItem = cellItem
-            chooser.visible = true
-            chooser.cell = cellItem.cell
-        }
-    }
 
     function setNumber(cell, number) {
         //find collisions
@@ -51,7 +40,6 @@ Rectangle{
                 cell.valueOwner = localPlayer
                 cell.value = number
             }
-            chooser.visible = false;
         } else {
             // Find colliding cells
             collisions.forEach(function (cell) {
@@ -60,17 +48,7 @@ Rectangle{
         }
     }
 
-    onVisibleChanged: {
-        if(visible){
-            state = "active"
-        }
-        else{
-            state = "hidden"
-            noteEditMode.checked = false
-        }
-    }
-
-    state: "hidden"
+    state: cell ? "active" : "hidden"
 
     Rectangle {
         id: numberBoard
@@ -111,7 +89,7 @@ Rectangle{
                     mode = mode === "note" ? "" : "note";
 
                 if (mode === "note"){
-                    cellItem.cell.noteModel.get(number - 1).modelMarked = !cellItem.cell.noteModel.get(number - 1).modelMarked
+                    cell.noteModel.get(number - 1).modelMarked = !cell.noteModel.get(number - 1).modelMarked
                     return;
                 } else {
                     setNumber(cell, number)
@@ -128,12 +106,6 @@ Rectangle{
         exclusive: false
 
         Button{
-            iconSource: "image://theme/icon-m-toolbar-close"
-            onClicked: chooser.visible = false
-            checkable: false
-        }
-
-        Button{
             iconSource: "image://theme/icon-m-toolbar-delete"
             onClicked: {
                 if ( chooser.mode == "note" ){
@@ -142,7 +114,6 @@ Rectangle{
                     }
                 } else {
                     cell.value = 0
-                    chooser.visible = false
                 }
             }
             checkable: false
