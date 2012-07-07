@@ -80,8 +80,7 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     google_breakpad::ExceptionHandler eh(crashDumpPath.toStdString(), NULL, dumpCallback, NULL, true);
 #endif
 
-    QmlApplicationViewer *appViewer = QmlApplicationViewer::create();
-    QDeclarativeView *viewer = appViewer->actualView();
+    QmlApplicationViewer *viewer = QmlApplicationViewer::create();
 
     qRegisterMetaType<Cell *>();
     qRegisterMetaTypeStreamOperators<QUuid>("QUuid");
@@ -118,9 +117,9 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     QObject *gameView = gameViewComponent->create(viewer->rootContext());
     viewer->rootContext()->setContextProperty("gameView", gameView);
 
-    appViewer->setOrientation(QmlApplicationViewer::ScreenOrientationAuto);
-    appViewer->setMainQmlFile(QLatin1String("qml/sudoku-united/main.qml"));
-    appViewer->showExpanded();
+    viewer->setOrientation(QmlApplicationViewer::ScreenOrientationAuto);
+    viewer->setMainQmlFile(QLatin1String("qml/sudoku-united/main.qml"));
+    viewer->showExpanded();
 
     int ret = app->exec();
 
