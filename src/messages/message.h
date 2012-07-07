@@ -34,6 +34,9 @@ public:
         HelloMessage,
         PlayerMessage
     };
+
+    virtual ~Message() {}
+
     static Message *parse(QDataStream &dataStream);
 
     virtual MessageTypeId type() const = 0;
