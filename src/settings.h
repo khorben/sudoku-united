@@ -27,7 +27,7 @@ class HighscoreModel;
 class Settings : public QSettings
 {
     Q_OBJECT
-    Q_ENUMS(QuickAccessAction)
+    Q_ENUMS(QuickAccessAction LongPressAction)
     Q_PROPERTY(QString playerName READ playerName WRITE setPlayerName
                NOTIFY playerNameChanged)
     Q_PROPERTY(bool hapticFeedbackEnabled READ hapticFeedbackEnabled
@@ -42,12 +42,17 @@ class Settings : public QSettings
     Q_PROPERTY(QuickAccessAction quickAccessAction READ quickAccessAction
                WRITE setQuickAccessAction NOTIFY quickAccessActionChanged)
     Q_PROPERTY(bool showedJoinHelp READ showedJoinHelp WRITE setShowedJoinHelp NOTIFY showedJoinHelpChanged)
+    Q_PROPERTY(LongPressAction longPressAction READ longPressAction WRITE setLongPressAction NOTIFY longPressActionChanged)
 public:
     enum QuickAccessAction {
         UndoAction,
         HintAction
     };
 
+    enum LongPressAction {
+        IgnoreAction,
+        InverseAction
+    };
 public:
     explicit Settings(QObject *parent = 0);
 
@@ -77,6 +82,9 @@ public:
     bool showedJoinHelp() const;
     void setShowedJoinHelp(bool showed);
 
+    LongPressAction longPressAction() const;
+    void setLongPressAction(LongPressAction action);
+
     Q_INVOKABLE
     void saveSettings();
 signals:
@@ -86,6 +94,7 @@ signals:
     void showGameTimerChanged();
     void quickAccessActionChanged();
     void showedJoinHelpChanged();
+    void longPressActionChanged();
 public slots:
 
 private:
@@ -100,6 +109,7 @@ private:
     QuickAccessAction m_quickAccessAction;
     QUuid m_playerUuid;
     bool m_showedJoinHelp;
+    LongPressAction m_longPressAction;
 };
 
 QML_DECLARE_TYPE(Settings)

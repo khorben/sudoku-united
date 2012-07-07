@@ -126,6 +126,28 @@ Page {
                     gameInstance.settings.quickAccessAction = selectedIndex
                 }
             }
+
+            SelectComponent {
+                text: "Long-press number action"
+                subText: {
+                    switch(gameInstance.settings.longPressAction) {
+                    case Settings.IgnoreAction:
+                        return "Ignore action";
+                    case Settings.InverseAction:
+                        return "Inverse action (enter note/number)";
+                    }
+                }
+                dialogTitle: text
+                selectedIndex: gameInstance.settings.longPressAction
+                model: ListModel {
+                    ListElement { name: "Ignore action" }
+                    ListElement { name: "Inverse action (enter note/number)" }
+                }
+
+                onSelectedIndexChanged: {
+                    gameInstance.settings.longPressAction = selectedIndex
+                }
+            }
         }
     }
 

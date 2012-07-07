@@ -27,7 +27,8 @@ Settings::Settings(QObject *parent) :
     m_showGameTimer(false),
     m_highscoreModel(NULL),
     m_quickAccessAction(UndoAction),
-    m_showedJoinHelp(false)
+    m_showedJoinHelp(false),
+    m_longPressAction(InverseAction)
 {
     loadSettings();
 }
@@ -39,6 +40,7 @@ void Settings::loadSettings() {
     setShowGameTimer(value("showGameTimer", false).toBool());
     setQuickAccessAction((QuickAccessAction) value("quickAccessAction", 0).toUInt());
     setShowedJoinHelp(value("showedJoinHelp", false).toBool());
+    setLongPressAction((LongPressAction) value("longPressAction", Settings::InverseAction).toUInt());
 
     m_playerUuid = value("playerUuid", QVariant::fromValue(QUuid::createUuid())).value<QUuid>();
 
@@ -82,6 +84,7 @@ void Settings::saveSettings() {
     setValue("quickAccessAction", (quint32) quickAccessAction());
     setValue("playerUuid", QVariant::fromValue(playerUuid()));
     setValue("showedJoinHelp", showedJoinHelp());
+    setValue("longPressAction", (quint32) longPressAction());
 
     if (m_lastGame) {
         QByteArray buffer;
@@ -212,4 +215,19 @@ void Settings::setShowedJoinHelp(bool showed) {
     m_showedJoinHelp = showed;
 
     emit showedJoinHelpChanged();
+}
+
+Settings::LongPressAction Settings::longPressAction() const
+{
+    return m_longPressAction;
+}
+
+void Settings::setLongPressAction(Settings::LongPressAction action)
+{
+    if (m_longPressAction == action)
+        return;
+
+    m_longPressAction = action;
+
+    emit longPressActionChanged();
 }

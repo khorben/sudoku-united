@@ -16,13 +16,15 @@
 */
 
 import QtQuick 1.1
+import sudoku 1.0
 
 Rectangle {
     id: numberCell
 
     property variant numberChooser
 
-    signal selected(int number)
+    signal selected(int number, bool longPress)
+
     property int number
 
     width: parent.width / 3
@@ -39,9 +41,26 @@ Rectangle {
     }
 
     MouseArea {
+        id: mouseArea
+
+        property bool __pressedAndHold: false
         anchors.fill: parent
-        onClicked: {
-            numberCell.selected(numberCell.number)
+
+        onPressAndHold: {
+            __pressedAndHold = true
+            numberCell.selected(numberCell.number, true)
+        }
+        onClicked: numberCell.selected(numberCell.number, false)
+        onPressed: __pressedAndHold = false
+        onReleased: {
+            // onClicked is not called if onPressAndHold was called (but ignored)
+            // Connecting and disconnecting the pressOnHold signal dependening
+            // on the value of longPressAction does not yield the desired
+            // results either.
+            if (__pressedAndHold
+                    && gameInstance.settings.longPressAction === Settings.IgnoreAction)
+                numberCell.selected(numberCell.number, false)
+            __pressedAndHold = false
         }
     }
 

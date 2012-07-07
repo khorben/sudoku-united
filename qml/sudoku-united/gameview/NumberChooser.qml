@@ -97,19 +97,26 @@ Rectangle{
                 for (var i = 1; i <= 9; i++) {
                     var object = component.createObject(numberGrid, { "number": i,
                                                             "numberChooser": function () { return chooser; } })
-                    object.selected.connect(updateValue)
+                    object.selected.connect(numberSelected)
                 }
             }
 
-            function updateValue(number) {
-                if ( chooser.mode == "note" ){
+            function numberSelected(number, longPress) {
+                var mode = chooser.mode;
+
+                if (longPress && gameInstance.settings.longPressAction === Settings.IgnoreAction)
+                    return;
+
+                if (longPress)
+                    mode = mode === "note" ? "" : "note";
+
+                if (mode === "note"){
                     cellItem.cell.noteModel.get(number - 1).modelMarked = !cellItem.cell.noteModel.get(number - 1).modelMarked
                     return;
                 } else {
                     setNumber(cell, number)
                 }
             }
-
         }
     }
 
