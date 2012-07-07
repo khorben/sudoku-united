@@ -19,6 +19,7 @@ import QtQuick 1.1
 import com.nokia.meego 1.0
 import "UIConstants.js" as UIConstants
 import sudoku 1.0
+import "settings_components"
 
 Page {
     id: settingsPage
@@ -57,7 +58,15 @@ Page {
             spacing: UIConstants.DEFAULT_MARGIN
 
             Column {
-                anchors { top: parent.top; left: parent.left; right: parent.right; margins: UIConstants.DEFAULT_MARGIN }
+                anchors { left: parent.left; right: parent.right; margins: UIConstants.DEFAULT_MARGIN }
+
+                /**
+                  * Spacing item as the top margin is ignored in the top-most column.
+                  */
+                Item {
+                    anchors { left: parent.left; right: parent.right; }
+                    height: UIConstants.DEFAULT_MARGIN
+                }
 
                 Label {
                     id: playerNameLabel
@@ -75,176 +84,46 @@ Page {
                 }
             }
 
-            Item {
-                anchors { left: parent.left; right: parent.right; margins: UIConstants.DEFAULT_MARGIN }
-                height: UIConstants.LIST_ITEM_HEIGHT_DEFAULT
-
-                Column {
-                    anchors.verticalCenter: parent.verticalCenter
-                    Label {
-                        text: "Bluetooth control"
-                        font.weight: Font.Bold
-
-                    }
-
-                    Label {
-                        wrapMode: Text.WordWrap
-                        platformStyle: LabelStyle {
-                            fontPixelSize: UIConstants.FONT_XSMALL
-                        }
-
-                        text: "Enable playing via Bluetooth"
-                    }
-                }
-
-                Switch {
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-                    checked: gameInstance.settings.bluetoothEnabled
-                    onCheckedChanged: {
-                        gameInstance.settings.bluetoothEnabled = checked
-                    }
-                }
+            SwitchComponent {
+                text: "Bluetooth control"
+                subText: "Enable playing via Bluetooth"
+                checked: gameInstance.settings.bluetoothEnabled
+                onCheckedChanged: gameInstance.settings.bluetoothEnabled = checked
             }
 
-            Item {
-                anchors { left: parent.left; right: parent.right; margins: UIConstants.DEFAULT_MARGIN }
-                height: UIConstants.LIST_ITEM_HEIGHT_DEFAULT
-
-                Column {
-                    anchors.verticalCenter: parent.verticalCenter
-                    Label {
-                        text: "Haptic feedback"
-                        font.weight: Font.Bold
-
-                    }
-
-                    Label {
-                        wrapMode: Text.WordWrap
-                        platformStyle: LabelStyle {
-                            fontPixelSize: UIConstants.FONT_XSMALL
-                        }
-
-                        text: "Give haptic feedback on special events"
-                    }
-                }
-
-                Switch {
-                    id: feedbackSwitch
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-                    checked: gameInstance.settings.hapticFeedbackEnabled
-                    onCheckedChanged: {
-                        gameInstance.settings.hapticFeedbackEnabled = checked
-                    }
-                }
+            SwitchComponent {
+                text: "Haptic feedback"
+                subText: "Give haptic feedback on special events"
+                checked: gameInstance.settings.hapticFeedbackEnabled
+                onCheckedChanged: gameInstance.settings.hapticFeedbackEnabled = checked
             }
 
-            Item {
-                anchors { left: parent.left; right: parent.right; margins: UIConstants.DEFAULT_MARGIN }
-                height: UIConstants.LIST_ITEM_HEIGHT_DEFAULT
-
-                Column {
-                    anchors.verticalCenter: parent.verticalCenter
-                    Label {
-                        text: "Show game timer"
-                        font.weight: Font.Bold
-
-                    }
-
-                    Label {
-                        wrapMode: Text.WordWrap
-                        platformStyle: LabelStyle {
-                            fontPixelSize: UIConstants.FONT_XSMALL
-                        }
-
-                        text: "Shows the elapsed time in-game"
-                    }
-                }
-
-                Switch {
-                    id: showGameTimerSwitch
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-                    checked: gameInstance.settings.showGameTimer
-                    onCheckedChanged: {
-                        gameInstance.settings.showGameTimer = checked
-                    }
-                }
+            SwitchComponent {
+                text: "Show game timer"
+                subText: "Shows the elapsed time in-game"
+                checked: gameInstance.settings.showGameTimer
+                onCheckedChanged: gameInstance.settings.showGameTimer = checked
             }
 
-            Item {
-                anchors { left: parent.left; right: parent.right; margins: UIConstants.DEFAULT_MARGIN }
-                height: UIConstants.LIST_ITEM_HEIGHT_DEFAULT
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        quickAccessDialog.open()
+            SelectComponent {
+                text: "Quick access button"
+                subText: {
+                    switch(gameInstance.settings.quickAccessAction) {
+                    case Settings.UndoAction:
+                        return "Undo";
+                    case Settings.HintAction:
+                        return "Hint";
                     }
                 }
-
-                SelectionDialog {
-                    id: quickAccessDialog
-                    titleText: "Quick access button"
-
-                    model: ListModel {
-                        ListElement { name: "Undo" }
-                        ListElement { name: "Hint" }
-                    }
-
-                    onSelectedIndexChanged: {
-                        var action;
-
-                        switch (selectedIndex) {
-                        case 0:
-                            action = Settings.UndoAction;
-                            break;
-                        case 1:
-                            action = Settings.HintAction;
-                            break;
-                        }
-
-                        gameInstance.settings.quickAccessAction = action
-                    }
-
-                    selectedIndex: gameInstance.settings.quickAccessAction
+                dialogTitle: text
+                selectedIndex: gameInstance.settings.quickAccessAction
+                model: ListModel {
+                    ListElement { name: "Undo" }
+                    ListElement { name: "Hint" }
                 }
 
-                Row {
-                    width: parent.width
-                    Column {
-                        width: parent.width - comboBoxImage.width
-                        anchors.verticalCenter: parent.verticalCenter
-                        Label {
-                            text: "Quick access button"
-                            font.weight: Font.Bold
-
-                        }
-
-                        Label {
-                            wrapMode: Text.WordWrap
-                            platformStyle: LabelStyle {
-                                fontPixelSize: UIConstants.FONT_XSMALL
-                            }
-
-                            text: {
-                                switch(gameInstance.settings.quickAccessAction) {
-                                case Settings.UndoAction:
-                                    return "Undo";
-                                case Settings.HintAction:
-                                    return "Hint";
-                                }
-                            }
-                        }
-                    }
-
-                    Image {
-                        id: comboBoxImage
-                        width: sourceSize.width
-                        anchors.verticalCenter: parent.verticalCenter
-                        source: "image://theme/icon-m-common-combobox-arrow-selected"
-                    }
+                onSelectedIndexChanged: {
+                    gameInstance.settings.quickAccessAction = selectedIndex
                 }
             }
         }
