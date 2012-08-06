@@ -36,10 +36,9 @@ Rectangle {
 
     color: startColor
 
-    signal showNumberChooser(variant cellItem)
-
     GridView {
         id: noteGrid
+        interactive: false
         anchors.fill: parent
         model: !cell ? undefined : cell.noteModel
         cellWidth: (width / 3) - 1
@@ -68,15 +67,6 @@ Rectangle {
         }
         anchors.centerIn: parent
         font.pixelSize: 24
-    }
-
-    MouseArea {
-        anchors.fill: parent
-        onClicked: {
-            if (cell && cell.isFixedCell())
-                return;
-            showNumberChooser(cellItem)
-        }
     }
 
     state: "default"

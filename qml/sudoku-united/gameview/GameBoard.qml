@@ -75,8 +75,6 @@ MouseArea {
                                })(x, y)
                 object.board = playBoard
                 object.collisionChanged.connect(function (cellItem) { return function () { _playHapticFeedback(cellItem) } }(object))
-                object.showNumberChooser.connect(cellClicked)
-                object.showNumberChooser.connect(_onCellClicked)
 
                 cellItemList.push(object);
             }
@@ -85,8 +83,19 @@ MouseArea {
         _cellItems = cellItemList
     }
 
-    function _onCellClicked(cellItem) {
-        selectedCell = cellItem.cell
+    onPressed: _updateSelected(mouse)
+    onPositionChanged: _updateSelected(mouse)
+
+    function _updateSelected(mouse) {
+        var blockItem = grid.childAt(mouse.x,mouse.y);
+        if (blockItem && blockItem.gridItem) {
+            var pos = blockItem.mapFromItem(grid, mouse.x, mouse.y);
+            var cellItem = blockItem.gridItem.childAt(pos.x,pos.y);
+            if (cellItem && cellItem.cell && selectedCell != cellItem.cell) {
+                selectedCell = cellItem.cell;
+                cellClicked(cellItem);
+            }
+        }
     }
 
     function _playHapticFeedback(cellItem) {
