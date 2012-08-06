@@ -22,8 +22,7 @@ import sudoku 1.0
 Rectangle{
     property GameBoard gameBoard
 
-    property Cell cell
-    property variant cellItem
+    property Cell cell: gameBoard.selectedCell
     property string mode: noteEditMode.checked ? "note" : "normal"
 
     id: chooser
@@ -31,16 +30,7 @@ Rectangle{
     height: 260
     color: "#AF222222"
     radius: 7
-
-    Connections {
-        target: gameBoard
-
-        onCellClicked: {
-            chooser.cellItem = cellItem
-            chooser.visible = true
-            chooser.cell = cellItem.cell
-        }
-    }
+    enabled: !!cell && !cell.isFixedCell()
 
     function setNumber(cell, number) {
         //find collisions
@@ -51,22 +41,11 @@ Rectangle{
                 cell.valueOwner = localPlayer
                 cell.value = number
             }
-            chooser.visible = false;
         } else {
             // Find colliding cells
             collisions.forEach(function (cell) {
                                    gameBoard.cellAt(cell.x, cell.y).collision = true
                                });
-        }
-    }
-
-    onVisibleChanged: {
-        if(visible){
-            state = "active"
-        }
-        else{
-            state = "hidden"
-            noteEditMode.checked = false
         }
     }
 
@@ -85,6 +64,7 @@ Rectangle{
         border.width: 2;
         radius: 0
         border.color: "grey"
+        color: enabled ? "white" : "lightgray"
 
         Grid {
             id: numberGrid
@@ -103,7 +83,7 @@ Rectangle{
 
             function updateValue(number) {
                 if ( chooser.mode == "note" ){
-                    cellItem.cell.noteModel.get(number - 1).modelMarked = !cellItem.cell.noteModel.get(number - 1).modelMarked
+                    cell.noteModel.get(number - 1).modelMarked = !cell.noteModel.get(number - 1).modelMarked
                     return;
                 } else {
                     setNumber(cell, number)
@@ -121,12 +101,6 @@ Rectangle{
         exclusive: false
 
         Button{
-            iconSource: "image://theme/icon-m-toolbar-close"
-            onClicked: chooser.visible = false
-            checkable: false
-        }
-
-        Button{
             iconSource: "image://theme/icon-m-toolbar-delete"
             onClicked: {
                 if ( chooser.mode == "note" ){
@@ -135,7 +109,6 @@ Rectangle{
                     }
                 } else {
                     cell.value = 0
-                    chooser.visible = false
                 }
             }
             checkable: false
@@ -147,36 +120,4 @@ Rectangle{
             checkable: true
         }
     }
-
-    states: [State {
-            name: "hidden";
-            PropertyChanges { target: chooser; height: 0}
-            PropertyChanges { target: chooser; width: 0}
-            PropertyChanges { target: chooser; visible: false}
-        },
-        State {
-            name: "active";
-            PropertyChanges { target: chooser; height: 260}
-            PropertyChanges { target: chooser; width: 200}
-            PropertyChanges { target: chooser; visible: true}
-        }]
-
-    transitions: [
-        Transition {
-            from: "hidden"; to: "active"; reversible: false
-            ParallelAnimation {
-                NumberAnimation { properties: "height"; duration: 100; easing.type: Easing.InOutQuad }
-                NumberAnimation { properties: "width"; duration: 100; easing.type: Easing.InOutQuad }
-                NumberAnimation { properties: "visible"; duration: 100; easing.type: Easing.InOutQuad }
-            }
-        },
-        Transition {
-            from: "active"; to: "hidden"; reversible: false
-            ParallelAnimation {
-                NumberAnimation { properties: "height"; duration: 100; easing.type: Easing.InOutQuad }
-                NumberAnimation { properties: "width"; duration: 100; easing.type: Easing.InOutQuad }
-                NumberAnimation { properties: "visible"; duration: 100; easing.type: Easing.InOutQuad }
-            }
-        }
-    ]
 }

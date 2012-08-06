@@ -26,8 +26,6 @@ MouseArea {
 
     property Cell selectedCell
 
-    signal cellClicked(variant cellItem)
-
     width: grid.width
     height: grid.height
 
@@ -91,10 +89,8 @@ MouseArea {
         if (blockItem && blockItem.gridItem) {
             var pos = blockItem.mapFromItem(grid, mouse.x, mouse.y);
             var cellItem = blockItem.gridItem.childAt(pos.x,pos.y);
-            if (cellItem && cellItem.cell && selectedCell != cellItem.cell) {
+            if (cellItem && cellItem.cell)
                 selectedCell = cellItem.cell;
-                cellClicked(cellItem);
-            }
         }
     }
 
