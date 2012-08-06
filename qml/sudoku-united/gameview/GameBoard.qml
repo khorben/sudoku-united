@@ -94,6 +94,13 @@ MouseArea {
         }
     }
 
+    onSelectedCellChanged: cellEffect.start()
+
+    FileEffect {
+        id: cellEffect
+        source: "/usr/share/themes/base/meegotouch/meego-im-uiserver/feedbacks/priority2_vkb_popup_press/vibra.ivt"
+    }
+
     function _playHapticFeedback(cellItem) {
         if (!cellItem.collision || !gameInstance.settings.hapticFeedbackEnabled)
             return;
