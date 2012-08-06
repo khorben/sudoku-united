@@ -25,8 +25,10 @@ Rectangle {
     property string fontColor: "black"
     property variant cell
     property variant board
-    property bool selected: board.selectedCell != undefined && cell != undefined && board.selectedCell.x == cell.x && board.selectedCell.y == cell.y
-    property bool highlighted: board.selectedCell != undefined && cell != undefined && (board.selectedCell.x == cell.x || board.selectedCell.y == cell.y)
+    property bool selection: board.selectedCell != undefined && cell != undefined
+    property bool selected: selection && board.selectedCell.x == cell.x && board.selectedCell.y == cell.y
+    property bool highlighted: selection && (board.selectedCell.x == cell.x || board.selectedCell.y == cell.y)
+    property bool marked: selection && cell.value && board.selectedCell.value == cell.value
     property bool collision: false
 
     width: 50
@@ -43,6 +45,7 @@ Rectangle {
         model: !cell ? undefined : cell.noteModel
         cellWidth: (width / 3) - 1
         cellHeight: (height / 3)
+        visible: !!cell && !cell.value
 
         delegate: NoteItem {
             value: modelValue
@@ -67,6 +70,16 @@ Rectangle {
         }
         anchors.centerIn: parent
         font.pixelSize: 24
+    }
+
+    Rectangle {
+        radius: 7
+        border.width: 2
+        border.color: "blue"
+        color: "transparent"
+        visible: marked
+        anchors.fill: parent
+        anchors.margins: 10
     }
 
     state: "default"
