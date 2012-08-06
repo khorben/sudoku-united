@@ -19,18 +19,25 @@ import QtQuick 1.1
 import QtMobility.feedback 1.1
 import sudoku 1.0
 
-Grid {
+MouseArea {
+    id: playBoard
+
     property Board board
 
     property Cell selectedCell
 
     signal cellClicked(variant cellItem)
 
-    id: playBoard
+    width: grid.width
+    height: grid.height
 
-    columns: 3
-    rows:  3
-    spacing: 2
+    Grid {
+        id: grid
+
+        columns: 3
+        rows:  3
+        spacing: 2
+    }
 
     anchors {
         horizontalCenter: parent.horizontalCenter
@@ -50,7 +57,7 @@ Grid {
         var block = Qt.createComponent("BlockItem.qml")
         var blockItems = []
         for (var i = 0; i < 9; i++){
-            blockItems[i] = block.createObject(playBoard)
+            blockItems[i] = block.createObject(grid)
         }
 
         var component = Qt.createComponent("CellItem.qml")
