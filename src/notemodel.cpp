@@ -82,6 +82,15 @@ QObject *NoteModel::get(int index)
     return new Note(this, index + 1);
 }
 
+bool NoteModel::isMarked(int value) const
+{
+    data(index(value - 1), NoteModel::MarkedType);
+}
+
+void NoteModel::setMarked(int value, bool marked)
+{
+    setData(index(value - 1), marked, NoteModel::MarkedType);
+}
 
 Note::Note(NoteModel *model, int value) :
     m_model(model), m_value(value)
