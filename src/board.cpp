@@ -139,6 +139,15 @@ void Board::onCellValueChanged() {
 
     emit cellValueChanged(cell);
 
+    if (isRowFull(cell->y()))
+        emit rowIsFull(cell->y());
+
+    if (isColumnFull(cell->x()))
+        emit columnIsFull(cell->x());
+
+    if (isBlockFull(cell->block()))
+        emit blockIsFull(cell->block());
+
     if (isFull()) {
         pause();
         emit boardIsFull();
@@ -212,6 +221,38 @@ bool Board::isFull() const {
     for (quint8 x = 0; x < 9; x++) {
         for (quint8 y = 0; y < 9; y++) {
             if (cellValue(x, y) == 0)
+                return false;
+        }
+    }
+
+    return true;
+}
+
+bool Board::isRowFull(int row) const {
+    for (quint8 x = 0; x < 9; x++) {
+        if (cellValue(x, row) == 0)
+            return false;
+    }
+
+    return true;
+}
+
+bool Board::isColumnFull(int column) const {
+    for (quint8 y = 0; y < 9; y++) {
+        if (cellValue(column, y) == 0)
+            return false;
+    }
+
+    return true;
+}
+
+bool Board::isBlockFull(int block) const {
+    quint8 startX = quint8(block % 3) * 3;
+    quint8 startY = quint8(block / 3) * 3;
+
+    for (quint8 yR = startY; yR < startY + 3; yR++) {
+        for (quint8 xR = startX; xR < startX + 3; xR++) {
+            if (cellValue(xR, yR) == 0)
                 return false;
         }
     }
