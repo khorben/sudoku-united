@@ -20,6 +20,7 @@ import QtQuick 1.1
 Grid {
     id: grid
 
+    property int markedValue: 0
     property alias model: repeater.model
 
     columns: 3
@@ -33,10 +34,20 @@ Grid {
             height: grid.height / 3
 
             color: "gray"
-            font.pixelSize: 11
+            font.pixelSize: 12
             text: modelMarked ? modelValue : ""
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignBottom
+
+            Rectangle {
+                radius: 3
+                border.width: 1
+                border.color: "blue"
+                color: "transparent"
+                visible: modelMarked && modelValue == markedValue
+                anchors.fill: parent
+                anchors.margins: 2
+            }
         }
     }
 }

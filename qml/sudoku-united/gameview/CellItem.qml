@@ -42,6 +42,7 @@ Rectangle {
         id: noteGrid
         visible: !!cell && !cell.value
         model: !!cell ? cell.noteModel : undefined
+        markedValue: selection ? board.selectedCell.value : 0
     }
 
     Text {
