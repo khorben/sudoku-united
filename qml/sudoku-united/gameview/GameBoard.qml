@@ -61,6 +61,13 @@ MouseArea {
                     cellAt(x, y).animateFull()
             }
         }
+        onValueIsFull: {
+            for (var i = 0; i < 81; ++i) {
+                var cellItem = _cellItems[i]
+                if (cellItem.cell.value == value)
+                    cellItem.animateFull()
+            }
+        }
         onBoardIsFull: {
             for (var i = 0; i < 81; ++i)
                 _cellItems[i].animateFull()
