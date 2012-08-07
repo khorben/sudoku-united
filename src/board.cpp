@@ -250,7 +250,26 @@ quint8 Board::solutionValue(quint8 x, quint8 y) const {
 
 void Board::setCellValue(quint8 x, quint8 y, quint8 value) {
     m_cellValues[x][y] = value;
+
+    if (value) {
+        // clear corresponding notes in the same...
+        for (quint8 i = 0; i < 9; ++i) {
+            // row
+            cellAt(i, y)->noteModel()->setMarked(value, false);
+            // column
+            cellAt(x, i)->noteModel()->setMarked(value, false);
+        }
+
+        // block
+        quint8 startX = quint8(x / 3) * 3;
+        quint8 startY = quint8(y / 3) * 3;
+        for (quint8 yR = startY; yR < startY + 3; yR++) {
+            for (quint8 xR = startX; xR < startX + 3; xR++)
+                cellAt(xR, yR)->noteModel()->setMarked(value, false);
+        }
+    }
 }
+
 quint64 Board::startTime() const {
     return m_startTime;
 }
