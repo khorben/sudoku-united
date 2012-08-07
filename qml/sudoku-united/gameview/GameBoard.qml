@@ -43,6 +43,30 @@ MouseArea {
         topMargin: 15
     }
 
+    Connections {
+        target: board
+        onRowIsFull: {
+            for (var i = 0; i < 9; ++i)
+                cellAt(i, row).animateFull()
+        }
+        onColumnIsFull: {
+            for (var i = 0; i < 9; ++i)
+                cellAt(column, i).animateFull()
+        }
+        onBlockIsFull: {
+            var startX = (block % 3) * 3;
+            var startY = Math.floor(block / 3) * 3;
+            for (var x = startX; x < startX + 3; ++x) {
+                for (var y = startY; y < startY + 3; ++y)
+                    cellAt(x, y).animateFull()
+            }
+        }
+        onBoardIsFull: {
+            for (var i = 0; i < 81; ++i)
+                _cellItems[i].animateFull()
+        }
+    }
+
     function cellAt(x, y) {
         return _cellItems[x % 9 + y * 9];
     }

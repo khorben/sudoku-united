@@ -31,6 +31,10 @@ Rectangle {
     property bool marked: selection && cell.value && board.selectedCell.value == cell.value
     property bool collision: false
 
+    function animateFull() {
+        fullAnimation.start()
+    }
+
     width: 50
     height: 50
     border.width: 1
@@ -47,6 +51,7 @@ Rectangle {
 
     Text {
         id: currentValue
+        property real angle // suppress warnings (QTBUG-22141)
         text: !cell || cell.value === 0 ? "" : cell.value
         color: {
             if (cell && cell.valueOwner) {
@@ -60,6 +65,34 @@ Rectangle {
         }
         anchors.centerIn: parent
         font.pixelSize: 24
+
+        ParallelAnimation {
+            id: fullAnimation
+            RotationAnimation {
+                target: currentValue
+                duration: 500
+                easing.type: Easing.InOutSine
+                direction: RotationAnimation.Clockwise
+                to: 360
+            }
+            SequentialAnimation {
+                PropertyAnimation {
+                    target: currentValue
+                    duration: 250
+                    easing.type: Easing.InOutSine
+                    property: "scale"
+                    to: 1.6
+                }
+                PropertyAnimation {
+                    target: currentValue
+                    duration: 250
+                    easing.type: Easing.InOutSine
+                    property: "scale"
+                    to: 1.0
+                }
+            }
+            PropertyAction { target: currentValue; property: "rotation"; value: 0 }
+        }
     }
 
     Rectangle {
