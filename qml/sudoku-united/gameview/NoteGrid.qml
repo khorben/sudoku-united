@@ -16,17 +16,27 @@
 */
 
 import QtQuick 1.1
-import com.nokia.meego 1.0
 
-Label{
-    property int value
-    property bool marked
+Grid {
+    id: grid
 
-    text: marked ? value : ""
-    horizontalAlignment: Text.AlignHCenter
-    verticalAlignment: Text.AlignVCenter
-    platformStyle: LabelStyle{
-        fontPixelSize: 11
-        textColor: "grey"
+    property alias model: repeater.model
+
+    columns: 3
+    anchors.fill: parent
+
+    Repeater {
+        id: repeater
+
+        Text {
+            width: grid.width / 3
+            height: grid.height / 3
+
+            color: "gray"
+            font.pixelSize: 11
+            text: modelMarked ? modelValue : ""
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignBottom
+        }
     }
 }

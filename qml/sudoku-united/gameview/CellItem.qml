@@ -38,21 +38,10 @@ Rectangle {
 
     color: startColor
 
-    GridView {
+    NoteGrid {
         id: noteGrid
-        interactive: false
-        anchors.fill: parent
-        model: !cell ? undefined : cell.noteModel
-        cellWidth: (width / 3) - 1
-        cellHeight: (height / 3)
         visible: !!cell && !cell.value
-
-        delegate: NoteItem {
-            value: modelValue
-            marked: modelMarked
-            width: GridView.view.cellWidth
-            height: GridView.view.cellHeight
-        }
+        model: !!cell ? cell.noteModel : undefined
     }
 
     Text {
