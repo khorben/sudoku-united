@@ -139,21 +139,28 @@ void Board::onCellValueChanged() {
 
     emit cellValueChanged(cell);
 
-    if (isRowFull(cell->y()))
-        emit rowIsFull(cell->y());
+    if (cell->value() != 0) {
 
-    if (isColumnFull(cell->x()))
-        emit columnIsFull(cell->x());
+        bool rowFull = isRowFull(cell->y());
+        if (rowFull)
+            emit rowIsFull(cell->y());
 
-    if (isBlockFull(cell->block()))
-        emit blockIsFull(cell->block());
+        bool columnFull = isColumnFull(cell->x());
+        if (columnFull)
+            emit columnIsFull(cell->x());
 
-    if (isValueFull(cell->value()))
-        emit valueIsFull(cell->value());
+        bool blockFull = isBlockFull(cell->block());
+        if (blockFull)
+            emit blockIsFull(cell->block());
 
-    if (isFull()) {
-        pause();
-        emit boardIsFull();
+        bool valueFull = isValueFull(cell->value());
+        if (valueFull)
+            emit valueIsFull(cell->value());
+
+        if (rowFull && columnFull && blockFull && valueFull && isFull()) {
+            pause();
+            emit boardIsFull();
+        }
     }
 }
 
