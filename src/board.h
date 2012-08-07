@@ -106,6 +106,12 @@ public:
     bool isBlockFull(int block) const;
 
     /**
+      * \returns True, if all instances of the value are set, false otherwise.
+      */
+    Q_INVOKABLE
+    bool isValueFull(int value) const;
+
+    /**
       * Creates a string representation of the current board.
       */
     QString toString() const;
@@ -148,6 +154,7 @@ signals:
     void rowIsFull(int row);
     void columnIsFull(int column);
     void blockIsFull(int block);
+    void valueIsFull(int value);
 
     void canUndoChanged();
 public slots:

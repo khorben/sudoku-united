@@ -148,6 +148,9 @@ void Board::onCellValueChanged() {
     if (isBlockFull(cell->block()))
         emit blockIsFull(cell->block());
 
+    if (isValueFull(cell->value()))
+        emit valueIsFull(cell->value());
+
     if (isFull()) {
         pause();
         emit boardIsFull();
@@ -258,6 +261,18 @@ bool Board::isBlockFull(int block) const {
     }
 
     return true;
+}
+
+bool Board::isValueFull(int value) const {
+    quint8 i = 0;
+    for (quint8 y = 0; y < 9; y++) {
+        for (quint8 x = 0; x < 9; x++) {
+            if (cellValue(x, y) == value)
+                i++;
+        }
+    }
+
+    return i == 9;
 }
 
 QString Board::toString() const {
