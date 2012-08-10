@@ -138,7 +138,10 @@ MouseArea {
         }
     }
 
-    onSelectedCellChanged: cellEffect.start()
+    onSelectedCellChanged: {
+        if (gameInstance.settings.hapticFeedbackEnabled)
+            cellEffect.start()
+    }
 
     FileEffect {
         id: cellEffect
