@@ -90,6 +90,20 @@ Rectangle{
                 }
             }
 
+            Connections {
+                target: gameBoard
+                onBoardChanged: {
+                    for (var i = 0; i < numberGrid.children.length; ++i)
+                        numberGrid.children[i].active = !gameBoard.board.isValueFull(i+1);
+                }
+            }
+
+            Connections {
+                target: gameBoard.board
+                onValueIsFull: {
+                    numberGrid.children[value-1].active = false;
+                }
+            }
         }
     }
 
@@ -108,6 +122,7 @@ Rectangle{
                         cell.noteModel.get(i).modelMarked = false
                     }
                 } else {
+                    numberGrid.children[cell.value-1].active = true;
                     cell.value = 0
                 }
             }

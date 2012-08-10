@@ -24,6 +24,7 @@ Rectangle {
 
     signal selected(int number)
     property int number
+    property bool active: true
 
     width: parent.width / 3
     height: width
@@ -33,12 +34,14 @@ Rectangle {
     color: "#00000000"
 
     Text {
+        visible: numberCell.active
         text: parent.number
         anchors.centerIn: parent
         font.pixelSize: 20
     }
 
     MouseArea {
+        enabled: numberCell.active
         anchors.fill: parent
         onClicked: {
             numberCell.selected(numberCell.number)
