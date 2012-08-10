@@ -30,7 +30,6 @@ Rectangle{
     height: 260
     color: "#AF222222"
     radius: 7
-    enabled: !!cell && !cell.isFixedCell()
 
     function setNumber(cell, number) {
         //find collisions
@@ -40,6 +39,9 @@ Rectangle{
             if (cell.value != number) {
                 cell.valueOwner = localPlayer
                 cell.value = number
+            } else {
+                cell.valueOwner = null;
+                cell.value = 0;
             }
         } else {
             // Find colliding cells
@@ -65,6 +67,7 @@ Rectangle{
         radius: 0
         border.color: "grey"
         color: enabled ? "white" : "lightgray"
+        enabled: !!cell && !cell.isFixedCell()
 
         Grid {
             id: numberGrid
@@ -107,32 +110,15 @@ Rectangle{
         }
     }
 
-    ButtonRow{
+    Button{
+        id: noteEditMode
+
         anchors.topMargin: 8
         anchors.top: numberBoard.bottom
         anchors.left: numberBoard.left
         width: numberBoard.width
-        exclusive: false
 
-        Button{
-            iconSource: "image://theme/icon-m-toolbar-delete"
-            onClicked: {
-                if ( chooser.mode == "note" ){
-                    for (var i = 0; i < 9; i++){
-                        cell.noteModel.get(i).modelMarked = false
-                    }
-                } else {
-                    numberGrid.children[cell.value-1].active = true;
-                    cell.value = 0
-                }
-            }
-            checkable: false
-        }
-
-        Button{
-            iconSource: "image://theme/icon-m-toolbar-edit"
-            id: noteEditMode
-            checkable: true
-        }
+        iconSource: "image://theme/icon-m-toolbar-edit"
+        checkable: true
     }
 }
