@@ -79,14 +79,25 @@ Page {
     }
 
     GameTimer {
+        id: gameTimer
         board: game && game.board
         visible: gameInstance.settings.showGameTimer
-        anchors { right: parent.right; bottom: parent.bottom; margins: 8 }
+        anchors { left: parent.left; right: numberChooser.left; verticalCenter: numberChooser.verticalCenter; margins: 13 }
     }
 
     NumberChooser {
+        id: numberChooser
         gameBoard: playBoard
-        anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 10 }
+        mode: noteEditMode.checked ? "note" : "normal"
+        anchors { horizontalCenter: parent.horizontalCenter; top: playBoard.bottom; bottom: parent.bottom; margins: 13 }
+    }
+
+    Button {
+        id: noteEditMode
+        checkable: true
+        iconSource: "image://theme/icon-m-toolbar-edit"
+        anchors { left: numberChooser.right; right: parent.right; verticalCenter: numberChooser.verticalCenter; margins: 13 }
+        width: gameTimer.width
     }
 
     Connections {

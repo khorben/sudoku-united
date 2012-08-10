@@ -23,11 +23,10 @@ Rectangle{
     property GameBoard gameBoard
 
     property Cell cell: gameBoard.selectedCell
-    property string mode: noteEditMode.checked ? "note" : "normal"
+    property string mode: "normal"
 
     id: chooser
-    width: 200
-    height: 260
+    width: height
     color: "#AF222222"
     radius: 7
 
@@ -55,15 +54,10 @@ Rectangle{
 
     Rectangle {
         id: numberBoard
-        width: 180
-        height: width
-
-        //property variant cell
-
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.topMargin: 10
-        border.width: 2;
+        width: parent.width - 26
+        height: parent.height - 26
+        anchors.centerIn: parent
+        border.width: 2
         radius: 0
         border.color: "grey"
         color: enabled ? "white" : "lightgray"
@@ -108,17 +102,5 @@ Rectangle{
                 }
             }
         }
-    }
-
-    Button{
-        id: noteEditMode
-
-        anchors.topMargin: 8
-        anchors.top: numberBoard.bottom
-        anchors.left: numberBoard.left
-        width: numberBoard.width
-
-        iconSource: "image://theme/icon-m-toolbar-edit"
-        checkable: true
     }
 }
