@@ -71,15 +71,7 @@ Page {
         }
     }
 
-    BackgroundItem {
-        Image {
-            source: "qrc:/logo_grid_200x200.png"
-            width: 200; height: 200
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 50
-        }
-    }
+    BackgroundItem {}
 
     GameBoard {
         id: playBoard
