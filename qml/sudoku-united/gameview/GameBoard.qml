@@ -58,8 +58,11 @@ MouseArea {
                         property int row: (blockIndex % 3) * 3 + (index % 3)
                         property int column: Math.floor(blockIndex / 3) * 3 + Math.floor(index / 3)
 
-                        board: playBoard
                         cell: playBoard.board ? playBoard.board.cellAt(row, column) : undefined
+                        selected: !!selectedCell && !!cell && selectedCell.x == cell.x && selectedCell.y == cell.y
+                        highlighted: !!selectedCell && !!cell && (selectedCell.x == cell.x || selectedCell.y == cell.y)
+                        markedValue: !!selectedCell ? selectedCell.value : 0
+
                         onCollisionChanged: _playHapticFeedback(cellItem)
                     }
                 }

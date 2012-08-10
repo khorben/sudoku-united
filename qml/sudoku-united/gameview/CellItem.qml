@@ -24,11 +24,9 @@ Rectangle {
     property string startColor: "white"
     property string fontColor: "black"
     property variant cell
-    property variant board
-    property bool selection: board.selectedCell != undefined && cell != undefined
-    property bool selected: selection && board.selectedCell.x == cell.x && board.selectedCell.y == cell.y
-    property bool highlighted: selection && (board.selectedCell.x == cell.x || board.selectedCell.y == cell.y)
-    property bool marked: selection && cell.value && board.selectedCell.value == cell.value
+    property bool selected: false
+    property bool highlighted: false
+    property alias markedValue: noteGrid.markedValue
     property bool collision: false
 
     function animateFull() {
@@ -46,7 +44,6 @@ Rectangle {
         id: noteGrid
         visible: !!cell && !cell.value
         model: !!cell ? cell.noteModel : undefined
-        markedValue: selection ? board.selectedCell.value : 0
     }
 
     Text {
@@ -100,7 +97,7 @@ Rectangle {
         border.width: 2
         border.color: "blue"
         color: "transparent"
-        visible: marked
+        visible: !!cell && cell.value && markedValue == cell.value
         anchors.fill: parent
         anchors.margins: 10
     }
