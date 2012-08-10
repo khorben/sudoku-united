@@ -16,6 +16,7 @@
 */
 
 import QtQuick 1.1
+import QtMobility.feedback 1.1
 
 Rectangle {
     id: numberCell
@@ -38,14 +39,29 @@ Rectangle {
         text: parent.number
         anchors.centerIn: parent
         font.pixelSize: 20
+        color: mouseArea.pressed && mouseArea.containsMouse ? "blue" : "black"
     }
 
     MouseArea {
+        id: mouseArea
         enabled: numberCell.active
         anchors.fill: parent
         onClicked: {
             numberCell.selected(numberCell.number)
         }
+        onPressed: {
+            if (gameInstance.settings.hapticFeedbackEnabled)
+                cellEffect.start()
+        }
+        onReleased: {
+            if (containsMouse && gameInstance.settings.hapticFeedbackEnabled)
+                cellEffect.start()
+        }
+    }
+
+    FileEffect {
+        id: cellEffect
+        source: "/usr/share/themes/base/meegotouch/meego-im-uiserver/feedbacks/priority2_vkb_popup_press/vibra.ivt"
     }
 
     states: [
