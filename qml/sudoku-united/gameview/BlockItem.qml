@@ -20,6 +20,7 @@ import QtQuick 1.1
 Rectangle{
 
     property alias gridItem: grid
+    default property alias data: grid.data
 
     height: 150
     width: 150

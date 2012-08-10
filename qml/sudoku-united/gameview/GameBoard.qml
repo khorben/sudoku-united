@@ -35,6 +35,36 @@ MouseArea {
         columns: 3
         rows:  3
         spacing: 2
+
+        Repeater {
+            id: blocks
+
+            model: 9
+
+            BlockItem {
+                id: blockItem
+
+                property alias cells: cells
+                property int blockIndex: index
+
+                Repeater {
+                    id: cells
+
+                    model: 9
+
+                    CellItem {
+                        id: cellItem
+
+                        property int row: (blockIndex % 3) * 3 + (index % 3)
+                        property int column: Math.floor(blockIndex / 3) * 3 + Math.floor(index / 3)
+
+                        board: playBoard
+                        cell: playBoard.board ? playBoard.board.cellAt(row, column) : undefined
+                        onCollisionChanged: _playHapticFeedback(cellItem)
+                    }
+                }
+            }
+        }
     }
 
     anchors {
@@ -83,30 +113,10 @@ MouseArea {
     Component.onCompleted: {
         var cellItemList = new Array();
 
-        var block = Qt.createComponent("BlockItem.qml")
-        var blockItems = []
-        for (var i = 0; i < 9; i++){
-            blockItems[i] = block.createObject(grid)
-        }
-
-        var component = Qt.createComponent("CellItem.qml")
-        for (var y = 0; y < 9; y++) {
-            for (var x = 0; x < 9; x++) {
-                var pos = Math.floor(y /3) * 3 + Math.floor(x / 3)
-                var object = component.createObject(blockItems[pos].gridItem);
-                object.cell = (function (x, y) {
-                                   return (function () {
-                                               if (!board)
-                                                   return null;
-
-                                               return board.cellAt(x, y)
-                                           })
-                               })(x, y)
-                object.board = playBoard
-                object.collisionChanged.connect(function (cellItem) { return function () { _playHapticFeedback(cellItem) } }(object))
-
-                cellItemList.push(object);
-            }
+        for (var i = 0; i < blocks.count; ++i) {
+            var cells = blocks.itemAt(i).cells;
+            for (var j = 0; j < cells.count; ++j)
+                cellItemList.push(cells.itemAt(j))
         }
 
         _cellItems = cellItemList
