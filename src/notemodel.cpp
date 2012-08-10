@@ -84,7 +84,7 @@ QObject *NoteModel::get(int index)
 
 bool NoteModel::isMarked(int value) const
 {
-    data(index(value - 1), NoteModel::MarkedType);
+    return data(index(value - 1), NoteModel::MarkedType).toBool();
 }
 
 void NoteModel::setMarked(int value, bool marked)
