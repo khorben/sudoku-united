@@ -87,42 +87,32 @@ MouseArea {
                 cellAt(column, i).animateFull()
         }
         onBlockIsFull: {
-            var startX = (block % 3) * 3;
-            var startY = Math.floor(block / 3) * 3;
-            for (var x = startX; x < startX + 3; ++x) {
-                for (var y = startY; y < startY + 3; ++y)
-                    cellAt(x, y).animateFull()
-            }
+            var cells = blocks.itemAt(block).cells;
+            for (var i = 0; i < cells.count; ++i)
+                cells.itemAt(i).animateFull();
         }
         onValueIsFull: {
-            for (var i = 0; i < 81; ++i) {
-                var cellItem = _cellItems[i]
-                if (cellItem.cell.value == value)
-                    cellItem.animateFull()
+            for (var i = 0; i < blocks.count; ++i) {
+                var cells = blocks.itemAt(i).cells;
+                for (var j = 0; j < cells.count; ++j) {
+                    var cellItem = cells.itemAt(j);
+                    if (cellItem.cell.value == value)
+                        cellItem.animateFull();
+                }
             }
         }
         onBoardIsFull: {
-            for (var i = 0; i < 81; ++i)
-                _cellItems[i].animateFull()
+            for (var i = 0; i < blocks.count; ++i) {
+                var cells = blocks.itemAt(i).cells;
+                for (var j = 0; j < cells.count; ++j)
+                    cells.itemAt(j).animateFull();
+            }
         }
     }
 
     function cellAt(x, y) {
-        return _cellItems[x % 9 + y * 9];
-    }
-
-    property variant _cellItems
-
-    Component.onCompleted: {
-        var cellItemList = new Array();
-
-        for (var i = 0; i < blocks.count; ++i) {
-            var cells = blocks.itemAt(i).cells;
-            for (var j = 0; j < cells.count; ++j)
-                cellItemList.push(cells.itemAt(j))
-        }
-
-        _cellItems = cellItemList
+        var block = blocks.itemAt(Math.floor(y /3) * 3 + Math.floor(x / 3));
+        return block.cells.itemAt(x % 3 + (y % 3) * 3);
     }
 
     onPressed: _updateSelected(mouse)
