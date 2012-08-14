@@ -74,7 +74,7 @@ Grid {
         target: gameBoard
         onBoardChanged: {
             for (var i = 0; i < chooser.children.length; ++i)
-                chooser.children[i].active = !gameBoard.board.isValueFull(i+1);
+                chooser.children[i].active = !gameBoard.board || !gameBoard.board.isValueFull(i+1);
         }
     }
 
