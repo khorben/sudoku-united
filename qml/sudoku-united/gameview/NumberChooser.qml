@@ -19,16 +19,18 @@ import QtQuick 1.1
 import com.nokia.meego 1.0
 import sudoku 1.0
 
-Rectangle{
-    property GameBoard gameBoard
+Grid {
+    id: chooser
 
+    property GameBoard gameBoard
     property Cell cell: gameBoard.selectedCell
     property string mode: "normal"
 
-    id: chooser
     width: height
-    color: "#AF222222"
-    radius: 7
+    rows:  3
+    columns: 3
+    spacing: 2
+    enabled: !!cell && !cell.isFixedCell()
 
     function setNumber(cell, number) {
         //find collisions
@@ -50,57 +52,36 @@ Rectangle{
         }
     }
 
-    state: "hidden"
+    Component.onCompleted: {
+        var component = Qt.createComponent("NumberCell.qml");
+        for (var i = 1; i <= 9; i++) {
+            var object = component.createObject(chooser, { "number": i,
+                                                    "cell": function () { return cell; } })
+            object.selected.connect(updateValue)
+        }
+    }
 
-    Rectangle {
-        id: numberBoard
-        width: parent.width - 26
-        height: parent.height - 26
-        anchors.centerIn: parent
-        border.width: 2
-        radius: 0
-        border.color: "grey"
-        color: enabled ? "white" : "lightgray"
-        enabled: !!cell && !cell.isFixedCell()
+    function updateValue(number) {
+        if ( chooser.mode == "note" ){
+            cell.noteModel.get(number - 1).modelMarked = !cell.noteModel.get(number - 1).modelMarked
+            return;
+        } else {
+            setNumber(cell, number)
+        }
+    }
 
-        Grid {
-            id: numberGrid
-            columns: 3
-            rows:  3
-            anchors.fill: parent
+    Connections {
+        target: gameBoard
+        onBoardChanged: {
+            for (var i = 0; i < chooser.children.length; ++i)
+                chooser.children[i].active = !gameBoard.board.isValueFull(i+1);
+        }
+    }
 
-            Component.onCompleted: {
-                var component = Qt.createComponent("NumberCell.qml");
-                for (var i = 1; i <= 9; i++) {
-                    var object = component.createObject(numberGrid, { "number": i,
-                                                            "numberChooser": function () { return chooser; } })
-                    object.selected.connect(updateValue)
-                }
-            }
-
-            function updateValue(number) {
-                if ( chooser.mode == "note" ){
-                    cell.noteModel.get(number - 1).modelMarked = !cell.noteModel.get(number - 1).modelMarked
-                    return;
-                } else {
-                    setNumber(cell, number)
-                }
-            }
-
-            Connections {
-                target: gameBoard
-                onBoardChanged: {
-                    for (var i = 0; i < numberGrid.children.length; ++i)
-                        numberGrid.children[i].active = !gameBoard.board.isValueFull(i+1);
-                }
-            }
-
-            Connections {
-                target: gameBoard.board
-                onValueIsFull: {
-                    numberGrid.children[value-1].active = false;
-                }
-            }
+    Connections {
+        target: gameBoard.board
+        onValueIsFull: {
+            chooser.children[value-1].active = false;
         }
     }
 }

@@ -17,29 +17,38 @@
 
 import QtQuick 1.1
 import QtMobility.feedback 1.1
+import sudoku 1.0
 
-Rectangle {
+BorderImage {
     id: numberCell
 
-    property variant numberChooser
+    property Cell cell
 
     signal selected(int number)
     property int number
     property bool active: true
 
-    width: parent.width / 3
+    width: parent.width / 3 - parent.spacing / 2
     height: width
 
-    border.width: 1
-    border.color: "grey"
-    color: "#00000000"
+    property bool marked: !!cell && !cell.value && cell.noteModel.get(number - 1).modelMarked
+
+    property string mode: !enabled || !active ? "disabled" :
+                          mouseArea.pressed && mouseArea.containsMouse ? "pressed" :
+                          marked ? "checked" : "normal"
+
+    source: "button/button-" + number + "-" + mode + ".png"
+    border.top: number <= 3 ? 22 : 1
+    border.left: number % 3 == 1 ? 22 : 1
+    border.right: number % 3 == 0 ? 22 : 1
+    border.bottom: number >= 7 ? 22 : 1
 
     Text {
         visible: numberCell.active
         text: parent.number
         anchors.centerIn: parent
         font.pixelSize: 20
-        color: mouseArea.pressed && mouseArea.containsMouse ? "blue" : "black"
+        color: mouseArea.pressed && mouseArea.containsMouse ? "white" : "black"
     }
 
     MouseArea {
@@ -63,20 +72,4 @@ Rectangle {
         id: cellEffect
         source: "/usr/share/themes/base/meegotouch/meego-im-uiserver/feedbacks/priority2_vkb_popup_press/vibra.ivt"
     }
-
-    states: [
-        State {
-            name: ""
-            when: !numberChooser.cell.noteModel.get(number - 1).modelMarked
-
-            PropertyChanges { target: numberCell; color: "#00000000" }
-        },
-
-        State {
-            name: "marked"
-            when: numberChooser.cell.noteModel.get(number - 1).modelMarked
-            PropertyChanges { target: numberCell; color: "#1381dd" }
-        }
-
-    ]
 }
