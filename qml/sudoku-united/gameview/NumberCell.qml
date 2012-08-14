@@ -37,7 +37,7 @@ BorderImage {
                           mouseArea.pressed && mouseArea.containsMouse ? "pressed" :
                           marked ? "checked" : "normal"
 
-    source: "button/button-" + number + "-" + mode + ".png"
+    source: "qrc:/button/" + number + "-" + mode + ".png"
     border.top: number <= 3 ? 22 : 1
     border.left: number % 3 == 1 ? 22 : 1
     border.right: number % 3 == 0 ? 22 : 1
