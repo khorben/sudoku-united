@@ -38,10 +38,10 @@ BorderImage {
                           marked ? "checked" : "normal"
 
     source: "qrc:/button/" + number + "-" + mode + ".png"
-    border.top: number <= 3 ? 22 : 1
-    border.left: number % 3 == 1 ? 22 : 1
-    border.right: number % 3 == 0 ? 22 : 1
-    border.bottom: number >= 7 ? 22 : 1
+    border.top: number <= 3 ? 16 : 1
+    border.left: number % 3 == 1 ? 16 : 1
+    border.right: number % 3 == 0 ? 16 : 1
+    border.bottom: number >= 7 ? 16 : 1
 
     Text {
         visible: numberCell.active
