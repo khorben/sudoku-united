@@ -17,6 +17,7 @@
 
 import QtQuick 1.1
 import QtMobility.feedback 1.1
+import com.nokia.meego 1.0
 import sudoku 1.0
 
 BorderImage {
@@ -37,6 +38,10 @@ BorderImage {
                           mouseArea.pressed && mouseArea.containsMouse ? "pressed" :
                           marked ? "checked" : "normal"
 
+    ButtonStyle {
+        id: style
+    }
+
     source: "qrc:/button/" + number + "-" + mode + ".png"
     border.top: number <= 3 ? 16 : 1
     border.left: number % 3 == 1 ? 16 : 1
@@ -47,8 +52,11 @@ BorderImage {
         visible: numberCell.active
         text: parent.number
         anchors.centerIn: parent
-        font.pixelSize: 20
-        color: mouseArea.pressed && mouseArea.containsMouse ? "white" : "black"
+        font.family: style.fontFamily
+        font.weight: style.fontWeight
+        font.pixelSize: style.fontPixelSize
+        color: mode == "disabled" ? "darkgray" : mode == "pressed" ? style.pressedTextColor :
+               mode == "checked" ? style.checkedTextColor : style.textColor
     }
 
     MouseArea {
