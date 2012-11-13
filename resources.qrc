@@ -8,4 +8,43 @@
         <file alias="squirtle.png">resources/sqirtle_orange_48x48.png</file>
         <file alias="background_gradient.svg">resources/background_gradient.svg</file>
     </qresource>
+
+    <qresource prefix="/button">
+        <file alias="1-checked.png">resources/button/1-checked.png</file>
+        <file alias="1-disabled.png">resources/button/1-disabled.png</file>
+        <file alias="1-normal.png">resources/button/1-normal.png</file>
+        <file alias="1-pressed.png">resources/button/1-pressed.png</file>
+        <file alias="2-checked.png">resources/button/2-checked.png</file>
+        <file alias="2-disabled.png">resources/button/2-disabled.png</file>
+        <file alias="2-normal.png">resources/button/2-normal.png</file>
+        <file alias="2-pressed.png">resources/button/2-pressed.png</file>
+        <file alias="3-checked.png">resources/button/3-checked.png</file>
+        <file alias="3-disabled.png">resources/button/3-disabled.png</file>
+        <file alias="3-normal.png">resources/button/3-normal.png</file>
+        <file alias="3-pressed.png">resources/button/3-pressed.png</file>
+        <file alias="4-checked.png">resources/button/4-checked.png</file>
+        <file alias="4-disabled.png">resources/button/4-disabled.png</file>
+        <file alias="4-normal.png">resources/button/4-normal.png</file>
+        <file alias="4-pressed.png">resources/button/4-pressed.png</file>
+        <file alias="5-checked.png">resources/button/5-checked.png</file>
+        <file alias="5-disabled.png">resources/button/5-disabled.png</file>
+        <file alias="5-normal.png">resources/button/5-normal.png</file>
+        <file alias="5-pressed.png">resources/button/5-pressed.png</file>
+        <file alias="6-checked.png">resources/button/6-checked.png</file>
+        <file alias="6-disabled.png">resources/button/6-disabled.png</file>
+        <file alias="6-normal.png">resources/button/6-normal.png</file>
+        <file alias="6-pressed.png">resources/button/6-pressed.png</file>
+        <file alias="7-checked.png">resources/button/7-checked.png</file>
+        <file alias="7-disabled.png">resources/button/7-disabled.png</file>
+        <file alias="7-normal.png">resources/button/7-normal.png</file>
+        <file alias="7-pressed.png">resources/button/7-pressed.png</file>
+        <file alias="8-checked.png">resources/button/8-checked.png</file>
+        <file alias="8-disabled.png">resources/button/8-disabled.png</file>
+        <file alias="8-normal.png">resources/button/8-normal.png</file>
+        <file alias="8-pressed.png">resources/button/8-pressed.png</file>
+        <file alias="9-checked.png">resources/button/9-checked.png</file>
+        <file alias="9-disabled.png">resources/button/9-disabled.png</file>
+        <file alias="9-normal.png">resources/button/9-normal.png</file>
+        <file alias="9-pressed.png">resources/button/9-pressed.png</file>
+    </qresource>
 </RCC>

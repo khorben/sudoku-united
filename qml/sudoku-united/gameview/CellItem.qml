@@ -24,10 +24,14 @@ Rectangle {
     property string startColor: "white"
     property string fontColor: "black"
     property variant cell
-    property variant board
-    property bool selected: board.selectedCell != undefined && cell != undefined && board.selectedCell.x == cell.x && board.selectedCell.y == cell.y
-    property bool highlighted: board.selectedCell != undefined && cell != undefined && (board.selectedCell.x == cell.x || board.selectedCell.y == cell.y)
+    property bool selected: false
+    property bool highlighted: false
+    property alias markedValue: noteGrid.markedValue
     property bool collision: false
+
+    function animateFull() {
+        fullAnimation.start()
+    }
 
     width: 50
     height: 50
@@ -36,25 +40,15 @@ Rectangle {
 
     color: startColor
 
-    signal showNumberChooser(variant cellItem)
-
-    GridView {
+    NoteGrid {
         id: noteGrid
-        anchors.fill: parent
-        model: !cell ? undefined : cell.noteModel
-        cellWidth: (width / 3) - 1
-        cellHeight: (height / 3)
-
-        delegate: NoteItem {
-            value: modelValue
-            marked: modelMarked
-            width: GridView.view.cellWidth
-            height: GridView.view.cellHeight
-        }
+        visible: !!cell && !cell.value
+        model: !!cell ? cell.noteModel : undefined
     }
 
     Text {
         id: currentValue
+        property real angle // suppress warnings (QTBUG-22141)
         text: !cell || cell.value === 0 ? "" : cell.value
         color: {
             if (cell && cell.valueOwner) {
@@ -68,15 +62,44 @@ Rectangle {
         }
         anchors.centerIn: parent
         font.pixelSize: 24
+
+        ParallelAnimation {
+            id: fullAnimation
+            RotationAnimation {
+                target: currentValue
+                duration: 500
+                easing.type: Easing.InOutSine
+                direction: RotationAnimation.Clockwise
+                to: 360
+            }
+            SequentialAnimation {
+                PropertyAnimation {
+                    target: currentValue
+                    duration: 250
+                    easing.type: Easing.InOutSine
+                    property: "scale"
+                    to: 1.6
+                }
+                PropertyAnimation {
+                    target: currentValue
+                    duration: 250
+                    easing.type: Easing.InOutSine
+                    property: "scale"
+                    to: 1.0
+                }
+            }
+            PropertyAction { target: currentValue; property: "rotation"; value: 0 }
+        }
     }
 
-    MouseArea {
+    Rectangle {
+        radius: 7
+        border.width: 2
+        border.color: "blue"
+        color: "transparent"
+        visible: !!cell && cell.value && markedValue == cell.value
         anchors.fill: parent
-        onClicked: {
-            if (cell && cell.isFixedCell())
-                return;
-            showNumberChooser(cellItem)
-        }
+        anchors.margins: 10
     }
 
     state: "default"

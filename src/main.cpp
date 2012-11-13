@@ -63,10 +63,9 @@ QString adjustPath(const QString &path) {
 
 Q_DECL_EXPORT int main(int argc, char *argv[])
 {
-    QApplication *app = createApplication(argc, argv);
-
-    app->setApplicationName("Sudoku United");
-    app->setApplicationVersion("1.1.0");
+    QApplication::setApplicationName("Sudoku United");
+    QApplication::setOrganizationName("1.1.0");
+    QScopedPointer<QApplication> app(createApplication(argc, argv));
 
 #ifdef ENABLE_BREAKPAD
     QDesktopServices desktopServices;
@@ -80,7 +79,7 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     google_breakpad::ExceptionHandler eh(crashDumpPath.toStdString(), NULL, dumpCallback, NULL, true);
 #endif
 
-    QmlApplicationViewer *viewer = QmlApplicationViewer::create();
+    QScopedPointer<QmlApplicationViewer> viewer(QmlApplicationViewer::create());
 
     qRegisterMetaType<Cell *>();
     qRegisterMetaTypeStreamOperators<QUuid>("QUuid");

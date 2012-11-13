@@ -32,7 +32,9 @@ class Cell : public QObject {
     Q_PROPERTY(Player *valueOwner READ valueOwner WRITE setValueOwner NOTIFY valueOwnerChanged)
     Q_PROPERTY(quint8 x READ x CONSTANT)
     Q_PROPERTY(quint8 y READ y CONSTANT)
+    Q_PROPERTY(quint8 block READ block CONSTANT)
     Q_PROPERTY(NoteModel *noteModel READ noteModel CONSTANT)
+
 public:
     Cell();
     explicit Cell(quint8 x, quint8 y, Board *parent = 0);
@@ -52,6 +54,7 @@ public:
 
     quint8 x() const { return m_x; }
     quint8 y() const { return m_y; }
+    quint8 block() const { return quint8(m_y / 3) * 3 + quint8(m_x / 3); }
 
     NoteModel *noteModel() const;
 signals:

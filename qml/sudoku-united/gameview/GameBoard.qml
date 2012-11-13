@@ -19,16 +19,55 @@ import QtQuick 1.1
 import QtMobility.feedback 1.1
 import sudoku 1.0
 
-Grid {
+MouseArea {
+    id: playBoard
+
     property Board board
 
     property Cell selectedCell
 
-    id: playBoard
+    width: grid.width
+    height: grid.height
+    Grid {
+        id: grid
 
-    columns: 3
-    rows:  3
-    spacing: 2
+        columns: 3
+        rows:  3
+        spacing: 2
+
+        Repeater {
+            id: blocks
+
+            model: 9
+
+            BlockItem {
+                id: blockItem
+
+                property alias cells: cells
+                property int blockIndex: index
+
+                Repeater {
+                    id: cells
+
+                    model: 9
+
+                    CellItem {
+                        id: cellItem
+
+                        property int row: (blockIndex % 3) * 3 + (index % 3)
+                        property int column: Math.floor(blockIndex / 3) * 3 + Math.floor(index / 3)
+
+                        cell: playBoard.board ? playBoard.board.cellAt(row, column) : undefined
+                        selected: !!selectedCell && !!cell && selectedCell.x == cell.x && selectedCell.y == cell.y
+                        highlighted: !!selectedCell && !!cell && (selectedCell.x == cell.x || selectedCell.y == cell.y)
+                        markedValue: !!selectedCell ? selectedCell.value : 0
+
+                        onCollisionChanged: _playHapticFeedback(cellItem)
+                    }
+                }
+            }
+        }
+    }
 
     anchors {
         horizontalCenter: parent.horizontalCenter
@@ -36,47 +75,66 @@ Grid {
         topMargin: 15
     }
 
-    function cellAt(x, y) {
-        return _cellItems[x % 9 + y * 9];
-    }
-
-    property variant _cellItems
-
-    Component.onCompleted: {
-        var cellItemList = new Array();
-
-        var block = Qt.createComponent("BlockItem.qml")
-        var blockItems = []
-        for (var i = 0; i < 9; i++){
-            blockItems[i] = block.createObject(playBoard)
+    Connections {
+        target: board
+        onRowIsFull: {
+            for (var i = 0; i < 9; ++i)
+                cellAt(i, row).animateFull()
         }
-
-        var component = Qt.createComponent("CellItem.qml")
-        for (var y = 0; y < 9; y++) {
-            for (var x = 0; x < 9; x++) {
-                var pos = Math.floor(y /3) * 3 + Math.floor(x / 3)
-                var object = component.createObject(blockItems[pos].gridItem);
-                object.cell = (function (x, y) {
-                                   return (function () {
-                                               if (!board)
-                                                   return null;
-
-                                               return board.cellAt(x, y)
-                                           })
-                               })(x, y)
-                object.board = playBoard
-                object.collisionChanged.connect(function (cellItem) { return function () { _playHapticFeedback(cellItem) } }(object))
-                object.showNumberChooser.connect(_onCellClicked)
-
-                cellItemList.push(object);
+        onColumnIsFull: {
+            for (var i = 0; i < 9; ++i)
+                cellAt(column, i).animateFull()
+        }
+        onBlockIsFull: {
+            var cells = blocks.itemAt(block).cells;
+            for (var i = 0; i < cells.count; ++i)
+                cells.itemAt(i).animateFull();
+        }
+        onValueIsFull: {
+            for (var i = 0; i < blocks.count; ++i) {
+                var cells = blocks.itemAt(i).cells;
+                for (var j = 0; j < cells.count; ++j) {
+                    var cellItem = cells.itemAt(j);
+                    if (cellItem.cell.value == value)
+                        cellItem.animateFull();
+                }
             }
         }
-
-        _cellItems = cellItemList
+        onBoardIsFull: {
+            for (var i = 0; i < blocks.count; ++i) {
+                var cells = blocks.itemAt(i).cells;
+                for (var j = 0; j < cells.count; ++j)
+                    cells.itemAt(j).animateFull();
+            }
+        }
     }
 
-    function _onCellClicked(cellItem) {
-        selectedCell = cellItem.cell
+    function cellAt(x, y) {
+        var block = blocks.itemAt(Math.floor(y /3) * 3 + Math.floor(x / 3));
+        return block.cells.itemAt(x % 3 + (y % 3) * 3);
+    }
+
+    onPressed: _updateSelected(mouse)
+    onPositionChanged: _updateSelected(mouse)
+
+    function _updateSelected(mouse) {
+        var blockItem = grid.childAt(mouse.x,mouse.y);
+        if (blockItem && blockItem.gridItem) {
+            var pos = blockItem.mapFromItem(grid, mouse.x, mouse.y);
+            var cellItem = blockItem.gridItem.childAt(pos.x,pos.y);
+            if (cellItem && cellItem.cell)
+                selectedCell = cellItem.cell;
+        }
+    }
+
+    onSelectedCellChanged: {
+        if (gameInstance.settings.hapticFeedbackEnabled)
+            cellEffect.start()
+    }
+
+    FileEffect {
+        id: cellEffect
+        source: "/usr/share/themes/base/meegotouch/meego-im-uiserver/feedbacks/priority2_vkb_popup_press/vibra.ivt"
     }
 
     function _playHapticFeedback(cellItem) {

@@ -139,9 +139,28 @@ void Board::onCellValueChanged() {
 
     emit cellValueChanged(cell);
 
-    if (isFull()) {
-        pause();
-        emit boardIsFull();
+    if (cell->value() != 0) {
+
+        bool rowFull = isRowFull(cell->y());
+        if (rowFull)
+            emit rowIsFull(cell->y());
+
+        bool columnFull = isColumnFull(cell->x());
+        if (columnFull)
+            emit columnIsFull(cell->x());
+
+        bool blockFull = isBlockFull(cell->block());
+        if (blockFull)
+            emit blockIsFull(cell->block());
+
+        bool valueFull = isValueFull(cell->value());
+        if (valueFull)
+            emit valueIsFull(cell->value());
+
+        if (rowFull && columnFull && blockFull && valueFull && isFull()) {
+            pause();
+            emit boardIsFull();
+        }
     }
 }
 
@@ -219,6 +238,50 @@ bool Board::isFull() const {
     return true;
 }
 
+bool Board::isRowFull(int row) const {
+    for (quint8 x = 0; x < 9; x++) {
+        if (cellValue(x, row) == 0)
+            return false;
+    }
+
+    return true;
+}
+
+bool Board::isColumnFull(int column) const {
+    for (quint8 y = 0; y < 9; y++) {
+        if (cellValue(column, y) == 0)
+            return false;
+    }
+
+    return true;
+}
+
+bool Board::isBlockFull(int block) const {
+    quint8 startX = quint8(block % 3) * 3;
+    quint8 startY = quint8(block / 3) * 3;
+
+    for (quint8 yR = startY; yR < startY + 3; yR++) {
+        for (quint8 xR = startX; xR < startX + 3; xR++) {
+            if (cellValue(xR, yR) == 0)
+                return false;
+        }
+    }
+
+    return true;
+}
+
+bool Board::isValueFull(int value) const {
+    quint8 i = 0;
+    for (quint8 y = 0; y < 9; y++) {
+        for (quint8 x = 0; x < 9; x++) {
+            if (cellValue(x, y) == value)
+                i++;
+        }
+    }
+
+    return i == 9;
+}
+
 QString Board::toString() const {
     QString output;
 
@@ -250,7 +313,26 @@ quint8 Board::solutionValue(quint8 x, quint8 y) const {
 
 void Board::setCellValue(quint8 x, quint8 y, quint8 value) {
     m_cellValues[x][y] = value;
+
+    if (value) {
+        // clear corresponding notes in the same...
+        for (quint8 i = 0; i < 9; ++i) {
+            // row
+            cellAt(i, y)->noteModel()->setMarked(value, false);
+            // column
+            cellAt(x, i)->noteModel()->setMarked(value, false);
+        }
+
+        // block
+        quint8 startX = quint8(x / 3) * 3;
+        quint8 startY = quint8(y / 3) * 3;
+        for (quint8 yR = startY; yR < startY + 3; yR++) {
+            for (quint8 xR = startX; xR < startX + 3; xR++)
+                cellAt(xR, yR)->noteModel()->setMarked(value, false);
+        }
+    }
 }
+
 quint64 Board::startTime() const {
     return m_startTime;
 }

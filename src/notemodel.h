@@ -43,6 +43,10 @@ public:
 
     Q_INVOKABLE
     QObject *get(int index);
+
+    Q_INVOKABLE bool isMarked(int value) const;
+    Q_INVOKABLE void setMarked(int value, bool marked);
+
 private:
     friend QDataStream &operator<<(QDataStream &stream, Game &game);
     friend QDataStream &readGameV2(QDataStream &stream, Game &game);

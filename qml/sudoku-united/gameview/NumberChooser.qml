@@ -19,18 +19,17 @@ import QtQuick 1.1
 import com.nokia.meego 1.0
 import sudoku 1.0
 
-Rectangle{
-    property GameBoard gameBoard
-
-    property Cell cell: gameBoard ? gameBoard.selectedCell : undefined
-    property string mode: noteEditMode.checked ? "note" : "normal"
-
+Grid {
     id: chooser
-    width: 200
-    height: 260
-    color: "#AF222222"
-    radius: 7
 
+    property GameBoard gameBoard
+    property Cell cell: gameBoard.selectedCell
+    property string mode: "normal"
+    width: height
+    rows:  3
+    columns: 3
+    spacing: 2
+    enabled: !!cell && !cell.isFixedCell()
     function setNumber(cell, number) {
         //find collisions
         var collisions = gameBoard.board.isValidMove(cell.x, cell.y, number);
@@ -39,6 +38,9 @@ Rectangle{
             if (cell.value != number) {
                 cell.valueOwner = localPlayer
                 cell.value = number
+            } else {
+                cell.valueOwner = null;
+                cell.value = 0;
             }
         } else {
             // Find colliding cells
@@ -48,113 +50,42 @@ Rectangle{
         }
     }
 
-    state: cell ? "active" : "hidden"
-
-    Rectangle {
-        id: numberBoard
-        width: 180
-        height: width
-
-        //property variant cell
-
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.topMargin: 10
-        border.width: 2;
-        radius: 0
-        border.color: "grey"
-
-        Grid {
-            id: numberGrid
-            columns: 3
-            rows:  3
-            anchors.fill: parent
-
-            Component.onCompleted: {
-                var component = Qt.createComponent("NumberCell.qml");
-                for (var i = 1; i <= 9; i++) {
-                    var object = component.createObject(numberGrid, { "number": i,
-                                                            "numberChooser": function () { return chooser; } })
-                    object.selected.connect(numberSelected)
-                }
-            }
-
-            function numberSelected(number, longPress) {
-                var mode = chooser.mode;
-
-                if (longPress && gameInstance.settings.longPressAction === Settings.IgnoreAction)
-                    return;
-
-                if (longPress)
-                    mode = mode === "note" ? "" : "note";
-
-                if (mode === "note"){
-                    cell.noteModel.get(number - 1).modelMarked = !cell.noteModel.get(number - 1).modelMarked
-                    return;
-                } else {
-                    setNumber(cell, number)
-                }
-            }
+    Component.onCompleted: {
+        var component = Qt.createComponent("NumberCell.qml");
+        for (var i = 1; i <= 9; i++) {
+            var object = component.createObject(chooser, { "number": i,
+                                                    "cell": function () { return cell; } })
+            object.selected.connect(updateValue)
         }
     }
 
-    ButtonRow{
-        anchors.topMargin: 8
-        anchors.top: numberBoard.bottom
-        anchors.left: numberBoard.left
-        width: numberBoard.width
-        exclusive: false
+    function updateValue(number, longPress) {
+        var mode = chooser.mode;
 
-        Button{
-            iconSource: "image://theme/icon-m-toolbar-delete"
-            onClicked: {
-                if ( chooser.mode == "note" ){
-                    for (var i = 0; i < 9; i++){
-                        cell.noteModel.get(i).modelMarked = false
-                    }
-                } else {
-                    cell.value = 0
-                }
-            }
-            checkable: false
+        if (longPress && gameInstance.settings.longPressAction === Settings.IgnoreAction)
+            return;
+
+        if (longPress)
+            mode = mode === "note" ? "" : "note";
+
+        if (mode === "note"){
+            cell.noteModel.get(number - 1).modelMarked = !cell.noteModel.get(number - 1).modelMarked
+        } else {
+            setNumber(cell, number)
         }
-
-        Button{
-            iconSource: "image://theme/icon-m-toolbar-edit"
-            id: noteEditMode
-            checkable: true
+    }
+    Connections {
+        target: gameBoard
+        onBoardChanged: {
+            for (var i = 0; i < chooser.children.length; ++i)
+                chooser.children[i].active = !gameBoard.board || !gameBoard.board.isValueFull(i+1);
         }
     }
 
-    states: [State {
-            name: "hidden";
-            PropertyChanges { target: chooser; height: 0}
-            PropertyChanges { target: chooser; width: 0}
-            PropertyChanges { target: chooser; visible: false}
-        },
-        State {
-            name: "active";
-            PropertyChanges { target: chooser; height: 260}
-            PropertyChanges { target: chooser; width: 200}
-            PropertyChanges { target: chooser; visible: true}
-        }]
-
-    transitions: [
-        Transition {
-            from: "hidden"; to: "active"; reversible: false
-            ParallelAnimation {
-                NumberAnimation { properties: "height"; duration: 100; easing.type: Easing.InOutQuad }
-                NumberAnimation { properties: "width"; duration: 100; easing.type: Easing.InOutQuad }
-                NumberAnimation { properties: "visible"; duration: 100; easing.type: Easing.InOutQuad }
-            }
-        },
-        Transition {
-            from: "active"; to: "hidden"; reversible: false
-            ParallelAnimation {
-                NumberAnimation { properties: "height"; duration: 100; easing.type: Easing.InOutQuad }
-                NumberAnimation { properties: "width"; duration: 100; easing.type: Easing.InOutQuad }
-                NumberAnimation { properties: "visible"; duration: 100; easing.type: Easing.InOutQuad }
-            }
+    Connections {
+        target: gameBoard.board
+        onValueIsFull: {
+            chooser.children[value-1].active = false;
         }
-    ]
+    }
 }

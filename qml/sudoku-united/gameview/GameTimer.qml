@@ -20,34 +20,21 @@ import com.nokia.meego 1.0
 import sudoku 1.0
 import "../UIFunctions.js" as UIFunctions
 
-Rectangle {
+Button {
     property Board board
 
     id: gameTimer
-    color: "white";
-    radius: 10
-    width: 96
-    height: 40
 
-    Label {
-        anchors.centerIn: parent
-        width: 96
-        height: 32
-        textFormat: Text.PlainText
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
-        id: gameTimeLabel
-        text: "00:00"
-    }
+    width: 96
+    text: "00:00"
 
     Timer {
-        id: gameTimeTimer
         interval: 1000
         repeat: true
         triggeredOnStart: true
         running: !screen.minimized && gameTimer.visible
         onTriggered: {
-            gameTimeLabel.text = UIFunctions.formatDuration(board ? board.elapsedTime : 0)
+            gameTimer.text = UIFunctions.formatDuration(board ? board.elapsedTime : 0)
         }
     }
 }

@@ -88,6 +88,30 @@ public:
     bool isFull() const;
 
     /**
+      * \returns True, if all fields of the row are set, false otherwise.
+      */
+    Q_INVOKABLE
+    bool isRowFull(int row) const;
+
+    /**
+      * \returns True, if all fields of the column are set, false otherwise.
+      */
+    Q_INVOKABLE
+    bool isColumnFull(int column) const;
+
+    /**
+      * \returns True, if all fields of the block are set, false otherwise.
+      */
+    Q_INVOKABLE
+    bool isBlockFull(int block) const;
+
+    /**
+      * \returns True, if all instances of the value are set, false otherwise.
+      */
+    Q_INVOKABLE
+    bool isValueFull(int value) const;
+
+    /**
       * Creates a string representation of the current board.
       */
     QString toString() const;
@@ -127,6 +151,10 @@ signals:
     void cellValueChanged(Cell *cell);
 
     void boardIsFull();
+    void rowIsFull(int row);
+    void columnIsFull(int column);
+    void blockIsFull(int block);
+    void valueIsFull(int value);
 
     void canUndoChanged();
 public slots:
