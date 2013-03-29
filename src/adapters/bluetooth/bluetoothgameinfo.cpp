@@ -36,7 +36,7 @@ AbstractClient *BluetoothGameInfo::client() const {
     return new BluetoothClient();
 }
 
-bool BluetoothGameInfo::operator ==(GameInfo &other) const {
+bool BluetoothGameInfo::operator ==(const GameInfo &other) const {
     const BluetoothGameInfo *otherGameInfo =
             qobject_cast<const BluetoothGameInfo *>(&other);
 

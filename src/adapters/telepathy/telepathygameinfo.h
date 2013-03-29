@@ -37,7 +37,7 @@ public:
     Tp::AccountPtr account;
     Tp::ContactPtr contact;
 
-    bool operator ==(GameInfo &other) const;
+    bool operator ==(const GameInfo &other) const;
 };
 
 class TelepathyGameInfoModel : public GameInfoModel {
