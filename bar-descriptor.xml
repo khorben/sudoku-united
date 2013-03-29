@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<qnx xmlns="http://www.qnx.com/schemas/application/1.0">
+    <id>de.bithub.sudokuunited</id>
+    <name>Sudoku United</name>
+    <versionNumber>1.2.0</versionNumber>
+    <author>-</author>
+    <authorId>gYAAgOFVpQa5XyIx77l8WjTop0o</authorId>
+    <category>core.games</category>
+    <icon>
+        <image>icon.png</image>
+    </icon>
+    <configuration name="Simulator-Debug">
+        <platformArchitecture>x86</platformArchitecture>
+        <asset path="x86/o-g/sudoku-united" entry="true" type="Qnx/Elf">sudoku-united</asset>
+    </configuration>
+    <configuration name="Device-Debug">
+        <platformArchitecture>armle-v7</platformArchitecture>
+        <asset path="arm/o.le-v7-g/sudoku-united" entry="true" type="Qnx/Elf">sudoku-united</asset>
+    </configuration>
+    <configuration name="Device-Release">
+        <entryPointType>Qnx/Cascades</entryPointType>
+        <platformArchitecture>armle-v7</platformArchitecture>
+        <asset path="arm/o.le-v7/libsudoku-united.so" entry="true" type="Qnx/Elf">sudoku-united.so</asset>
+    </configuration>
+    <configuration name="Device-Profile">
+        <platformArchitecture>armle-v7</platformArchitecture>
+        <asset path="arm-p/o.le-v7-g/sudoku-united" entry="true" type="Qnx/Elf">sudoku-united</asset>
+    </configuration>
+    <description>A free, stylish and fun Sudoku implementation</description>
+    <initialWindow>
+        <aspectRatio>portrait</aspectRatio>
+        <autoOrients>false</autoOrients>
+        <systemChrome>none</systemChrome>
+        <transparent>false</transparent>
+    </initialWindow>
+    <env var="QML_IMPORT_PATH" value="app/native/imports"/>
+    <env var="QT_PLUGIN_PATH" value="app/native/plugins:/usr/lib/qt4/plugins"/>
+    <env var="LD_LIBRARY_PATH" value="app/native/lib:/usr/lib/qt4/lib/"/>
+    <arg>-platform</arg>
+    <arg>blackberry</arg>
+    <action system="true">run_native</action>
+    <asset path="%SRC_DIR%/qml/blackberry10">assets</asset>
+    <asset path="%SRC_DIR%/resources/blackberry10/">assets</asset>
+    <asset path="%SRC_DIR%/resources/blackberry10/icon.png">icon.png</asset>
+</qnx>

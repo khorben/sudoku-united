@@ -1,0 +1,2 @@
+var pendingPushRemovals = []
+var pendingPopRemovals = []

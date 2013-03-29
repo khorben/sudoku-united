@@ -1,0 +1,7 @@
+<model>
+	<playername />
+	<hapticfeedback />
+	<gametimer />
+	<quickaccess />
+	<longpress />
+</model>

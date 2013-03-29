@@ -37,7 +37,11 @@ void Settings::loadSettings() {
     setPlayerName(value("playerName", "Player").toString());
     setHapticFeedbackEnabled(value("hapticFeedbackEnabled", true).toBool());
     setBluetoothEnabled(value("bluetoothEnabled", true).toBool());
+#ifdef Q_OS_BLACKBERRY
+    setShowGameTimer(value("showGameTimer", true).toBool());
+#else
     setShowGameTimer(value("showGameTimer", false).toBool());
+#endif
     setQuickAccessAction((QuickAccessAction) value("quickAccessAction", 0).toUInt());
     setShowedJoinHelp(value("showedJoinHelp", false).toBool());
     setLongPressAction((LongPressAction) value("longPressAction", Settings::InsertNote).toUInt());

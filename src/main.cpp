@@ -17,7 +17,8 @@
 
 #include <QtGui/QApplication>
 #include <QtDeclarative>
-#include "qmlapplicationviewer.h"
+
+#include "applicationfactory.h"
 
 #include "board.h"
 #include "game.h"
@@ -38,36 +39,9 @@ static bool dumpCallback(const char* dump_path,
     qWarning() << "Crash dumped saved in" << dump_path << "/" << minidump_id;
     return succeeded;
 }
-#endif
 
-/**
-  * Copied from QmlApplicationViewerPrivate as it is private there.
-  */
-QString adjustPath(const QString &path) {
-#ifdef Q_OS_UNIX
-#ifdef Q_OS_MAC
-    if (!QDir::isAbsolutePath(path))
-        return QCoreApplication::applicationDirPath()
-                + QLatin1String("/../Resources/") + path;
-#else
-    QString pathInInstallDir;
-    const QString applicationDirPath = QCoreApplication::applicationDirPath();
-    pathInInstallDir = QString::fromAscii("%1/../%2").arg(applicationDirPath, path);
+static void setupBreakpad() {
 
-    if (QFileInfo(pathInInstallDir).exists())
-        return pathInInstallDir;
-#endif
-#endif
-    return path;
-}
-
-Q_DECL_EXPORT int main(int argc, char *argv[])
-{
-    QApplication::setApplicationName("Sudoku United");
-    QApplication::setOrganizationName("1.1.0");
-    QScopedPointer<QApplication> app(createApplication(argc, argv));
-
-#ifdef ENABLE_BREAKPAD
     QDesktopServices desktopServices;
     QString dataPath =
             desktopServices.storageLocation(QDesktopServices::DataLocation);
@@ -77,10 +51,10 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
         QDir(crashDumpPath).mkpath(crashDumpPath);
 
     google_breakpad::ExceptionHandler eh(crashDumpPath.toStdString(), NULL, dumpCallback, NULL, true);
+}
 #endif
 
-    QScopedPointer<QmlApplicationViewer> viewer(QmlApplicationViewer::create());
-
+static void registerTypes() {
     qRegisterMetaType<Cell *>();
     qRegisterMetaTypeStreamOperators<QUuid>("QUuid");
     qRegisterMetaType<QUuid>();
@@ -92,34 +66,25 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     qmlRegisterUncreatableType<GameInfo>("sudoku", 1, 0, "GameInfo", "Use value returned by the adapters gameList() function.");
     qmlRegisterUncreatableType<GameInfoModel>("sudoku", 1, 0, "GameInfoModel", "Returned via discovery");
     qmlRegisterUncreatableType<Sudoku>("sudoku", 1, 0, "Sudoku", "Global instance provided via the gameInstance variable.");
-    qmlRegisterUncreatableType<Settings>("sudoku", 1, 0, "Settings", "Retrieve via gameInstance.settings");
+    // Settings is not an uncreatable type as it is required in some property declarations.
+    qmlRegisterType<Settings>("sudoku", 1, 0, "Settings");
     qmlRegisterUncreatableType<QSortFilterProxyModel>("sudoku", 1, 0, "QSortFilterProxyModel", "...");
     qmlRegisterUncreatableType<Note>("sudoku", 1, 0, "Note", "Returned via NoteModel::get");
     qmlRegisterUncreatableType<NoteModel>("sudoku", 1, 0, "NoteModel", "Accessible from Cell via noteModel property.");
+}
 
-    // We draw our own background
-    viewer->setAttribute(Qt::WA_OpaquePaintEvent);
-    viewer->setAttribute(Qt::WA_NoSystemBackground);
-    viewer->viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
-    viewer->viewport()->setAttribute(Qt::WA_NoSystemBackground);
+Q_DECL_EXPORT int main(int argc, char *argv[])
+{
+    QApplication::setApplicationName("Sudoku United");
+    QApplication::setApplicationVersion("1.2.0");
 
-    viewer->installEventFilter(Sudoku::instance());
-    viewer->rootContext()->setContextProperty("qApplication", QApplication::instance());
-    viewer->rootContext()->setContextProperty("gameInstance", Sudoku::instance());
-    viewer->rootContext()->setContextProperty("localPlayer", Sudoku::instance()->player());
+#ifdef ENABLE_BREAKPAD
+    setupBreakpad();
+#endif
 
-    // Preload the game board
+    registerTypes();
 
-    QDeclarativeComponent *gameViewComponent =
-            new QDeclarativeComponent(viewer->engine(),
-                                      QUrl::fromLocalFile(adjustPath("qml/sudoku-united/gameview/GameView.qml")));
-    QObject *gameView = gameViewComponent->create(viewer->rootContext());
-    viewer->rootContext()->setContextProperty("gameView", gameView);
-
-    viewer->setOrientation(QmlApplicationViewer::ScreenOrientationAuto);
-    viewer->setMainQmlFile(QLatin1String("qml/sudoku-united/main.qml"));
-    viewer->showExpanded();
-
+    QCoreApplication *app = ApplicationFactory::createApplication(argc, argv);
     int ret = app->exec();
 
     // Save the board if there is one
