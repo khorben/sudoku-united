@@ -214,6 +214,7 @@ HighscoreEntry::HighscoreEntry(const QList<Player *> &players, quint64 playTime,
 }
 
 HighscoreFilterModel::HighscoreFilterModel(QObject *parent) : QSortFilterProxyModel(parent) {
+    connect(this, SIGNAL(modelReset()), SIGNAL(sourceModelChanged()));
 }
 
 bool HighscoreFilterModel::lessThan(const QModelIndex &left, const QModelIndex &right) const {

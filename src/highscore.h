@@ -98,10 +98,18 @@ private:
 };
 
 class HighscoreFilterModel : public QSortFilterProxyModel {
+    Q_OBJECT
+
+    Q_PROPERTY(QAbstractItemModel * sourceModel READ sourceModel NOTIFY sourceModelChanged)
+
 public:
     HighscoreFilterModel(QObject *parent = 0);
 
     QVariant data(const QModelIndex &index, int role) const;
+
+signals:
+    void sourceModelChanged();
+
 protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
 };
