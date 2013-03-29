@@ -32,8 +32,6 @@
 #include "game.h"
 #include "highscore.h"
 
-#include <qplatformdefs.h> // MEEGO_EDITION_HARMATTAN
-
 Sudoku *Sudoku::m_instance = NULL;
 
 Sudoku::Sudoku(QObject *parent) :
