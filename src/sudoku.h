@@ -75,11 +75,13 @@ public:
 
     QSortFilterProxyModel *highscore() const;
 
+    Q_INVOKABLE
+    bool canPause() const;
+
     static Sudoku *instance();
 signals:
     void joinFailed(QString reason);
     void gameChanged();
-public slots:
 
 protected slots:
     void onClientStateChanged(AbstractClient::State state);

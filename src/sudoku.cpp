@@ -73,6 +73,13 @@ QSortFilterProxyModel *Sudoku::highscore() const {
     return m_highscore;
 }
 
+bool Sudoku::canPause() const
+{
+    return m_game && m_game->board()
+            && (!client || client->state() == AbstractClient::Disconnected)
+            && (!serverAdapter || !serverAdapter->hasConnectedClients());
+}
+
 void Sudoku::onPlayerNameChanged() {
     m_player->setName(m_settings->playerName());
 }
@@ -209,13 +216,7 @@ bool Sudoku::eventFilter(QObject *filterObj, QEvent *event) {
 
         return false;
     } else if (event->type() == QEvent::WindowDeactivate) {
-        if (!m_game || !m_game->board())
-            return false;
-
-        if (client && client->state() != AbstractClient::Disconnected)
-            return false;
-
-        if (serverAdapter->hasConnectedClients())
+        if (!canPause())
             return false;
 
         m_game->board()->pause();
