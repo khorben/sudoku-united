@@ -27,6 +27,9 @@ class Game;
 class NoteModel : public QAbstractListModel
 {
     Q_OBJECT
+
+    Q_PROPERTY(bool empty READ isEmpty NOTIFY emptyChanged)
+
 public:
     enum NoteModelType {
         ValueType = Qt::UserRole + 1,
@@ -46,6 +49,16 @@ public:
 
     Q_INVOKABLE bool isMarked(int value) const;
     Q_INVOKABLE void setMarked(int value, bool marked);
+
+    Q_INVOKABLE
+    void clear();
+
+    bool isEmpty() const;
+
+signals:
+    void markedChanged(int number, bool marked);
+
+    void emptyChanged();
 
 private:
     friend QDataStream &operator<<(QDataStream &stream, Game &game);

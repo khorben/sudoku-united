@@ -67,8 +67,14 @@ bool NoteModel::setData(const QModelIndex &index, const QVariant &value, int rol
     if (notes[index.row()] == newValue)
         return true;
 
+    bool wasEmpty = isEmpty();
+
     notes[index.row()] = newValue;
     emit dataChanged(index, index);
+    emit markedChanged(index.row() + 1, newValue);
+
+    if (wasEmpty != isEmpty())
+        emit emptyChanged();
 
     return true;
 }
@@ -90,6 +96,17 @@ bool NoteModel::isMarked(int value) const
 void NoteModel::setMarked(int value, bool marked)
 {
     setData(index(value - 1), marked, NoteModel::MarkedType);
+}
+
+void NoteModel::clear()
+{
+    for (quint8 i = 0; i < 9; i++)
+        setMarked(i + 1, false);
+}
+
+bool NoteModel::isEmpty() const
+{
+    return notes.count(true) == 0;
 }
 
 Note::Note(NoteModel *model, int value) :
