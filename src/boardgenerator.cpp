@@ -1380,7 +1380,7 @@ static inline int sectionToCell(int section, int offset){
 }
 
 BoardGeneratorWrapper::BoardGeneratorWrapper(Sudoku::Difficulty difficulty, QObject *parent) :
-    QObject(parent), m_board(NULL), m_difficulty(difficulty) {
+    QObject(parent), m_board(NULL), m_difficulty(difficulty), m_canceled(false) {
 
 }
 
@@ -1389,11 +1389,16 @@ BoardGeneratorWrapper::~BoardGeneratorWrapper() {
         delete m_board;
 }
 
+void BoardGeneratorWrapper::cancel()
+{
+    m_canceled = true;
+}
+
 void BoardGeneratorWrapper::startGeneration() {
     BoardGenerator generator;
 
     generator.setRecordHistory(true);
-    while (m_board == NULL) {
+    while (m_board == NULL && !m_canceled) {
         if (!generator.generatePuzzle(m_difficulty))
             continue;
 

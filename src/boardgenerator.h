@@ -254,11 +254,14 @@ public:
 
     Board *board() const { return m_board; }
 
+    void cancel();
+
 public slots:
     void startGeneration();
 private:
     Board *m_board;
     Sudoku::Difficulty m_difficulty;
+    bool m_canceled;
 };
 
 class HintGenerator : public QObject {
