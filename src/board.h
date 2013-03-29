@@ -138,8 +138,10 @@ public:
     Cell *selectedCell() const;
     void setSelectedCell(Cell *cell);
 
+    Q_INVOKABLE
     void pause();
 
+    Q_INVOKABLE
     void unpause();
 
     Q_INVOKABLE

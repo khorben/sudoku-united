@@ -366,6 +366,9 @@ void Board::setSelectedCell(Cell *cell) {
 }
 
 void Board::pause() {
+    if (m_paused)
+        return;
+
     m_paused = true;
     m_elapsedTime += QDateTime::currentMSecsSinceEpoch() - m_startTime;
 }
