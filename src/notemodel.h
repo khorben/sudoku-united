@@ -38,7 +38,7 @@ public:
 
 public:
     explicit NoteModel(QObject *parent = 0);
-    
+
     int rowCount(const QModelIndex &parent) const;
 
     QVariant data(const QModelIndex &index, int role) const;
