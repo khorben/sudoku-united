@@ -54,6 +54,8 @@ BoardGenerator::BoardGenerator(){
     {for (int i=0; i<NUM_POSS; i++){
             randomPossibilityArray[i] = i;
         }}
+
+    qsrand(time(NULL));
 }
 
 /**
@@ -228,7 +230,7 @@ void BoardGenerator::markRandomPossibility(int round){
             if (possibilities[i] == 0) remainingPossibilities++;
         }}
 
-    int randomPossibility = rand()%remainingPossibilities;
+    int randomPossibility = qrand()%remainingPossibilities;
 
     int possibilityToMark = 0;
     {for (int i=0; i<POSSIBILITY_SIZE; i++){
@@ -1284,7 +1286,7 @@ int getLogCount(vector<LogItem*>* v, LogItem::LogType type){
 void shuffleArray(int* array, int size){
     {for (int i=0; i<size; i++){
             int tailSize = size-i;
-            int randTailPos = rand()%tailSize+i;
+            int randTailPos = qrand()%tailSize+i;
             int temp = array[i];
             array[i] = array[randTailPos];
             array[randTailPos] = temp;
