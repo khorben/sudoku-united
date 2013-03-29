@@ -29,7 +29,7 @@
 
 QTM_USE_NAMESPACE
 
-#define BLUETOOTH_SERVICE_UUID QLatin1String("614b8c48-c0af-4d20-b4d7-a24dfcd9900e")
+#define BLUETOOTH_SERVICE_UUID QLatin1String("614B8C48-C0AF-4D20-B4D7-A24DFCD9900E")
 
 class BluetoothGameInfoModel : public GameInfoModel {
     Q_OBJECT
