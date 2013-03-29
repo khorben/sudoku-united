@@ -23,10 +23,12 @@
 BluetoothClient::BluetoothClient(QObject *parent) :
     AbstractClient(parent)
 {
+#ifdef HAVE_SYSTEM_DEVICE_INFO
     systemDeviceInfo = new QSystemDeviceInfo(this);
     connect(systemDeviceInfo,
             SIGNAL(currentProfileChanged(QSystemDeviceInfo::Profile)),
             SLOT(onCurrentProfileChanged(QSystemDeviceInfo::Profile)));
+#endif
 }
 
 void BluetoothClient::join(GameInfo *game) {
@@ -37,11 +39,13 @@ void BluetoothClient::join(GameInfo *game) {
 
     setState(Connecting);
 
+#ifdef HAVE_SYSTEM_DEVICE_INFO
     if (systemDeviceInfo->currentProfile()
             == QSystemDeviceInfo::OfflineProfile) {
         setError("Offline mode is active.");
         setState(Disconnected);
     }
+#endif
 
     // Disable service discovery
     BluetoothGameInfoModel::agent()->stop();
@@ -91,9 +95,11 @@ void BluetoothClient::onSocketError(QBluetoothSocket::SocketError error) {
     leave();
 }
 
+#ifdef HAVE_SYSTEM_DEVICE_INFO
 void BluetoothClient::onCurrentProfileChanged(QSystemDeviceInfo::Profile profile) {
     if (profile == QSystemDeviceInfo::OfflineProfile) {
         setError("Offline profile activated.");
         setState(Disconnected);
     }
 }
+#endif

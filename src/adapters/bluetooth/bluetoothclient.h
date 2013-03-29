@@ -21,7 +21,9 @@
 #include "../abstractclient.h"
 
 #include <QBluetoothSocket>
+#ifdef HAVE_SYSTEM_DEVICE_INFO
 #include <QSystemDeviceInfo>
+#endif
 
 QTM_USE_NAMESPACE
 class BluetoothClient : public AbstractClient
@@ -37,9 +39,14 @@ signals:
 private slots:
     void onConnected();
     void onSocketError(QBluetoothSocket::SocketError error);
+#ifdef HAVE_SYSTEM_DEVICE_INFO
     void onCurrentProfileChanged(QSystemDeviceInfo::Profile profile);
+#endif
+
 private:
+#ifdef HAVE_SYSTEM_DEVICE_INFO
     QSystemDeviceInfo *systemDeviceInfo;
+#endif
 
 };
 

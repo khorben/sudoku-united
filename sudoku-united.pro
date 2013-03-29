@@ -145,6 +145,11 @@ isEmpty(ENABLE_BLUETOOTH) | !isEqual(ENABLE_BLUETOOTH, 0) {
     !contains(MOBILITY_CONFIG, connectivity) {
         warning("Disabling Bluetooth adapter as Qt Mobility's connectivity module is missing.")
     } else {
+        contains(MOBILITY_CONFIG, systeminfo) {
+                MOBILITY += systeminfo
+                DEFINES += HAVE_SYSTEM_DEVICE_INFO
+        }
+
         MOBILITY += connectivity
         SOURCES += src/adapters/bluetooth/bluetoothclient.cpp \
                    src/adapters/bluetooth/bluetoothserver.cpp \

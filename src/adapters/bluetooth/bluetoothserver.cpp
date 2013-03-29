@@ -25,10 +25,12 @@ BluetoothServer::BluetoothServer(QObject *parent) :
     AbstractServer(parent), server(NULL), serviceInfo(NULL),
     localBluetoothDevice(NULL)
 {
+#ifdef HAVE_SYSTEM_DEVICE_INFO
     systemDeviceInfo = new QSystemDeviceInfo(this);
     connect(systemDeviceInfo,
             SIGNAL(currentProfileChanged(QSystemDeviceInfo::Profile)),
             SLOT(onCurrentProfileChanged(QSystemDeviceInfo::Profile)));
+#endif
 
     if (QBluetoothLocalDevice::allDevices().size() > 0)
         localBluetoothDevice = new QBluetoothLocalDevice(this);
@@ -42,9 +44,11 @@ BluetoothServer::~BluetoothServer() {
 }
 
 GameInfoModel *BluetoothServer::discoverGames() {
+#ifdef HAVE_SYSTEM_DEVICE_INFO
     if (systemDeviceInfo->currentProfile() == QSystemDeviceInfo::OfflineProfile) {
         return NULL;
     }
+#endif
 
     return new BluetoothGameInfoModel(this);
 }
@@ -53,10 +57,12 @@ void BluetoothServer::enable() {
     if (!localBluetoothDevice || !localBluetoothDevice->isValid())
         return;
 
+#ifdef HAVE_SYSTEM_DEVICE_INFO
     if (systemDeviceInfo->currentProfile() == QSystemDeviceInfo::OfflineProfile) {
         qDebug() << "Device in offline profile - not enabling Bluetooth";
         return;
     }
+#endif
 
     qDebug() << "Enabling Bluetooth server";
 
@@ -164,12 +170,14 @@ void BluetoothServer::unregisterService() {
     localBluetoothDevice->setHostMode(previousHostMode);
 }
 
+#ifdef HAVE_SYSTEM_DEVICE_INFO
 void BluetoothServer::onCurrentProfileChanged(QSystemDeviceInfo::Profile profile) {
     if (profile == QSystemDeviceInfo::OfflineProfile)
         disable();
     else if (serverAdapter()->inGame() && !server)
         enable();
 }
+#endif
 
 void BluetoothServer::onNewConnection() {
     while (server->hasPendingConnections()) {

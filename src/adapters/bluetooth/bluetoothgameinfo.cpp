@@ -49,7 +49,11 @@ bool BluetoothGameInfo::operator ==(GameInfo &other) const {
 
 
 BluetoothGameInfoModel::BluetoothGameInfoModel(QObject *parent) :
-    GameInfoModel(parent), localDevice(NULL), systemDeviceInfo(NULL) {
+    GameInfoModel(parent), localDevice(NULL)
+#ifdef HAVE_SYSTEM_DEVICE_INFO
+, systemDeviceInfo(NULL)
+#endif
+{
 
     if (QBluetoothLocalDevice::allDevices().size() == 0) {
         setState(Complete);
@@ -57,7 +61,9 @@ BluetoothGameInfoModel::BluetoothGameInfoModel(QObject *parent) :
     }
 
     localDevice = new QBluetoothLocalDevice(this);
+#ifdef HAVE_SYSTEM_DEVICE_INFO
     systemDeviceInfo = new QSystemDeviceInfo(this);
+#endif
 
     if (!localDevice->isValid()) {
         // There does not seem to be a Bluetooth adapter in this device. No
@@ -80,8 +86,11 @@ BluetoothGameInfoModel::BluetoothGameInfoModel(QObject *parent) :
 }
 
 BluetoothGameInfoModel::~BluetoothGameInfoModel() {
-    if (localDevice && localDevice->isValid() &&
-            systemDeviceInfo->currentProfile() != QSystemDeviceInfo::OfflineProfile) {
+    if (localDevice && localDevice->isValid()) {
+#ifdef HAVE_SYSTEM_DEVICE_INFO
+    if (systemDeviceInfo->currentProfile() == QSystemDeviceInfo::OfflineProfile)
+        return;
+#endif
         localDevice->setHostMode(previousHostMode);
     }
 }
@@ -170,11 +179,13 @@ void BluetoothGameInfoModel::onAutoRefreshChanged() {
 }
 
 void BluetoothGameInfoModel::startDiscovery() {
+#ifdef HAVE_SYSTEM_DEVICE_INFO
     // Do not enable Bluetooth device while in flight mode
     if (systemDeviceInfo->currentProfile() == QSystemDeviceInfo::OfflineProfile) {
         setState(Complete);
         return;
     }
+#endif
 
     // Set host mode in a while loop as the actual action is performed
     // asynchronously
