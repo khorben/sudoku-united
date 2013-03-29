@@ -97,8 +97,7 @@ bool GameMessage::parseStream(QDataStream &dataStream) {
         // Read start time
         quint64 elapsedTime = 0;
         dataStream >> elapsedTime;
-        board->m_startTime =
-                (QDateTime::currentMSecsSinceEpoch() - elapsedTime);
+        board->m_elapsedTime = elapsedTime;
 
         m_game->setBoard(board);
     }

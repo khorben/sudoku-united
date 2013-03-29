@@ -55,6 +55,8 @@ void Game::setBoard(Board *board) {
     if (m_board != NULL)
         m_board->setParent(this);
 
+    m_board->m_startTime = QDateTime::currentMSecsSinceEpoch();
+
     emit boardChanged();
 }
 

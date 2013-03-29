@@ -177,6 +177,7 @@ private:
 
 private:
     friend class BoardGenerator;
+    friend class Game;
 
     /**
       * Sets the value of the cell at coordinates x, y to the given value.
