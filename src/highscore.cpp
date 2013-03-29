@@ -86,6 +86,8 @@ void HighscoreModel::addHighscore(QList<Player *> players, quint64 playTime, Sud
     quint32 entriesByDifficulty = 0;
     quint32 index = 0;
     quint64 maxPlayTime = playTime;
+    bool wasEmpty = isEmpty();
+
     for (int i = 0; i < m_highscoreList.size(); i++) {
         HighscoreEntry *he = m_highscoreList[i];
         if (he->difficulty() == difficulty){
@@ -109,6 +111,26 @@ void HighscoreModel::addHighscore(QList<Player *> players, quint64 playTime, Sud
     beginInsertRows(QModelIndex(), m_highscoreList.size(), m_highscoreList.size());
     m_highscoreList.append(new HighscoreEntry(players, playTime, difficulty, finsihedDate, this));
     endInsertRows();
+
+    if (wasEmpty)
+        emit emptyChanged();
+}
+
+bool HighscoreModel::isEmpty() const
+{
+    return m_highscoreList.isEmpty();
+}
+
+void HighscoreModel::clear()
+{
+    bool wasEmpty = isEmpty();
+
+    beginResetModel();
+    m_highscoreList.clear();
+    endResetModel();
+
+    if (wasEmpty)
+        emit emptyChanged();
 }
 
 QDataStream &operator<<(QDataStream &stream, HighscoreModel &highscore) {

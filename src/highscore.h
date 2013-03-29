@@ -30,6 +30,10 @@ class HighscoreEntry;
 #define MAX_ENTRIES 10
 
 class HighscoreModel : public QAbstractListModel {
+    Q_OBJECT
+
+    Q_PROPERTY(bool empty READ isEmpty NOTIFY emptyChanged)
+
 public:
     HighscoreModel(QObject *parent);
     virtual QVariant data(const QModelIndex &index, int role) const;
@@ -41,6 +45,11 @@ public:
 
     QList<HighscoreEntry *> highscores(){ return m_highscoreList; }
 
+    bool isEmpty() const;
+
+    Q_INVOKABLE
+    void clear();
+
 public:
     enum Roles {
         PlayTimeRole = Qt::UserRole + 1,
@@ -51,6 +60,10 @@ public:
         PlayerNamesRole,
         FinishedDateRole
     };
+
+signals:
+    void emptyChanged();
+
 private:
     QList<HighscoreEntry *> m_highscoreList;
 };
