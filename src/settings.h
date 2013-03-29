@@ -51,7 +51,7 @@ public:
 
     enum LongPressAction {
         IgnoreAction,
-        InverseAction
+        InsertNote
     };
 public:
     explicit Settings(QObject *parent = 0);

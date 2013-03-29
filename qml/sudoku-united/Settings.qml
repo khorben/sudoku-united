@@ -141,7 +141,7 @@ Page {
                 selectedIndex: gameInstance.settings.longPressAction
                 model: ListModel {
                     ListElement { name: "Ignore action" }
-                    ListElement { name: "Inverse action (enter note/number)" }
+                    ListElement { name: "Set note" }
                 }
 
                 onSelectedIndexChanged: {

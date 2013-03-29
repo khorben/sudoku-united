@@ -66,7 +66,7 @@ Grid {
             return;
 
         if (longPress)
-            mode = mode === "note" ? "" : "note";
+            mode = "note"
 
         if (mode === "note"){
             cell.noteModel.get(number - 1).modelMarked = !cell.noteModel.get(number - 1).modelMarked

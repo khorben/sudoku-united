@@ -28,7 +28,7 @@ Settings::Settings(QObject *parent) :
     m_highscoreModel(NULL),
     m_quickAccessAction(UndoAction),
     m_showedJoinHelp(false),
-    m_longPressAction(InverseAction)
+    m_longPressAction(InsertNote)
 {
     loadSettings();
 }
@@ -40,7 +40,7 @@ void Settings::loadSettings() {
     setShowGameTimer(value("showGameTimer", false).toBool());
     setQuickAccessAction((QuickAccessAction) value("quickAccessAction", 0).toUInt());
     setShowedJoinHelp(value("showedJoinHelp", false).toBool());
-    setLongPressAction((LongPressAction) value("longPressAction", Settings::InverseAction).toUInt());
+    setLongPressAction((LongPressAction) value("longPressAction", Settings::InsertNote).toUInt());
 
     m_playerUuid = value("playerUuid", QVariant::fromValue(QUuid::createUuid())).value<QUuid>();
 
