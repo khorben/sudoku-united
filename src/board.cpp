@@ -317,7 +317,57 @@ quint8 Board::solutionValue(quint8 x, quint8 y) const {
 }
 
 void Board::setCellValue(quint8 x, quint8 y, quint8 value) {
+    if (m_cellValues[x][y] == value)
+        return;
+
+    Cell *cell = cellAt(x, y);
+
+    // Check for collisions
+    bool hasCollisions = false;
+    if (value != 0) {
+        for (quint8 y1 = 0; y1 < 9; y1++) {
+            if (y1 == y)
+                continue;
+
+            if (m_cellValues[x][y1] == value) {
+                emit cellAt(x, y1)->collides();
+                hasCollisions = true;
+            }
+        }
+
+        for (quint8 x1 = 0; x1 < 9; x1++) {
+            if (x1 == x)
+                continue;
+
+            if (m_cellValues[x1][y] == value) {
+                emit cellAt(x1, y)->collides();
+                hasCollisions = true;
+            }
+        }
+
+        for (quint8 x1 = (x / 3) * 3; x1 < ((x / 3) * 3) + 3; x1++) {
+            for (quint8 y1 = (y / 3) * 3; y1 < ((y / 3) * 3) + 3; y1++) {
+                if (x1 == x || y1 == y)
+                    continue;
+
+                if (m_cellValues[x1][y1] == value) {
+                    emit cellAt(x1, y1)->collides();
+                    hasCollisions = true;
+                }
+            }
+        }
+    }
+
+    if (hasCollisions)
+        return;
+
+    emit cell->beforeValueChanged();
+
     m_cellValues[x][y] = value;
+    if (value == 0)
+        cell->setValueOwner(NULL);
+
+    emit cell->valueChanged();
 
     if (value) {
         // clear corresponding notes in the same...

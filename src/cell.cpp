@@ -29,17 +29,7 @@ quint8 Cell::value() const {
 }
 
 void Cell::setValue(quint8 value) {
-    if (this->value() == value)
-        return;
-
-    emit beforeValueChanged();
-
     board()->setCellValue(m_x, m_y, value);
-
-    if (value == 0)
-        setValueOwner(NULL);
-
-    emit valueChanged();
 }
 
 void Cell::setValueOwner(Player *player) {

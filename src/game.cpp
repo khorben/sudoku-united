@@ -157,6 +157,7 @@ QList<QObject *> Game::generateHint(){
             if (value != m_board->solutionValue(i % 9, i / 9)){
                 mistakesFound = true;
                 Cell *cell = m_board->cellAt(i % 9, i / 9);
+                emit cell->collides();
                 hint_list.append(cell);
             }
         }

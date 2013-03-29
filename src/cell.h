@@ -61,10 +61,14 @@ signals:
     void beforeValueChanged();
     void valueChanged();
     void valueOwnerChanged();
+    void collides();
+
 private:
     friend class SudokuBoard;
     friend class BoardGenerator;
     friend class GameMessage;
+    friend class Game;
+
     friend QDataStream &readGameV1(QDataStream &stream, Game &game);
     friend QDataStream &readGameV2(QDataStream &stream, Game &game);
 

@@ -180,11 +180,6 @@ private:
 
     /**
       * Sets the value of the cell at coordinates x, y to the given value.
-      *
-      * This is a method to speed up setting when generating new boards.
-      *
-      * NOTE: No cellValueChanged signal will be emitted when a cell value
-      * is set using this function.
       */
     void setCellValue(quint8 x, quint8 y, quint8 value);
 
