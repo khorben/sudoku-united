@@ -39,6 +39,8 @@ public:
     explicit Game(QObject *parent = 0);
     explicit Game(Board *board, QObject *parent = 0);
 
+    virtual ~Game();
+
     Board *board() const { return m_board; }
     void setBoard(Board *board);
 
