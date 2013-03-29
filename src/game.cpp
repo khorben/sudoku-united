@@ -36,6 +36,13 @@ Game::Game(Board *board, QObject *parent) :
     setBoard(board);
 }
 
+Game::~Game()
+{
+    if (m_boardGeneratorWrapper) {
+        m_boardGeneratorWrapper->cancel();
+        m_boardGenerationThread->wait();
+    }
+}
 
 void Game::setBoard(Board *board) {
     if (board == m_board)
