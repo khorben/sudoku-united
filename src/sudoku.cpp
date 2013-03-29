@@ -127,6 +127,9 @@ void Sudoku::setGame(Game *game) {
     if (m_game && m_game->parent() == this)
         m_game->deleteLater();
 
+    if (m_game && m_game->board())
+        m_game->board()->pause();
+
     m_game = game;
 
     if (m_game) {
