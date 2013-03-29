@@ -198,18 +198,33 @@ void Game::onHintGenerated() {
         // Ignore special log entries which do not set a value but simply
         // show the solving technique.
         switch (item->getType()) {
-        case LogItem::NAKED_PAIR_COLUMN:
-        case LogItem::NAKED_PAIR_ROW:
-        case LogItem::NAKED_PAIR_SECTION:
-        case LogItem::POINTING_PAIR_TRIPLE_COLUMN:
-        case LogItem::POINTING_PAIR_TRIPLE_ROW:
-        case LogItem::ROW_BOX:
-        case LogItem::COLUMN_BOX:
-            continue;
-        default:
+        case LogItem::GIVEN:
+        case LogItem::HIDDEN_SINGLE_ROW:
+        case LogItem::HIDDEN_SINGLE_COLUMN:
+        case LogItem::HIDDEN_SINGLE_SECTION:
+        case LogItem::SINGLE:
+            break;
+        case LogItem::GUESS:
+        {
+            // Check if this guess was reverted
+            std::vector<LogItem *>::iterator it2 = it;
+
+            while (++it2 != boardGenerator.getSolveInstructions()->end()) {
+                if ((*it2)->getType() == LogItem::ROLLBACK && (*it2)->getRound() == item->getRound())
+                    break;
+            }
+
+            if (it2 != boardGenerator.getSolveInstructions()->end()) {
+                it = it2;
+                continue;
+            }
             break;
         }
+        default:
+            continue;
+        }
 
+        cell->setValueOwner(NULL);
         cell->setValue(item->getValue());
         break;
     }
