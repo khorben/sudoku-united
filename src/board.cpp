@@ -96,11 +96,16 @@ Board::Board(const Board &other, QObject *parent) :
     m_elapsedTime = other.m_elapsedTime;
     m_paused = other.m_paused;
     m_difficulty = other.m_difficulty;
+    if (other.m_selectedCell) {
+        m_selectedCell = &(m_cells[other.m_selectedCell->x()][other.m_selectedCell->y()]);
+    } else {
+        m_selectedCell = NULL;
+    }
     blockModificationLog = other.blockModificationLog;
 }
 
 Board::Board(QObject *parent) :
-    QObject(parent), blockModificationLog(false)
+    QObject(parent), blockModificationLog(false), m_selectedCell(NULL)
 {
     for (quint8 y = 0; y < 9; y++) {
         for (quint8 x = 0; x < 9; x++) {
@@ -345,6 +350,19 @@ quint64 Board::elapsedTime() const {
         return m_elapsedTime;
 
     return ((QDateTime::currentMSecsSinceEpoch() - m_startTime) + m_elapsedTime);
+}
+
+Cell *Board::selectedCell() const {
+    return m_selectedCell;
+}
+
+void Board::setSelectedCell(Cell *cell) {
+    if (m_selectedCell == cell)
+        return;
+
+    m_selectedCell = cell;
+
+    emit selectedCellChanged();
 }
 
 void Board::pause() {

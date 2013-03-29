@@ -54,6 +54,7 @@ class Board : public QObject
     Q_PROPERTY(bool canUndo READ canUndo NOTIFY canUndoChanged)
     Q_PROPERTY(quint64 startTime READ startTime CONSTANT)
     Q_PROPERTY(quint32 elapsedTime READ elapsedTime)
+    Q_PROPERTY(Cell * selectedCell READ selectedCell WRITE setSelectedCell NOTIFY selectedCellChanged)
 public:
     explicit Board(QObject *parent = 0);
     Board(const Board &other, QObject *parent = 0);
@@ -134,6 +135,9 @@ public:
 
     quint64 elapsedTime() const;
 
+    Cell *selectedCell() const;
+    void setSelectedCell(Cell *cell);
+
     void pause();
 
     void unpause();
@@ -149,6 +153,8 @@ signals:
       * This signal is emitted if the value of a cell changes.
       */
     void cellValueChanged(Cell *cell);
+
+    void selectedCellChanged();
 
     void boardIsFull();
     void rowIsFull(int row);
@@ -202,6 +208,8 @@ private:
     bool blockModificationLog;
 
     Sudoku::Difficulty m_difficulty;
+
+    Cell *m_selectedCell;
 };
 
 QML_DECLARE_TYPE(Board)
