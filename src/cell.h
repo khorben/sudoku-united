@@ -50,6 +50,7 @@ public:
     Q_INVOKABLE
     bool isFixedCell() const { return m_fixedCell; }
 
+    Q_INVOKABLE
     void clear();
 
     quint8 x() const { return m_x; }
