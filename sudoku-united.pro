@@ -80,7 +80,7 @@ isEqual(ENABLE_TCP_SERVER, 1) {
     message("Enabling TCP adapter")
 }
 
-OBJECTS_DIR = $${DESTDIR}/.obj
-MOC_DIR = $${DESTDIR}/.moc
-RCC_DIR = $${DESTDIR}/.rcc
-UI_DIR = $${DESTDIR}/.ui
+OBJECTS_DIR = $${DESTDIR}.obj
+MOC_DIR = $${DESTDIR}.moc
+RCC_DIR = $${DESTDIR}.rcc
+UI_DIR = $${DESTDIR}.ui
